@@ -1,0 +1,102 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:developers.cloudflare.com)",
+      "WebFetch(domain:github.com)",
+      "mcp__serena__find_file",
+      "mcp__serena__activate_project",
+      "mcp__serena__read_file",
+      "mcp__serena__replace_regex",
+      "mcp__serena__execute_shell_command",
+      "mcp__serena__search_for_pattern",
+      "mcp__serena__list_dir",
+      "mcp__serena__create_text_file",
+      "mcp__serena__find_symbol",
+      "mcp__serena__replace_symbol_body",
+      "mcp__serena__read_memory",
+      "mcp__serena__write_memory",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(git fetch:*)",
+      "Bash(git merge:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue comment:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh issue edit:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run list:*)",
+      "Bash(npm install:*)",
+      "Bash(npm test)",
+      "Bash(npm test:*)",
+      "Bash(npm run:*)",
+      "Bash(npx drizzle-kit:*)",
+      "Bash(npx tsc:*)",
+      "Bash(make:*)",
+      "Bash(docker-compose:*)",
+      "Bash(docker system prune:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(sleep:*)",
+      "Bash(lsof:*)",
+      "Bash(sed:*)",
+      "Bash(curl*http://localhost*)",
+      "Bash(find:*)"
+    ],
+    "deny": [
+      "Bash(rm:*)",
+      "Bash(rmdir:*)",
+      "Bash(find . -delete:*)",
+      "Bash(find . -exec rm:*)",
+      "Bash(xargs rm:*)",
+      "Bash(sudo:*)",
+      "Bash(chmod 777:*)",
+      "Bash(chown:*)",
+      "Bash(dd:*)",
+      "Bash(mkfs:*)",
+      "Bash(fdisk:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git branch -D:*)",
+      "Bash(git branch --delete --force:*)",
+      "Bash(npm publish:*)",
+      "Bash(yarn publish:*)",
+      "Bash(npm run deploy:*)",
+      "Bash(yarn deploy:*)",
+      "Bash(firebase deploy:*)",
+      "Bash(wrangler secret:*)",
+      "Bash(wrangler d1 execute:*)",
+      "Bash(gh repo delete:*)",
+      "Bash(gh issue close:*)",
+      "Bash(kill -9:*)",
+      "Bash(killall:*)",
+      "Bash(pkill:*)",
+      "Bash(history -c:*)",
+      "Bash(unset:*)",
+      "Bash(export PATH=:*)",
+      "Bash(source:*)",
+      "Bash(./:*)"
+    ],
+    "ask": []
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/devuser/Workspace/web-todo/scripts/notify-claude-completion.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

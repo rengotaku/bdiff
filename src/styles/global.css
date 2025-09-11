@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans;
+  }
+
+  code, pre {
+    @apply font-mono;
+  }
+}
+
+@layer components {
+  .diff-line-added {
+    @apply bg-diff-added;
+  }
+
+  .diff-line-removed {
+    @apply bg-diff-removed;
+  }
+
+  .diff-line-modified {
+    @apply bg-diff-modified;
+  }
+
+  .container {
+    @apply mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
