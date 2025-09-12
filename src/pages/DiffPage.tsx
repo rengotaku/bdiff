@@ -7,119 +7,19 @@ import { Badge } from '../components/ui/Badge';
 import { Tooltip } from '../components/ui/Tooltip';
 import { InfoIcon } from '../components/ui/InfoIcon';
 import { ToggleSwitch } from '../components/ui/ToggleSwitch';
-import { CopySelect, type CopyType } from '../components/ui/CopySelect';
+import { type CopyType } from '../components/ui/CopySelect';
 import { EmptyState } from '../components/common/EmptyState';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { NoDifferencesDisplay } from '../components/diff/NoDifferencesDisplay';
 import { CollapsibleFileSelector } from '../components/diff/CollapsibleFileSelector';
+import { DiffViewer } from '../components/diff/DiffViewer';
 import { useToastHelpers } from '../components/common/Toast';
 import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
 import { useClipboard } from '../hooks/useClipboard';
 import { useKeyboardShortcuts, type KeyboardShortcut } from '../hooks/useKeyboardShortcuts';
 import { DiffService } from '../services/diffService';
-import type { DiffLine, ViewMode } from '../types/types';
-
-interface DiffViewerProps {
-  lines: DiffLine[];
-  viewMode: ViewMode;
-  onCopy: (type: CopyType) => void;
-  loading?: boolean;
-}
-
-const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode, onCopy, loading = false }) => {
-  const renderLine = useCallback((line: DiffLine, index: number) => {
-    const getLineClassName = (type: DiffLine['type']) => {
-      const base = 'font-mono text-sm border-l-4 px-4 py-1 whitespace-pre-wrap';
-      switch (type) {
-        case 'added':
-          return `${base} bg-green-50 border-green-400 text-green-800`;
-        case 'removed':
-          return `${base} bg-red-50 border-red-400 text-red-800`;
-        case 'modified':
-          return `${base} bg-blue-50 border-blue-400 text-blue-800`;
-        default:
-          return `${base} bg-white border-gray-200 text-gray-700`;
-      }
-    };
-
-    const getPrefixSymbol = (type: DiffLine['type']) => {
-      switch (type) {
-        case 'added': return '+ ';
-        case 'removed': return '- ';
-        case 'modified': return '~ ';
-        default: return '  ';
-      }
-    };
-
-    return (
-      <div key={index} className="flex items-start">
-        <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r">
-          {line.lineNumber}
-        </div>
-        <div className="flex-1">
-          <div className={getLineClassName(line.type)}>
-            <span className="text-gray-400 select-none">{getPrefixSymbol(line.type)}</span>
-            {line.content || '\n'}
-          </div>
-        </div>
-      </div>
-    );
-  }, []);
-
-  if (viewMode === 'side-by-side') {
-    const originalLines = lines.filter(l => l.type !== 'added');
-    const modifiedLines = lines.filter(l => l.type !== 'removed');
-    
-    return (
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center justify-between mb-2 px-4">
-            <div className="font-medium text-sm text-gray-700">Original</div>
-            <CopySelect
-              onCopy={onCopy}
-              loading={loading}
-              size="sm"
-            />
-          </div>
-          <div className="border rounded-md overflow-hidden">
-            {originalLines.map((line, index) => renderLine(line, index))}
-          </div>
-        </div>
-        <div className="space-y-1">
-          <div className="flex items-center justify-between mb-2 px-4">
-            <div className="font-medium text-sm text-gray-700">Modified</div>
-            <CopySelect
-              onCopy={onCopy}
-              loading={loading}
-              size="sm"
-            />
-          </div>
-          <div className="border rounded-md overflow-hidden">
-            {modifiedLines.map((line, index) => renderLine(line, index))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Unified view
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between px-4">
-        <div className="font-medium text-sm text-gray-700">差分表示</div>
-        <CopySelect
-          onCopy={onCopy}
-          loading={loading}
-          size="sm"
-        />
-      </div>
-      <div className="border rounded-md overflow-hidden">
-        {lines.map((line, index) => renderLine(line, index))}
-      </div>
-    </div>
-  );
-};
+import type { ViewMode } from '../types/types';
 
 export const DiffPage: React.FC = () => {
   const navigate = useNavigate();

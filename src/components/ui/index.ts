@@ -33,3 +33,15 @@ export type { CopyButtonProps } from './CopyButton';
 
 export { CopySelect } from './CopySelect';
 export type { CopySelectProps, CopyType, CopyOption } from './CopySelect';
+
+export { Tooltip } from './Tooltip';
+export type { TooltipProps } from './Tooltip';
+
+export { InfoIcon } from './InfoIcon';
+export type { InfoIconProps } from './InfoIcon';
+
+export { ToggleSwitch } from './ToggleSwitch';
+export type { ToggleSwitchProps } from './ToggleSwitch';
+
+export { KeyboardShortcutsHelp } from './KeyboardShortcutsHelp';
+export type { KeyboardShortcutsHelpProps } from './KeyboardShortcutsHelp';
