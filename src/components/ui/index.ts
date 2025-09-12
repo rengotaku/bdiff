@@ -20,3 +20,13 @@ export {
   DiffStatsBadge 
 } from './Badge';
 export type { BadgeProps } from './Badge';
+
+export { 
+  CopyButton,
+  CopyAllButton,
+  CopyAddedButton,
+  CopyRemovedButton,
+  CopyChangedButton,
+  CopyLineButton
+} from './CopyButton';
+export type { CopyButtonProps } from './CopyButton';
