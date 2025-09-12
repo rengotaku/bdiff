@@ -404,19 +404,6 @@ export const HomePage: React.FC = () => {
       subtitle="File Comparison Tool"
       actions={
         <div className="flex items-center gap-3">
-          {canCalculateDiff && (
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">View Mode:</span>
-              <ToggleSwitch
-                value={viewMode === 'split' ? 'side-by-side' : viewMode}
-                options={[
-                  { value: 'side-by-side', label: 'Side by Side' },
-                  { value: 'unified', label: 'Unified' }
-                ]}
-                onChange={(value) => setViewMode(value as ViewMode)}
-              />
-            </div>
-          )}
           <Button
             variant="secondary"
             onClick={handleClear}
@@ -661,37 +648,6 @@ export const HomePage: React.FC = () => {
                       ]}
                       onChange={(value) => setViewMode(value as ViewMode)}
                     />
-                  </div>
-                  
-                  {/* Copy Options */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">コピー:</span>
-                    <div className="flex gap-1">
-                      <CopyAllButton
-                        onClick={handleCopyAll}
-                        loading={isCopying}
-                        size="sm"
-                        className="text-xs px-2"
-                      />
-                      <CopyChangedButton
-                        onClick={handleCopyChanged}
-                        loading={isCopying}
-                        size="sm"
-                        className="text-xs px-2"
-                      />
-                      <CopyAddedButton
-                        onClick={handleCopyAdded}
-                        loading={isCopying}
-                        size="sm"
-                        className="text-xs px-2"
-                      />
-                      <CopyRemovedButton
-                        onClick={handleCopyRemoved}
-                        loading={isCopying}
-                        size="sm"
-                        className="text-xs px-2"
-                      />
-                    </div>
                   </div>
                 </div>
               </CardHeader>
