@@ -1,0 +1,227 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ '**' ]  # All branches - build check only
+  pull_request:
+    branches: [ '**' ]   # All PRs - preview deployment for non-main branches
+
+jobs:
+  build:
+    name: Build Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build project
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-files
+          path: dist/
+          retention-days: 1
+          
+      - name: Notify Slack on Build Success
+        if: success() && github.ref == 'refs/heads/main'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#deployments'
+          text: |
+            ✅ *BDiff ビルド成功*
+            
+            📝 **詳細:**
+            • **ブランチ:** `${{ github.ref_name }}`
+            • **コミット:** `${{ github.sha }}`
+            • **作成者:** ${{ github.actor }}
+            
+            🔗 **リンク:**
+            • [Commit](${{ github.event.head_commit.url }})
+            • [Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          
+      - name: Notify Slack on Build Failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#deployments'
+          text: |
+            ❌ *BDiff ビルド失敗*
+            
+            📝 **詳細:**
+            • **ブランチ:** `${{ github.ref_name }}`
+            • **コミット:** `${{ github.sha }}`
+            • **作成者:** ${{ github.actor }}
+            
+            🔗 **リンク:**
+            • [失敗したAction](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            • [Commit](${{ github.event.head_commit.url }})
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: build
+    
+    permissions:
+      contents: read
+      deployments: write
+      
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-files
+          path: dist/
+          
+      - name: Deploy to Cloudflare Pages (Production)
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: bdiff
+          directory: dist
+          
+      - name: Notify Slack on Production Deploy Success
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#deployments'
+          text: |
+            🚀 *BDiff 本番デプロイ成功* 
+            
+            📝 **詳細:**
+            • **環境:** Production (https://bdiff.v41.me)
+            • **ブランチ:** `${{ github.ref_name }}`
+            • **コミット:** `${{ github.sha }}`
+            • **作成者:** ${{ github.actor }}
+            
+            🔗 **リンク:**
+            • [Live Site](https://bdiff.v41.me)
+            • [Commit](${{ github.event.head_commit.url }})
+            • [Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          
+      - name: Notify Slack on Production Deploy Failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#deployments'
+          text: |
+            ❌ *BDiff 本番デプロイ失敗*
+            
+            📝 **詳細:**
+            • **環境:** Production
+            • **ブランチ:** `${{ github.ref_name }}`
+            • **コミット:** `${{ github.sha }}`
+            • **作成者:** ${{ github.actor }}
+            
+            🔗 **リンク:**
+            • [失敗したAction](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            • [Commit](${{ github.event.head_commit.url }})
+            
+            🛠️ **対応が必要です**
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  deploy-preview:
+    name: Deploy to Preview
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.base_ref != 'main'
+    
+    permissions:
+      contents: read
+      deployments: write
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build project
+        run: npm run build
+        env:
+          NODE_ENV: production
+          
+      - name: Deploy to Cloudflare Pages (Preview)
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: bdiff
+          directory: dist
+          
+      - name: Notify Slack on Preview Deploy Success
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#deployments'  
+          text: |
+            🔍 *BDiff プレビューデプロイ成功*
+            
+            📝 **詳細:**
+            • **環境:** Preview
+            • **PR:** #${{ github.event.number }} - ${{ github.event.pull_request.title }}
+            • **ブランチ:** `${{ github.head_ref }}`
+            • **作成者:** ${{ github.actor }}
+            
+            🔗 **リンク:**
+            • [PR](${{ github.event.pull_request.html_url }})
+            • [Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          
+      - name: Notify Slack on Preview Deploy Failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#deployments'
+          text: |
+            ❌ *BDiff プレビューデプロイ失敗*
+            
+            📝 **詳細:**
+            • **環境:** Preview
+            • **PR:** #${{ github.event.number }} - ${{ github.event.pull_request.title }}
+            • **ブランチ:** `${{ github.head_ref }}`
+            • **作成者:** ${{ github.actor }}
+            
+            🔗 **リンク:**
+            • [失敗したAction](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            • [PR](${{ github.event.pull_request.html_url }})
+            
+            🛠️ **対応が必要です**
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
