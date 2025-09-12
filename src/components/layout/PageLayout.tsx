@@ -1,6 +1,7 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { cn } from '../../utils/cn';
-import { Header, HeaderProps } from './Header';
+import { Header, HeaderProps, Navigation } from './Header';
 
 export interface PageLayoutProps {
   children: React.ReactNode;
@@ -229,30 +230,34 @@ const ContentLayout: React.FC<ContentLayoutProps> = ({
   children,
   ...props
 }) => {
+  const location = useLocation();
+  
+  // Navigation items for the app
+  const navigationItems = [
+    {
+      label: 'Compare',
+      href: '/',
+      active: location.pathname === '/'
+    },
+    {
+      label: 'History',
+      href: '/history', 
+      active: location.pathname === '/history'
+    }
+  ];
+
+  const header = {
+    title: title || 'BDiff',
+    subtitle,
+    actions,
+    navigation: <Navigation items={navigationItems} variant="underline" />
+  };
+
   return (
-    <PageLayout {...props} maxWidth="2xl">
+    <PageLayout {...props} maxWidth="2xl" header={header}>
       {/* Page header */}
-      {(title || subtitle || breadcrumb || actions) && (
-        <div className="mb-8">
-          {breadcrumb && <div className="mb-4">{breadcrumb}</div>}
-          
-          <div className="flex items-center justify-between">
-            <div>
-              {title && (
-                <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-              )}
-              {subtitle && (
-                <p className="mt-2 text-gray-600">{subtitle}</p>
-              )}
-            </div>
-            
-            {actions && (
-              <div className="flex items-center space-x-3">
-                {actions}
-              </div>
-            )}
-          </div>
-        </div>
+      {breadcrumb && (
+        <div className="mb-6">{breadcrumb}</div>
       )}
       
       {/* Main content */}
