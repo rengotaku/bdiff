@@ -95,12 +95,11 @@ jobs:
           path: dist/
           
       - name: Deploy to Cloudflare Pages (Production)
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: bdiff
-          directory: dist
+          command: pages deploy dist --project-name=bdiff --compatibility-date=2024-05-15
           
       - name: Notify Slack on Production Deploy Success
         if: success()
@@ -175,12 +174,11 @@ jobs:
           NODE_ENV: production
           
       - name: Deploy to Cloudflare Pages (Preview)
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: bdiff
-          directory: dist
+          command: pages deploy dist --project-name=bdiff --compatibility-date=2024-05-15
           
       - name: Notify Slack on Preview Deploy Success
         if: success()
