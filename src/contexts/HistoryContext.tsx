@@ -165,13 +165,14 @@ export const HistoryProvider: React.FC<HistoryProviderProps> = ({ children }) =>
 
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
+      // Wait for complete initialization including config loading
       const result = await historyService.initialize();
       if (!result.success) {
         dispatch({ type: 'SET_ERROR', payload: result.error || 'Failed to initialize' });
         return;
       }
 
-      // Load configuration
+      // NOW get the loaded configuration (after IndexedDB initialization is complete)
       const config = historyService.getConfig();
       dispatch({ type: 'UPDATE_CONFIG', payload: config });
 
@@ -182,9 +183,10 @@ export const HistoryProvider: React.FC<HistoryProviderProps> = ({ children }) =>
       }
 
       dispatch({ type: 'SET_INITIALIZED', payload: true });
-      dispatch({ type: 'SET_LOADING', payload: false });
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Unknown error' });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   }, [state.isInitialized]);
 
@@ -299,6 +301,13 @@ export const HistoryProvider: React.FC<HistoryProviderProps> = ({ children }) =>
       const result = await historyService.saveConfig(config);
       if (result.success) {
         dispatch({ type: 'UPDATE_CONFIG', payload: config });
+        
+        // Verify configuration was saved properly
+        const verification = await historyService.verifyConfigPersistence();
+        if (!verification.success || !verification.data) {
+          console.warn('Configuration verification failed:', verification.error);
+          dispatch({ type: 'SET_ERROR', payload: 'Configuration may not be persisted correctly' });
+        }
         
         // If user consent changed, handle accordingly
         if ('userConsent' in config) {

@@ -49,7 +49,7 @@ export class HistoryService {
       const db = await this.openDatabase();
       this.db = db;
       
-      // Load configuration
+      // Load configuration and wait for completion
       await this.loadConfig();
       
       return { success: true };
@@ -95,10 +95,19 @@ export class HistoryService {
    * Load configuration from storage
    */
   private async loadConfig(): Promise<void> {
+    if (!this.db) {
+      console.warn('Database not initialized, using default config');
+      return;
+    }
+
     try {
       const result = await this.getFromStore<HistoryConfig>(CONFIG_STORE, 'config');
       if (result.success && result.data) {
+        // Merge stored config with defaults to ensure all properties exist
         this.config = { ...this.config, ...result.data };
+        console.log('History configuration loaded:', this.config);
+      } else {
+        console.log('No stored configuration found, using defaults');
       }
     } catch (error) {
       console.warn('Failed to load config, using defaults:', error);
@@ -109,9 +118,28 @@ export class HistoryService {
    * Save configuration to storage
    */
   async saveConfig(config: Partial<HistoryConfig>): Promise<HistoryOperationResult<void>> {
-    this.config = { ...this.config, ...config };
-    
-    return await this.putToStore(CONFIG_STORE, { key: 'config', ...this.config });
+    try {
+      // Update in-memory config
+      this.config = { ...this.config, ...config };
+      console.log('Saving history configuration:', this.config);
+      
+      // Save to IndexedDB
+      const result = await this.putToStore(CONFIG_STORE, { key: 'config', ...this.config });
+      
+      if (result.success) {
+        console.log('History configuration saved successfully');
+      } else {
+        console.error('Failed to save history configuration:', result.error);
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('Error saving history configuration:', error);
+      return {
+        success: false,
+        error: `Failed to save configuration: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
   }
 
   /**
@@ -119,6 +147,46 @@ export class HistoryService {
    */
   getConfig(): HistoryConfig {
     return { ...this.config };
+  }
+
+  /**
+   * Verify configuration persistence by re-loading from storage
+   */
+  async verifyConfigPersistence(): Promise<HistoryOperationResult<boolean>> {
+    try {
+      if (!this.db) {
+        return { success: false, error: 'Database not initialized' };
+      }
+
+      const result = await this.getFromStore<HistoryConfig>(CONFIG_STORE, 'config');
+      if (result.success && result.data) {
+        const storedConfig = result.data;
+        const currentConfig = this.config;
+        
+        // Check if critical settings match
+        const isConsistentConsent = storedConfig.userConsent === currentConfig.userConsent;
+        const isConsistentAutoSave = storedConfig.autoSave === currentConfig.autoSave;
+        
+        console.log('Configuration verification:', {
+          stored: storedConfig,
+          current: currentConfig,
+          consentMatch: isConsistentConsent,
+          autoSaveMatch: isConsistentAutoSave
+        });
+        
+        return { 
+          success: true, 
+          data: isConsistentConsent && isConsistentAutoSave 
+        };
+      } else {
+        return { success: false, error: 'No configuration found in storage' };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: `Configuration verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
   }
 
   /**
