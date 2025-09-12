@@ -1,236 +1,83 @@
+/**
+ * Compatibility layer for diffFormatter - delegates to specialized modules
+ * @deprecated This file is maintained for backward compatibility.
+ * Use the specialized modules directly:
+ * - DiffParser from './diffParsing'
+ * - DiffStyler from './diffStyling' 
+ * - DiffExporter from './diffExport'
+ */
 import type { DiffLine, DiffType } from '../types/types'
+import { DiffParser } from './diffParsing'
+import { DiffExporter, type DiffFormatOptions } from './diffExport'
 
-export interface DiffFormatOptions {
-  includeLineNumbers?: boolean
-  includeContext?: boolean
-  format?: 'plain' | 'diff' | 'markdown' | 'html'
-  selectedTypes?: DiffType[]
-}
+// Re-export types and interfaces for backward compatibility
+export type { DiffFormatOptions }
 
+/**
+ * @deprecated Use DiffExporter, DiffParser, and DiffStyler instead
+ * Legacy DiffFormatter class for backward compatibility
+ */
 export class DiffFormatter {
   /**
    * Filter diff lines by type
+   * @deprecated Use DiffParser.filterByType instead
    */
   static filterByType(lines: DiffLine[], types: DiffType[]): DiffLine[] {
-    return lines.filter(line => types.includes(line.type))
+    return DiffParser.filterByType(lines, types)
   }
 
-  /**
-   * Get diff symbol for line type
-   */
-  private static getDiffSymbol(type: DiffType): string {
-    switch (type) {
-      case 'added':
-        return '+'
-      case 'removed':
-        return '-'
-      case 'modified':
-        return '~'
-      case 'unchanged':
-        return ' '
-      default:
-        return ' '
-    }
-  }
 
   /**
    * Format lines as plain text
+   * @deprecated Use DiffExporter.toPlainText instead
    */
   static toPlainText(lines: DiffLine[], options: DiffFormatOptions = {}): string {
-    const {
-      includeLineNumbers = false,
-      selectedTypes = ['added', 'removed', 'modified', 'unchanged']
-    } = options
-
-    const filteredLines = this.filterByType(lines, selectedTypes)
-    
-    return filteredLines.map(line => {
-      const parts: string[] = []
-      
-      if (includeLineNumbers) {
-        parts.push(`${line.lineNumber}:`)
-      }
-      
-      parts.push(line.content || '')
-      
-      return parts.join(' ').trim()
-    }).join('\n')
+    return DiffExporter.toPlainText(lines, options)
   }
 
   /**
    * Format lines with diff symbols (+/-)
+   * @deprecated Use DiffExporter.toDiffFormat instead
    */
   static toDiffFormat(lines: DiffLine[], options: DiffFormatOptions = {}): string {
-    const {
-      includeLineNumbers = false,
-      selectedTypes = ['added', 'removed', 'modified', 'unchanged']
-    } = options
-
-    const filteredLines = this.filterByType(lines, selectedTypes)
-    
-    return filteredLines.map(line => {
-      const parts: string[] = []
-      
-      // Add diff symbol
-      parts.push(this.getDiffSymbol(line.type))
-      
-      if (includeLineNumbers) {
-        parts.push(`${line.lineNumber}:`)
-      }
-      
-      parts.push(line.content || '')
-      
-      return parts.join(' ').trim()
-    }).join('\n')
+    return DiffExporter.toDiffFormat(lines, options)
   }
 
   /**
    * Format lines as Markdown
+   * @deprecated Use DiffExporter.toMarkdown instead
    */
   static toMarkdown(lines: DiffLine[], options: DiffFormatOptions = {}): string {
-    const {
-      includeLineNumbers = false,
-      selectedTypes = ['added', 'removed', 'modified', 'unchanged']
-    } = options
-
-    const filteredLines = this.filterByType(lines, selectedTypes)
-    
-    if (filteredLines.length === 0) {
-      return ''
-    }
-
-    const markdownLines = ['```diff']
-    
-    filteredLines.forEach(line => {
-      const parts: string[] = []
-      
-      // Add diff symbol
-      parts.push(this.getDiffSymbol(line.type))
-      
-      if (includeLineNumbers) {
-        parts.push(`${line.lineNumber}:`)
-      }
-      
-      parts.push(line.content || '')
-      
-      markdownLines.push(parts.join(' ').trim())
-    })
-    
-    markdownLines.push('```')
-    
-    return markdownLines.join('\n')
+    return DiffExporter.toMarkdown(lines, options)
   }
 
   /**
    * Format lines as HTML
+   * @deprecated Use DiffExporter.toHtml instead
    */
   static toHtml(lines: DiffLine[], options: DiffFormatOptions = {}): string {
-    const {
-      includeLineNumbers = false,
-      selectedTypes = ['added', 'removed', 'modified', 'unchanged']
-    } = options
-
-    const filteredLines = this.filterByType(lines, selectedTypes)
-    
-    if (filteredLines.length === 0) {
-      return ''
-    }
-
-    const escapeHtml = (text: string): string => {
-      const div = document.createElement('div')
-      div.textContent = text
-      return div.innerHTML
-    }
-
-    const getLineClass = (type: DiffType): string => {
-      switch (type) {
-        case 'added':
-          return 'diff-added'
-        case 'removed':
-          return 'diff-removed'
-        case 'modified':
-          return 'diff-modified'
-        default:
-          return 'diff-unchanged'
-      }
-    }
-
-    const htmlLines = ['<div class="diff-container">']
-    
-    filteredLines.forEach(line => {
-      const className = getLineClass(line.type)
-      const symbol = escapeHtml(this.getDiffSymbol(line.type))
-      const content = escapeHtml(line.content || '')
-      const lineNumber = includeLineNumbers ? `<span class="line-number">${line.lineNumber}:</span>` : ''
-      
-      htmlLines.push(
-        `<div class="diff-line ${className}">` +
-        `<span class="diff-symbol">${symbol}</span>` +
-        lineNumber +
-        `<span class="diff-content">${content}</span>` +
-        '</div>'
-      )
-    })
-    
-    htmlLines.push('</div>')
-    
-    return htmlLines.join('\n')
+    return DiffExporter.toHtml(lines, options)
   }
 
   /**
    * Get a summary of diff statistics
+   * @deprecated Use DiffParser.getDiffSummary instead
    */
   static getDiffSummary(lines: DiffLine[]): string {
-    const stats = {
-      added: 0,
-      removed: 0,
-      modified: 0,
-      unchanged: 0,
-      total: lines.length
-    }
-
-    lines.forEach(line => {
-      stats[line.type]++
-    })
-
-    const parts: string[] = []
-    
-    if (stats.added > 0) {
-      parts.push(`+${stats.added}`)
-    }
-    
-    if (stats.removed > 0) {
-      parts.push(`-${stats.removed}`)
-    }
-    
-    if (stats.modified > 0) {
-      parts.push(`~${stats.modified}`)
-    }
-
-    return parts.length > 0 ? parts.join(' ') : 'No differences'
+    return DiffParser.getDiffSummary(lines)
   }
 
   /**
    * Format diff with multiple options
+   * @deprecated Use DiffExporter.format instead
    */
   static format(lines: DiffLine[], options: DiffFormatOptions = {}): string {
-    const { format = 'plain' } = options
-
-    switch (format) {
-      case 'diff':
-        return this.toDiffFormat(lines, options)
-      case 'markdown':
-        return this.toMarkdown(lines, options)
-      case 'html':
-        return this.toHtml(lines, options)
-      case 'plain':
-      default:
-        return this.toPlainText(lines, options)
-    }
+    return DiffExporter.format(lines, options)
   }
 
   /**
    * Create a formatted diff with header information
+   * @deprecated Use DiffExporter.formatWithHeader instead
    */
   static formatWithHeader(
     lines: DiffLine[], 
@@ -240,75 +87,51 @@ export class DiffFormatter {
       modifiedFilename?: string
     } = {}
   ): string {
-    const { 
-      format = 'plain',
-      filename = 'diff',
-      originalFilename = 'original',
-      modifiedFilename = 'modified'
-    } = options
-
-    const summary = this.getDiffSummary(lines)
-    const content = this.format(lines, options)
-
-    switch (format) {
-      case 'markdown':
-        return `## ${filename}\n\n**Changes:** ${summary}\n\n${content}`
-      
-      case 'html':
-        return `<h3>${filename}</h3><p><strong>Changes:</strong> ${summary}</p>${content}`
-      
-      case 'diff':
-        return `--- ${originalFilename}\n+++ ${modifiedFilename}\n@@ Changes: ${summary} @@\n${content}`
-      
-      case 'plain':
-      default:
-        return `${filename} (${summary}):\n\n${content}`
-    }
+    return DiffExporter.formatWithHeader(lines, options)
   }
 
   /**
    * Get only changed lines (added, removed, modified)
+   * @deprecated Use DiffParser.getChangedLines instead
    */
   static getChangedLines(lines: DiffLine[]): DiffLine[] {
-    return this.filterByType(lines, ['added', 'removed', 'modified'])
+    return DiffParser.getChangedLines(lines)
   }
 
   /**
    * Get only added lines
+   * @deprecated Use DiffParser.getAddedLines instead
    */
   static getAddedLines(lines: DiffLine[]): DiffLine[] {
-    return this.filterByType(lines, ['added'])
+    return DiffParser.getAddedLines(lines)
   }
 
   /**
    * Get only removed lines
+   * @deprecated Use DiffParser.getRemovedLines instead
    */
   static getRemovedLines(lines: DiffLine[]): DiffLine[] {
-    return this.filterByType(lines, ['removed'])
+    return DiffParser.getRemovedLines(lines)
   }
 
   /**
    * Get only modified lines
+   * @deprecated Use DiffParser.getModifiedLines instead
    */
   static getModifiedLines(lines: DiffLine[]): DiffLine[] {
-    return this.filterByType(lines, ['modified'])
+    return DiffParser.getModifiedLines(lines)
   }
 
   /**
    * Get line count by type
+   * @deprecated Use DiffParser.getLineStats instead
    */
   static getLineStats(lines: DiffLine[]): Record<DiffType, number> {
-    const stats: Record<DiffType, number> = {
-      added: 0,
-      removed: 0,
-      modified: 0,
-      unchanged: 0
-    }
-
-    lines.forEach(line => {
-      stats[line.type]++
-    })
-
-    return stats
+    return DiffParser.getLineStats(lines)
   }
 }
+
+// Re-export new specialized modules for direct use
+export { DiffParser } from './diffParsing'
+export { DiffStyler } from './diffStyling' 
+export { DiffExporter } from './diffExport'
