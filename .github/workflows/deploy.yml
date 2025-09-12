@@ -4,7 +4,7 @@ on:
   push:
     branches: [ '**' ]  # All branches - build check only
   pull_request:
-    branches: [ main ]   # PR to main - preview deployment
+    branches: [ '**' ]   # All PRs - preview deployment for non-main branches
 
 jobs:
   build:
@@ -150,7 +150,7 @@ jobs:
   deploy-preview:
     name: Deploy to Preview
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.base_ref != 'main'
     
     permissions:
       contents: read
