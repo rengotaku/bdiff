@@ -7,7 +7,7 @@ import { Badge } from '../components/ui/Badge';
 import { Tooltip } from '../components/ui/Tooltip';
 import { InfoIcon } from '../components/ui/InfoIcon';
 import { ToggleSwitch } from '../components/ui/ToggleSwitch';
-import { CopyAllButton, CopyAddedButton, CopyRemovedButton, CopyChangedButton, CopyLineButton } from '../components/ui/CopyButton';
+import { CopySelect, type CopyType } from '../components/ui/CopySelect';
 import { EmptyState } from '../components/common/EmptyState';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { NoDifferencesDisplay } from '../components/diff/NoDifferencesDisplay';
@@ -23,11 +23,11 @@ import type { DiffLine, ViewMode } from '../types/types';
 interface DiffViewerProps {
   lines: DiffLine[];
   viewMode: ViewMode;
-  onCopyLine?: (line: DiffLine) => void;
-  showCopyButtons?: boolean;
+  onCopy: (type: CopyType) => void;
+  loading?: boolean;
 }
 
-const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode, onCopyLine, showCopyButtons = false }) => {
+const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode, onCopy, loading = false }) => {
   const renderLine = useCallback((line: DiffLine, index: number) => {
     const getLineClassName = (type: DiffLine['type']) => {
       const base = 'font-mono text-sm border-l-4 px-4 py-1 whitespace-pre-wrap';
@@ -53,29 +53,19 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode, onCopyLine, sh
     };
 
     return (
-      <div key={index} className="group flex items-start relative">
+      <div key={index} className="flex items-start">
         <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r">
           {line.lineNumber}
         </div>
-        <div className="flex-1 relative">
+        <div className="flex-1">
           <div className={getLineClassName(line.type)}>
             <span className="text-gray-400 select-none">{getPrefixSymbol(line.type)}</span>
             {line.content || '\n'}
           </div>
-          {showCopyButtons && onCopyLine && (
-            <div className="absolute right-2 top-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <CopyLineButton
-                onClick={() => onCopyLine(line)}
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-              />
-            </div>
-          )}
         </div>
       </div>
     );
-  }, [showCopyButtons, onCopyLine]);
+  }, []);
 
   if (viewMode === 'side-by-side') {
     const originalLines = lines.filter(l => l.type !== 'added');
@@ -84,13 +74,27 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode, onCopyLine, sh
     return (
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
-          <div className="font-medium text-sm text-gray-700 mb-2 px-4">Original</div>
+          <div className="flex items-center justify-between mb-2 px-4">
+            <div className="font-medium text-sm text-gray-700">Original</div>
+            <CopySelect
+              onCopy={onCopy}
+              loading={loading}
+              size="sm"
+            />
+          </div>
           <div className="border rounded-md overflow-hidden">
             {originalLines.map((line, index) => renderLine(line, index))}
           </div>
         </div>
         <div className="space-y-1">
-          <div className="font-medium text-sm text-gray-700 mb-2 px-4">Modified</div>
+          <div className="flex items-center justify-between mb-2 px-4">
+            <div className="font-medium text-sm text-gray-700">Modified</div>
+            <CopySelect
+              onCopy={onCopy}
+              loading={loading}
+              size="sm"
+            />
+          </div>
           <div className="border rounded-md overflow-hidden">
             {modifiedLines.map((line, index) => renderLine(line, index))}
           </div>
@@ -101,8 +105,18 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode, onCopyLine, sh
 
   // Unified view
   return (
-    <div className="border rounded-md overflow-hidden">
-      {lines.map((line, index) => renderLine(line, index))}
+    <div className="space-y-2">
+      <div className="flex items-center justify-between px-4">
+        <div className="font-medium text-sm text-gray-700">差分表示</div>
+        <CopySelect
+          onCopy={onCopy}
+          loading={loading}
+          size="sm"
+        />
+      </div>
+      <div className="border rounded-md overflow-hidden">
+        {lines.map((line, index) => renderLine(line, index))}
+      </div>
     </div>
   );
 };
@@ -132,7 +146,6 @@ export const DiffPage: React.FC = () => {
     copyAddedLines,
     copyRemovedLines,
     copyChangedLines,
-    copyText,
     isLoading: isCopying
   } = useClipboard({
     onSuccess: (message) => showSuccessToast('コピー完了', message),
@@ -163,8 +176,8 @@ export const DiffPage: React.FC = () => {
     await calculateDiff();
   }, [calculateDiff]);
 
-  // Copy handlers
-  const handleCopyAll = useCallback(async () => {
+  // Unified copy handler
+  const handleCopy = useCallback(async (type: CopyType) => {
     if (!diffResult?.lines) return;
     
     const filename = originalFile?.name && modifiedFile?.name 
@@ -172,65 +185,39 @@ export const DiffPage: React.FC = () => {
       : '差分比較結果';
       
     try {
-      await copyDiff(diffResult.lines, { 
-        format: 'diff',
-        filename,
-        originalFilename: originalFile?.name,
-        modifiedFilename: modifiedFile?.name,
-        includeHeader: true
-      });
+      switch (type) {
+        case 'all':
+          await copyDiff(diffResult.lines, { 
+            format: 'diff',
+            filename,
+            originalFilename: originalFile?.name,
+            modifiedFilename: modifiedFile?.name,
+            includeHeader: true
+          });
+          break;
+        case 'added':
+          await copyAddedLines(diffResult.lines, { 
+            format: 'diff',
+            includeHeader: true
+          });
+          break;
+        case 'removed':
+          await copyRemovedLines(diffResult.lines, { 
+            format: 'diff',
+            includeHeader: true
+          });
+          break;
+        case 'changed':
+          await copyChangedLines(diffResult.lines, { 
+            format: 'diff',
+            includeHeader: true
+          });
+          break;
+      }
     } catch (error) {
       // Error handled by useClipboard onError callback
     }
-  }, [diffResult, copyDiff, originalFile, modifiedFile]);
-
-  const handleCopyAdded = useCallback(async () => {
-    if (!diffResult?.lines) return;
-    
-    try {
-      await copyAddedLines(diffResult.lines, { 
-        format: 'diff',
-        includeHeader: true
-      });
-    } catch (error) {
-      // Error handled by useClipboard onError callback
-    }
-  }, [diffResult, copyAddedLines]);
-
-  const handleCopyRemoved = useCallback(async () => {
-    if (!diffResult?.lines) return;
-    
-    try {
-      await copyRemovedLines(diffResult.lines, { 
-        format: 'diff',
-        includeHeader: true
-      });
-    } catch (error) {
-      // Error handled by useClipboard onError callback
-    }
-  }, [diffResult, copyRemovedLines]);
-
-  const handleCopyChanged = useCallback(async () => {
-    if (!diffResult?.lines) return;
-    
-    try {
-      await copyChangedLines(diffResult.lines, { 
-        format: 'diff',
-        includeHeader: true
-      });
-    } catch (error) {
-      // Error handled by useClipboard onError callback
-    }
-  }, [diffResult, copyChangedLines]);
-
-  const handleCopyLine = useCallback(async (line: DiffLine) => {
-    try {
-      const content = `${line.type === 'added' ? '+' : line.type === 'removed' ? '-' : line.type === 'modified' ? '~' : ' '} ${line.content || ''}`;
-      await copyText(content);
-    } catch (error) {
-      // Error handled by useClipboard onError callback
-    }
-  }, [copyText]);
+  }, [diffResult, copyDiff, copyAddedLines, copyRemovedLines, copyChangedLines, originalFile, modifiedFile]);
 
   const similarityPercentage = useMemo(() => {
     if (!diffResult) return 0;
@@ -249,32 +236,32 @@ export const DiffPage: React.FC = () => {
       {
         key: 'c',
         ctrlKey: true,
-        action: handleCopyAll,
+        action: () => handleCopy('all'),
         description: '全ての差分をコピー'
       },
       {
         key: 'c',
         ctrlKey: true,
         shiftKey: true,
-        action: handleCopyChanged,
+        action: () => handleCopy('changed'),
         description: '変更行のみコピー'
       },
       {
         key: 'a',
         ctrlKey: true,
         shiftKey: true,
-        action: handleCopyAdded,
+        action: () => handleCopy('added'),
         description: '追加行のみコピー'
       },
       {
         key: 'r',
         ctrlKey: true,
         shiftKey: true,
-        action: handleCopyRemoved,
+        action: () => handleCopy('removed'),
         description: '削除行のみコピー'
       }
     ];
-  }, [diffResult?.lines, handleCopyAll, handleCopyChanged, handleCopyAdded, handleCopyRemoved]);
+  }, [diffResult?.lines, handleCopy]);
 
   useKeyboardShortcuts({
     enabled: !isProcessing && !error && !!diffResult && !!originalFile && !!modifiedFile,
@@ -457,36 +444,6 @@ export const DiffPage: React.FC = () => {
                     onChange={(value) => setViewMode(value as ViewMode)}
                   />
                   
-                  {/* Copy Options */}
-                  <div className="space-y-3 pt-4 border-t border-gray-200">
-                    <h4 className="text-sm font-medium text-gray-900">コピー</h4>
-                    <div className="grid grid-cols-2 gap-2">
-                      <CopyAllButton
-                        onClick={handleCopyAll}
-                        loading={isCopying}
-                        size="sm"
-                        className="text-xs"
-                      />
-                      <CopyChangedButton
-                        onClick={handleCopyChanged}
-                        loading={isCopying}
-                        size="sm"
-                        className="text-xs"
-                      />
-                      <CopyAddedButton
-                        onClick={handleCopyAdded}
-                        loading={isCopying}
-                        size="sm"
-                        className="text-xs"
-                      />
-                      <CopyRemovedButton
-                        onClick={handleCopyRemoved}
-                        loading={isCopying}
-                        size="sm"
-                        className="text-xs"
-                      />
-                    </div>
-                  </div>
                   
                   <div className="pt-2">
                     <Button
@@ -517,8 +474,8 @@ export const DiffPage: React.FC = () => {
                 <DiffViewer 
                   lines={diffResult.lines} 
                   viewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
-                  onCopyLine={handleCopyLine}
-                  showCopyButtons={true}
+                  onCopy={handleCopy}
+                  loading={isCopying}
                 />
               </div>
             )}

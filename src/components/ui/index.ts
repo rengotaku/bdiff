@@ -30,3 +30,6 @@ export {
   CopyLineButton
 } from './CopyButton';
 export type { CopyButtonProps } from './CopyButton';
+
+export { CopySelect } from './CopySelect';
+export type { CopySelectProps, CopyType, CopyOption } from './CopySelect';
