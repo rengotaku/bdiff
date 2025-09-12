@@ -174,6 +174,11 @@ export const HistoryProvider: React.FC<HistoryProviderProps> = ({ children }) =>
 
       // NOW get the loaded configuration (after IndexedDB initialization is complete)
       const config = historyService.getConfig();
+      console.log('🔧 History context initialized with config:', {
+        userConsent: config.userConsent,
+        autoSave: config.autoSave,
+        fullConfig: config
+      });
       dispatch({ type: 'UPDATE_CONFIG', payload: config });
 
       // Load initial history if user has consented
@@ -218,7 +223,28 @@ export const HistoryProvider: React.FC<HistoryProviderProps> = ({ children }) =>
     comparisonOptions: any,
     processingTime?: number
   ): Promise<DiffHistory | null> => {
-    if (!state.config.userConsent || !state.config.autoSave) {
+    // Get current configuration directly from service to avoid React state timing issues
+    const currentConfig = historyService.getConfig();
+    console.log('📋 AddHistoryItem called with config:', {
+      reactState: state.config,
+      serviceConfig: currentConfig,
+      isInitialized: state.isInitialized,
+      userConsent: currentConfig.userConsent,
+      autoSave: currentConfig.autoSave,
+      timestamp: new Date().toISOString()
+    });
+
+    // Note: We don't check state.isInitialized here because there can be a race condition
+    // where the service is ready but React state hasn't updated yet. The service
+    // handles its own initialization validation internally.
+
+    if (!currentConfig.userConsent || !currentConfig.autoSave) {
+      console.warn('History save skipped:', {
+        userConsent: currentConfig.userConsent,
+        autoSave: currentConfig.autoSave,
+        reactStateConfig: state.config,
+        serviceConfig: currentConfig
+      });
       return null;
     }
 
@@ -243,7 +269,7 @@ export const HistoryProvider: React.FC<HistoryProviderProps> = ({ children }) =>
       dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Unknown error' });
       return null;
     }
-  }, [state.config.userConsent, state.config.autoSave]);
+  }, []); // No longer dependent on state.config since we get it directly from service
 
   // Delete history item
   const deleteHistoryItem = useCallback(async (id: string) => {
@@ -298,8 +324,10 @@ export const HistoryProvider: React.FC<HistoryProviderProps> = ({ children }) =>
   // Update configuration
   const updateConfig = useCallback(async (config: Partial<HistoryConfig>) => {
     try {
+      console.log('📝 HistoryContext.updateConfig called with:', config);
       const result = await historyService.saveConfig(config);
       if (result.success) {
+        console.log('📝 Config save succeeded, updating React state');
         dispatch({ type: 'UPDATE_CONFIG', payload: config });
         
         // Verify configuration was saved properly
@@ -421,7 +449,12 @@ export const HistoryProvider: React.FC<HistoryProviderProps> = ({ children }) =>
 
   // Initialize on mount
   useEffect(() => {
+    console.log('🚀 HistoryContext useEffect triggered:', {
+      isInitialized: state.isInitialized,
+      currentConfig: state.config
+    });
     if (!state.isInitialized) {
+      console.log('🚀 Starting initialization...');
       initialize();
     }
   }, [initialize, state.isInitialized]);

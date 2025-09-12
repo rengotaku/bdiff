@@ -119,8 +119,13 @@ export class HistoryService {
    */
   async saveConfig(config: Partial<HistoryConfig>): Promise<HistoryOperationResult<void>> {
     try {
+      console.log('🔧 saveConfig called with:', config);
+      console.log('🔧 Current config before update:', this.config);
+      
       // Update in-memory config
       this.config = { ...this.config, ...config };
+      
+      console.log('🔧 Config after update:', this.config);
       console.log('Saving history configuration:', this.config);
       
       // Save to IndexedDB
@@ -146,6 +151,7 @@ export class HistoryService {
    * Get current configuration
    */
   getConfig(): HistoryConfig {
+    console.log('🔧 HistoryService.getConfig() called, returning:', this.config);
     return { ...this.config };
   }
 
