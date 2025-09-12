@@ -11,14 +11,17 @@ import { NoDifferencesDisplay } from '../components/diff/NoDifferencesDisplay';
 import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
 import { DiffService } from '../services/diffService';
+import { SyntaxHighlightService } from '../services/syntaxHighlightService';
 import type { FileInfo, DiffLine, ViewMode } from '../types/types';
 
 interface DiffViewerProps {
   lines: DiffLine[];
   viewMode: ViewMode;
+  syntaxHighlight?: boolean;
+  language?: string | null;
 }
 
-const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode }) => {
+const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode, syntaxHighlight = false, language = null }) => {
   const renderLine = useCallback((line: DiffLine, index: number) => {
     const getLineClassName = (type: DiffLine['type']) => {
       const base = 'font-mono text-sm border-l-4 px-4 py-1 whitespace-pre-wrap';
@@ -50,11 +53,19 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode }) => {
         </div>
         <div className={getLineClassName(line.type)}>
           <span className="text-gray-400 select-none">{getPrefixSymbol(line.type)}</span>
-          {line.content || '\n'}
+          <span 
+            dangerouslySetInnerHTML={
+              syntaxHighlight && language 
+                ? { __html: SyntaxHighlightService.highlightLine(line.content || '\n', language) }
+                : undefined
+            }
+          >
+            {!syntaxHighlight || !language ? (line.content || '\n') : undefined}
+          </span>
         </div>
       </div>
     );
-  }, []);
+  }, [syntaxHighlight, language]);
 
   if (viewMode === 'side-by-side') {
     const originalLines = lines.filter(l => l.type !== 'added');
@@ -100,7 +111,9 @@ export const HomePage: React.FC = () => {
     modifiedFile,
     viewMode,
     setViewMode,
-    clearAll
+    clearAll,
+    syntaxHighlight,
+    detectedLanguage
   } = useDiffContext();
   
   const { readFile, isReading, error: fileError } = useFileReader();
@@ -509,6 +522,8 @@ export const HomePage: React.FC = () => {
                     <DiffViewer 
                       lines={diffResult.lines} 
                       viewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
+                      syntaxHighlight={syntaxHighlight}
+                      language={detectedLanguage}
                     />
                   </div>
                 )}

@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import type { FileInfo, DiffResult, ViewMode, InputType } from '../types/types'
 import { DiffService } from '../services/diffService'
+import { SyntaxHighlightService } from '../services/syntaxHighlightService'
 
 interface UseDiffState {
   originalFile: FileInfo | null
@@ -10,6 +11,8 @@ interface UseDiffState {
   error: string | null
   viewMode: ViewMode
   inputType: InputType
+  syntaxHighlight: boolean
+  detectedLanguage: string | null
 }
 
 interface UseDiffActions {
@@ -17,6 +20,7 @@ interface UseDiffActions {
   setModifiedFile: (file: FileInfo | null) => void
   setViewMode: (mode: ViewMode) => void
   setInputType: (type: InputType) => void
+  setSyntaxHighlight: (enabled: boolean) => void
   calculateDiff: () => Promise<void>
   clearAll: () => void
   clearError: () => void
@@ -35,15 +39,35 @@ export function useDiff(): UseDiffReturn {
     isProcessing: false,
     error: null,
     viewMode: 'side-by-side',
-    inputType: 'file'
+    inputType: 'file',
+    syntaxHighlight: false,
+    detectedLanguage: null
   })
 
   const setOriginalFile = useCallback((file: FileInfo | null) => {
-    setState(prev => ({ ...prev, originalFile: file, error: null }))
+    setState(prev => {
+      const detectedLanguage = file ? SyntaxHighlightService.detectLanguage(file.name) : null
+      return { 
+        ...prev, 
+        originalFile: file, 
+        error: null,
+        detectedLanguage,
+        syntaxHighlight: !!detectedLanguage
+      }
+    })
   }, [])
 
   const setModifiedFile = useCallback((file: FileInfo | null) => {
-    setState(prev => ({ ...prev, modifiedFile: file, error: null }))
+    setState(prev => {
+      const detectedLanguage = file ? SyntaxHighlightService.detectLanguage(file.name) : prev.detectedLanguage
+      return { 
+        ...prev, 
+        modifiedFile: file, 
+        error: null,
+        detectedLanguage,
+        syntaxHighlight: !!detectedLanguage
+      }
+    })
   }, [])
 
   const setViewMode = useCallback((mode: ViewMode) => {
@@ -52,6 +76,10 @@ export function useDiff(): UseDiffReturn {
 
   const setInputType = useCallback((type: InputType) => {
     setState(prev => ({ ...prev, inputType: type }))
+  }, [])
+
+  const setSyntaxHighlight = useCallback((enabled: boolean) => {
+    setState(prev => ({ ...prev, syntaxHighlight: enabled }))
   }, [])
 
   const clearError = useCallback(() => {
@@ -100,7 +128,9 @@ export function useDiff(): UseDiffReturn {
       isProcessing: false,
       error: null,
       viewMode: 'side-by-side',
-      inputType: 'file'
+      inputType: 'file',
+      syntaxHighlight: false,
+      detectedLanguage: null
     })
   }, [])
 
@@ -132,6 +162,7 @@ export function useDiff(): UseDiffReturn {
     setModifiedFile,
     setViewMode,
     setInputType,
+    setSyntaxHighlight,
     calculateDiff,
     clearAll,
     clearError,

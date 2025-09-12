@@ -14,14 +14,17 @@ import { CollapsibleFileSelector } from '../components/diff/CollapsibleFileSelec
 import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
 import { DiffService } from '../services/diffService';
-import type { DiffLine, ViewMode } from '../types/types';
+import type { DiffLine, ViewMode } from '../types/types'
+import { SyntaxHighlightService } from '../services/syntaxHighlightService';
 
 interface DiffViewerProps {
   lines: DiffLine[];
   viewMode: ViewMode;
+  syntaxHighlight?: boolean;
+  language?: string | null;
 }
 
-const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode }) => {
+const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode, syntaxHighlight = false, language = null }) => {
   const renderLine = useCallback((line: DiffLine, index: number) => {
     const getLineClassName = (type: DiffLine['type']) => {
       const base = 'font-mono text-sm border-l-4 px-4 py-1 whitespace-pre-wrap';
@@ -53,11 +56,19 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode }) => {
         </div>
         <div className={getLineClassName(line.type)}>
           <span className="text-gray-400 select-none">{getPrefixSymbol(line.type)}</span>
-          {line.content || '\n'}
+          <span 
+            dangerouslySetInnerHTML={
+              syntaxHighlight && language 
+                ? { __html: SyntaxHighlightService.highlightLine(line.content || '\n', language) }
+                : undefined
+            }
+          >
+            {!syntaxHighlight || !language ? (line.content || '\n') : undefined}
+          </span>
         </div>
       </div>
     );
-  }, []);
+  }, [syntaxHighlight, language]);
 
   if (viewMode === 'side-by-side') {
     const originalLines = lines.filter(l => l.type !== 'added');
@@ -102,7 +113,10 @@ export const DiffPage: React.FC = () => {
     setOriginalFile,
     setModifiedFile,
     calculateDiff,
-    clearAll
+    clearAll,
+    syntaxHighlight,
+    detectedLanguage,
+    setSyntaxHighlight
   } = useDiffContext();
   
   const { readFile } = useFileReader();
@@ -316,6 +330,26 @@ export const DiffPage: React.FC = () => {
                     onChange={(value) => setViewMode(value as ViewMode)}
                   />
                   
+                  {/* Syntax Highlighting Toggle */}
+                  {detectedLanguage && (
+                    <div className="flex items-center justify-between py-2">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-700">Syntax Highlighting</span>
+                        <Badge variant="secondary" className="text-xs">
+                          {SyntaxHighlightService.getLanguageDisplayName(detectedLanguage)}
+                        </Badge>
+                      </div>
+                      <ToggleSwitch
+                        value={syntaxHighlight ? 'enabled' : 'disabled'}
+                        options={[
+                          { value: 'disabled', label: 'Off' },
+                          { value: 'enabled', label: 'On' }
+                        ]}
+                        onChange={(value) => setSyntaxHighlight(value === 'enabled')}
+                      />
+                    </div>
+                  )}
+                  
                   <div className="pt-2">
                     <Button
                       variant="primary"
@@ -345,6 +379,8 @@ export const DiffPage: React.FC = () => {
                 <DiffViewer 
                   lines={diffResult.lines} 
                   viewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
+                  syntaxHighlight={syntaxHighlight}
+                  language={detectedLanguage}
                 />
               </div>
             )}

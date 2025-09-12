@@ -32,4 +32,90 @@
   .container {
     @apply mx-auto px-4 sm:px-6 lg:px-8;
   }
+
+  /* Prism.js Syntax Highlighting Theme */
+  .token.comment,
+  .token.prolog,
+  .token.doctype,
+  .token.cdata {
+    color: #6b7280; /* text-gray-500 */
+    font-style: italic;
+  }
+
+  .token.punctuation {
+    color: #374151; /* text-gray-700 */
+  }
+
+  .token.property,
+  .token.tag,
+  .token.constant,
+  .token.symbol,
+  .token.deleted {
+    color: #dc2626; /* text-red-600 */
+  }
+
+  .token.boolean,
+  .token.number {
+    color: #7c3aed; /* text-violet-600 */
+  }
+
+  .token.selector,
+  .token.attr-name,
+  .token.string,
+  .token.char,
+  .token.builtin,
+  .token.inserted {
+    color: #059669; /* text-emerald-600 */
+  }
+
+  .token.operator,
+  .token.entity,
+  .token.url,
+  .language-css .token.string,
+  .style .token.string,
+  .token.variable {
+    color: #d97706; /* text-amber-600 */
+  }
+
+  .token.atrule,
+  .token.attr-value,
+  .token.function,
+  .token.class-name {
+    color: #2563eb; /* text-blue-600 */
+  }
+
+  .token.keyword {
+    color: #7c2d12; /* text-amber-800 */
+    font-weight: 600;
+  }
+
+  .token.regex,
+  .token.important {
+    color: #be185d; /* text-pink-700 */
+  }
+
+  .token.important,
+  .token.bold {
+    font-weight: bold;
+  }
+
+  .token.italic {
+    font-style: italic;
+  }
+
+  .token.entity {
+    cursor: help;
+  }
+
+  /* Custom styles for better diff integration */
+  .token.namespace {
+    opacity: 0.7;
+  }
+
+  /* Ensure tokens are properly styled in diff context */
+  .diff-line-added .token,
+  .diff-line-removed .token,
+  .diff-line-modified .token {
+    @apply font-mono;
+  }
 }
