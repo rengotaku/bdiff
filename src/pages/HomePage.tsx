@@ -6,7 +6,6 @@ import { Tooltip } from '../components/ui/Tooltip';
 import { InfoIcon } from '../components/ui/InfoIcon';
 import { ToggleSwitch } from '../components/ui/ToggleSwitch';
 import { CopySelect, type CopyType } from '../components/ui/CopySelect';
-import { CopyAllButton, CopyChangedButton, CopyAddedButton, CopyRemovedButton } from '../components/ui/CopyButton';
 import { ContentLayout } from '../components/layout/PageLayout';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { NoDifferencesDisplay } from '../components/diff/NoDifferencesDisplay';
