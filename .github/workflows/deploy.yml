@@ -99,7 +99,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=bdiff --compatibility-date=2024-05-15
+          command: pages deploy dist --project-name=bdiff
           
       - name: Notify Slack on Production Deploy Success
         if: success()
@@ -178,7 +178,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=bdiff --compatibility-date=2024-05-15
+          command: pages deploy dist --project-name=bdiff
           
       - name: Notify Slack on Preview Deploy Success
         if: success()
