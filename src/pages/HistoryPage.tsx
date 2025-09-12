@@ -23,6 +23,7 @@ export const HistoryPage: React.FC = () => {
     storageStats,
     searchOptions,
     selectedItems,
+    isInitialized,
     loadHistory,
     deleteSelectedItems,
     clearAllHistory,
@@ -55,7 +56,10 @@ export const HistoryPage: React.FC = () => {
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
-  const [showConsentModal, setShowConsentModal] = useState(!config.userConsent);
+
+  // Compute consent modal visibility based on loaded config
+  // Only show when config is fully initialized and user hasn't given consent
+  const showConsentModal = isInitialized && !config.userConsent;
 
   // Load history on mount
   useEffect(() => {
@@ -201,13 +205,15 @@ Unchanged: ${fullItem.diffResult.unchanged} lines`;
 
   // Handle user consent
   const handleConsentGrant = useCallback(async () => {
+    console.log('📝 User granting consent - updating config...');
     await updateConfig({ userConsent: true });
-    setShowConsentModal(false);
+    console.log('✅ Consent granted - history should now be active');
     showSuccess('設定保存完了', 'History saving enabled');
   }, [updateConfig, showSuccess]);
 
   const handleConsentDeny = useCallback(() => {
-    setShowConsentModal(false);
+    // Just do nothing - the modal will remain visible until consent is given
+    // Could add logic here to remember "not now" choice if needed
   }, []);
 
   // Handle clear all

@@ -103,16 +103,25 @@ export function useDiff(): UseDiffReturn {
 
       // Save to history if successful
       try {
-        await addHistoryItem(
+        const historyItem = await addHistoryItem(
           state.originalFile,
           state.modifiedFile,
           result.stats,
           state.comparisonOptions,
           processingTime
         )
+        if (historyItem) {
+          console.log('✅ Diff saved to history:', {
+            id: historyItem.id,
+            files: `${historyItem.originalFile.name} vs ${historyItem.modifiedFile.name}`,
+            timestamp: historyItem.timestamp
+          })
+        } else {
+          console.warn('⚠️ History save skipped - check consent and auto-save settings')
+        }
       } catch (historyError) {
         // Don't fail the diff calculation if history saving fails
-        console.warn('Failed to save to history:', historyError)
+        console.error('❌ Failed to save to history:', historyError)
       }
     } catch (error) {
       setState(prev => ({ 
