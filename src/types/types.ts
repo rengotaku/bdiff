@@ -42,6 +42,20 @@ export interface FileInfo {
 }
 
 /**
+ * Comparison options for diff calculation
+ */
+export interface ComparisonOptions {
+  /** Sort lines alphabetically before comparison */
+  sortLines: boolean;
+  /** Ignore case differences when comparing */
+  ignoreCase: boolean;
+  /** Ignore leading and trailing whitespace */
+  ignoreWhitespace: boolean;
+  /** Ignore trailing newlines (final empty lines) */
+  ignoreTrailingNewlines: boolean;
+}
+
+/**
  * Statistical information about diff comparison
  */
 export interface DiffStats {

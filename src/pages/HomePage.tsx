@@ -5,6 +5,7 @@ import { ContentLayout } from '../components/layout/PageLayout';
 import { FileUploadArea } from '../components/diff/FileUploadArea';
 import { FileComparisonPanel } from '../components/diff/FileComparisonPanel';
 import { DiffSettingsPanel } from '../components/diff/DiffSettingsPanel';
+import ComparisonOptions from '../components/diff/ComparisonOptions';
 import { useToastHelpers } from '../components/common/Toast';
 import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
@@ -28,6 +29,8 @@ export const HomePage: React.FC = () => {
     modifiedFile,
     viewMode,
     setViewMode,
+    comparisonOptions,
+    setComparisonOptions,
     clearAll
   } = useDiffContext();
   
@@ -342,6 +345,15 @@ export const HomePage: React.FC = () => {
             onDrop={(e) => handleDrop(e, 'modified')}
             disabled={isReading || isProcessing}
             tooltipColor="blue"
+          />
+        </div>
+
+        {/* Comparison Options */}
+        <div className="max-w-md">
+          <ComparisonOptions
+            options={comparisonOptions}
+            onChange={setComparisonOptions}
+            disabled={isReading || isProcessing}
           />
         </div>
 

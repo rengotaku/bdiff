@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
-import type { FileInfo, DiffResult, ViewMode, InputType } from '../types/types'
+import type { FileInfo, DiffResult, ViewMode, InputType, ComparisonOptions } from '../types/types'
 import { DiffService } from '../services/diffService'
+import { TextPreprocessor } from '../utils/textPreprocessor'
 
 interface UseDiffState {
   originalFile: FileInfo | null
@@ -10,6 +11,7 @@ interface UseDiffState {
   error: string | null
   viewMode: ViewMode
   inputType: InputType
+  comparisonOptions: ComparisonOptions
 }
 
 interface UseDiffActions {
@@ -17,6 +19,7 @@ interface UseDiffActions {
   setModifiedFile: (file: FileInfo | null) => void
   setViewMode: (mode: ViewMode) => void
   setInputType: (type: InputType) => void
+  setComparisonOptions: (options: ComparisonOptions) => void
   calculateDiff: () => Promise<void>
   clearAll: () => void
   clearError: () => void
@@ -35,7 +38,8 @@ export function useDiff(): UseDiffReturn {
     isProcessing: false,
     error: null,
     viewMode: 'side-by-side',
-    inputType: 'file'
+    inputType: 'file',
+    comparisonOptions: TextPreprocessor.getDefaultOptions()
   })
 
   const setOriginalFile = useCallback((file: FileInfo | null) => {
@@ -52,6 +56,10 @@ export function useDiff(): UseDiffReturn {
 
   const setInputType = useCallback((type: InputType) => {
     setState(prev => ({ ...prev, inputType: type }))
+  }, [])
+
+  const setComparisonOptions = useCallback((options: ComparisonOptions) => {
+    setState(prev => ({ ...prev, comparisonOptions: options }))
   }, [])
 
   const clearError = useCallback(() => {
@@ -75,7 +83,8 @@ export function useDiff(): UseDiffReturn {
 
       const result = DiffService.calculateDiff(
         state.originalFile.content,
-        state.modifiedFile.content
+        state.modifiedFile.content,
+        state.comparisonOptions
       )
 
       setState(prev => ({ 
@@ -100,7 +109,8 @@ export function useDiff(): UseDiffReturn {
       isProcessing: false,
       error: null,
       viewMode: 'side-by-side',
-      inputType: 'file'
+      inputType: 'file',
+      comparisonOptions: TextPreprocessor.getDefaultOptions()
     })
   }, [])
 
@@ -132,6 +142,7 @@ export function useDiff(): UseDiffReturn {
     setModifiedFile,
     setViewMode,
     setInputType,
+    setComparisonOptions,
     calculateDiff,
     clearAll,
     clearError,
