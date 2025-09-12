@@ -1,0 +1,140 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      deployments: write
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build project
+        run: npm run build
+        env:
+          NODE_ENV: production
+          
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: bdiff
+          directory: dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Notify Slack on Success
+        if: success() && github.ref == 'refs/heads/main'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#deployments'
+          text: |
+            🚀 *BDiff デプロイ成功* 
+            
+            📝 **詳細:**
+            • **環境:** Production (https://bdiff.v41.me)
+            • **ブランチ:** `${{ github.ref_name }}`
+            • **コミット:** `${{ github.sha }}`
+            • **作成者:** ${{ github.actor }}
+            
+            🔗 **リンク:**
+            • [Live Site](https://bdiff.v41.me)
+            • [Commit](${{ github.event.head_commit.url }})
+            • [Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            
+            ⏱️ **デプロイ時刻:** $(date -u)
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          
+      - name: Notify Slack on Preview Deploy (PR)
+        if: success() && github.event_name == 'pull_request'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#deployments'  
+          text: |
+            🔍 *BDiff プレビューデプロイ成功*
+            
+            📝 **詳細:**
+            • **環境:** Preview
+            • **PR:** #${{ github.event.number }} - ${{ github.event.pull_request.title }}
+            • **ブランチ:** `${{ github.head_ref }}`
+            • **作成者:** ${{ github.actor }}
+            
+            🔗 **リンク:**
+            • [PR](${{ github.event.pull_request.html_url }})
+            • [Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            
+            ⏱️ **デプロイ時刻:** $(date -u)
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#deployments'
+          text: |
+            ❌ *BDiff デプロイ失敗*
+            
+            📝 **詳細:**
+            • **環境:** ${{ github.ref == 'refs/heads/main' && 'Production' || 'Preview' }}
+            • **ブランチ:** `${{ github.ref_name }}`
+            • **コミット:** `${{ github.sha }}`
+            • **作成者:** ${{ github.actor }}
+            
+            🔗 **リンク:**
+            • [失敗したAction](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            • [Commit](${{ github.event.head_commit.url }})
+            
+            🛠️ **対応が必要です**
+            
+            ⏱️ **失敗時刻:** $(date -u)
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          
+      - name: Comment on PR (Preview Deploy)
+        if: success() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 **Preview deployment successful!**
+              
+              Your changes have been deployed to a preview environment.
+              
+              📝 **Deployment Details:**
+              - **Environment:** Preview
+              - **Commit:** \`${{ github.sha }}\`
+              - **Deploy Time:** $(date -u)
+              
+              🔗 **Links:**
+              - [Preview Site](https://bdiff.v41.me) *(Note: Preview URL will be updated once available)*
+              - [Action Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+              
+              ✅ Ready for review!`
+            })
