@@ -13,6 +13,7 @@ import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { NoDifferencesDisplay } from '../components/diff/NoDifferencesDisplay';
 import { CollapsibleFileSelector } from '../components/diff/CollapsibleFileSelector';
 import { DiffViewer } from '../components/diff/DiffViewer';
+import { HTMLExportButton } from '../components/export/HTMLExportButton';
 import { useToastHelpers } from '../components/common/Toast';
 import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
@@ -345,7 +346,17 @@ export const DiffPage: React.FC = () => {
                   />
                   
                   
-                  <div className="pt-2">
+                  <div className="pt-2 space-y-2">
+                    <HTMLExportButton
+                      diffResult={diffResult}
+                      originalFile={originalFile}
+                      modifiedFile={modifiedFile}
+                      variant="secondary"
+                      size="sm"
+                      className="w-full"
+                      onSuccess={(filename) => showSuccessToast('エクスポート完了', `${filename} をダウンロードしました`)}
+                      onError={(error) => showErrorToast('エクスポート失敗', error)}
+                    />
                     <Button
                       variant="primary"
                       size="sm"
