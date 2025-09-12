@@ -13,6 +13,13 @@ export class TextPreprocessor {
   static preprocessText(text: string, options: ComparisonOptions): string {
     let lines = text.split('\n');
     
+    // Remove trailing empty lines if ignoreTrailingNewlines is enabled
+    if (options.ignoreTrailingNewlines) {
+      while (lines.length > 0 && lines[lines.length - 1] === '') {
+        lines.pop();
+      }
+    }
+    
     // Apply whitespace trimming if enabled
     if (options.ignoreWhitespace) {
       lines = lines.map(line => line.trim());
@@ -107,13 +114,14 @@ export class TextPreprocessor {
   
   /**
    * Get default comparison options
-   * @returns Default ComparisonOptions with all features disabled
+   * @returns Default ComparisonOptions with trailing newlines ignored by default
    */
   static getDefaultOptions(): ComparisonOptions {
     return {
       sortLines: false,
       ignoreCase: false,
-      ignoreWhitespace: false
+      ignoreWhitespace: false,
+      ignoreTrailingNewlines: true  // Default checked
     };
   }
   
@@ -123,7 +131,7 @@ export class TextPreprocessor {
    * @returns True if any option is enabled
    */
   static hasActiveOptions(options: ComparisonOptions): boolean {
-    return options.sortLines || options.ignoreCase || options.ignoreWhitespace;
+    return options.sortLines || options.ignoreCase || options.ignoreWhitespace || options.ignoreTrailingNewlines;
   }
   
   /**
@@ -142,6 +150,9 @@ export class TextPreprocessor {
     }
     if (options.ignoreWhitespace) {
       active.push('Whitespace ignored');
+    }
+    if (options.ignoreTrailingNewlines) {
+      active.push('Trailing newlines ignored');
     }
     
     if (active.length === 0) {

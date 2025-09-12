@@ -51,6 +51,8 @@ export interface ComparisonOptions {
   ignoreCase: boolean;
   /** Ignore leading and trailing whitespace */
   ignoreWhitespace: boolean;
+  /** Ignore trailing newlines (final empty lines) */
+  ignoreTrailingNewlines: boolean;
 }
 
 /**
