@@ -4,7 +4,8 @@
   "description": "Check diff between two files as rich.",
   "main": "index.js",
   "scripts": {
-    "dev": "vite",
+    "dev": "./scripts/dev-server.sh",
+    "dev:simple": "vite --port 14000",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "echo \"Error: no test specified\" && exit 1"

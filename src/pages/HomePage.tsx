@@ -5,20 +5,31 @@ import { Badge } from '../components/ui/Badge';
 import { Tooltip } from '../components/ui/Tooltip';
 import { InfoIcon } from '../components/ui/InfoIcon';
 import { ToggleSwitch } from '../components/ui/ToggleSwitch';
+import { CopySelect, type CopyType } from '../components/ui/CopySelect';
 import { ContentLayout } from '../components/layout/PageLayout';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { NoDifferencesDisplay } from '../components/diff/NoDifferencesDisplay';
+import { useToastHelpers } from '../components/common/Toast';
 import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
+import { useClipboard } from '../hooks/useClipboard';
+import { useKeyboardShortcuts, type KeyboardShortcut } from '../hooks/useKeyboardShortcuts';
 import { DiffService } from '../services/diffService';
 import type { FileInfo, DiffLine, ViewMode } from '../types/types';
 
 interface DiffViewerProps {
   lines: DiffLine[];
   viewMode: ViewMode;
+  onCopy: (type: CopyType) => void;
+  onCopyLine?: (line: DiffLine) => Promise<void>;
+  showCopyButtons?: boolean;
+  loading?: boolean;
 }
 
-const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode }) => {
+const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode, onCopy, onCopyLine, showCopyButtons, loading = false }) => {
+  // Suppress unused parameter warnings - these props may be used for future features
+  void onCopyLine;
+  void showCopyButtons;
   const renderLine = useCallback((line: DiffLine, index: number) => {
     const getLineClassName = (type: DiffLine['type']) => {
       const base = 'font-mono text-sm border-l-4 px-4 py-1 whitespace-pre-wrap';
@@ -48,9 +59,11 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode }) => {
         <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r">
           {line.lineNumber}
         </div>
-        <div className={getLineClassName(line.type)}>
-          <span className="text-gray-400 select-none">{getPrefixSymbol(line.type)}</span>
-          {line.content || '\n'}
+        <div className="flex-1">
+          <div className={getLineClassName(line.type)}>
+            <span className="text-gray-400 select-none">{getPrefixSymbol(line.type)}</span>
+            {line.content || '\n'}
+          </div>
         </div>
       </div>
     );
@@ -63,13 +76,27 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode }) => {
     return (
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
-          <div className="font-medium text-sm text-gray-700 mb-2 px-4">Original</div>
+          <div className="flex items-center justify-between mb-2 px-4">
+            <div className="font-medium text-sm text-gray-700">Original</div>
+            <CopySelect
+              onCopy={onCopy}
+              loading={loading}
+              size="sm"
+            />
+          </div>
           <div className="border rounded-md overflow-hidden">
             {originalLines.map((line, index) => renderLine(line, index))}
           </div>
         </div>
         <div className="space-y-1">
-          <div className="font-medium text-sm text-gray-700 mb-2 px-4">Modified</div>
+          <div className="flex items-center justify-between mb-2 px-4">
+            <div className="font-medium text-sm text-gray-700">Modified</div>
+            <CopySelect
+              onCopy={onCopy}
+              loading={loading}
+              size="sm"
+            />
+          </div>
           <div className="border rounded-md overflow-hidden">
             {modifiedLines.map((line, index) => renderLine(line, index))}
           </div>
@@ -80,8 +107,18 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode }) => {
 
   // Unified view
   return (
-    <div className="border rounded-md overflow-hidden">
-      {lines.map((line, index) => renderLine(line, index))}
+    <div className="space-y-2">
+      <div className="flex items-center justify-between px-4">
+        <div className="font-medium text-sm text-gray-700">差分表示</div>
+        <CopySelect
+          onCopy={onCopy}
+          loading={loading}
+          size="sm"
+        />
+      </div>
+      <div className="border rounded-md overflow-hidden">
+        {lines.map((line, index) => renderLine(line, index))}
+      </div>
     </div>
   );
 };
@@ -104,6 +141,20 @@ export const HomePage: React.FC = () => {
   } = useDiffContext();
   
   const { readFile, isReading, error: fileError } = useFileReader();
+  const { success: showSuccessToast, error: showErrorToast } = useToastHelpers();
+  
+  // Copy functionality
+  const {
+    copyDiff,
+    copyAddedLines,
+    copyRemovedLines,
+    copyChangedLines,
+    copyText,
+    isLoading: isCopying
+  } = useClipboard({
+    onSuccess: (message) => showSuccessToast('コピー完了', message),
+    onError: (error) => showErrorToast('コピー失敗', error)
+  });
   
   // Text input states
   const [originalText, setOriginalText] = useState('');
@@ -208,6 +259,79 @@ export const HomePage: React.FC = () => {
     setModifiedText('');
   }, [clearAll]);
 
+  // Copy handlers
+  const handleCopyAll = useCallback(async () => {
+    if (!diffResult?.lines) return;
+    
+    const filename = originalFile?.name && modifiedFile?.name 
+      ? `${originalFile.name} vs ${modifiedFile.name}`
+      : '差分比較結果';
+      
+    try {
+      await copyDiff(diffResult.lines, { 
+        format: 'diff',
+        filename,
+        originalFilename: originalFile?.name,
+        modifiedFilename: modifiedFile?.name,
+        includeHeader: true
+      });
+    } catch (error) {
+      // Error handled by useClipboard onError callback
+    }
+  }, [diffResult, copyDiff, originalFile, modifiedFile]);
+
+  const handleCopyAdded = useCallback(async () => {
+    if (!diffResult?.lines) return;
+    try {
+      await copyAddedLines(diffResult.lines, { format: 'diff', includeHeader: true });
+    } catch (error) {
+      // Error handled by useClipboard onError callback
+    }
+  }, [diffResult, copyAddedLines]);
+
+  const handleCopyRemoved = useCallback(async () => {
+    if (!diffResult?.lines) return;
+    try {
+      await copyRemovedLines(diffResult.lines, { format: 'diff', includeHeader: true });
+    } catch (error) {
+      // Error handled by useClipboard onError callback
+    }
+  }, [diffResult, copyRemovedLines]);
+
+  const handleCopyChanged = useCallback(async () => {
+    if (!diffResult?.lines) return;
+    try {
+      await copyChangedLines(diffResult.lines, { format: 'diff', includeHeader: true });
+    } catch (error) {
+      // Error handled by useClipboard onError callback
+    }
+  }, [diffResult, copyChangedLines]);
+
+  const handleCopyLine = useCallback(async (line: DiffLine) => {
+    try {
+      const content = `${line.type === 'added' ? '+' : line.type === 'removed' ? '-' : line.type === 'modified' ? '~' : ' '} ${line.content || ''}`;
+      await copyText(content);
+    } catch (error) {
+      // Error handled by useClipboard onError callback
+    }
+  }, [copyText]);
+
+  const handleCopy = useCallback(async (type: CopyType) => {
+    switch (type) {
+      case 'all':
+        await handleCopyAll();
+        break;
+      case 'added':
+        await handleCopyAdded();
+        break;
+      case 'removed':
+        await handleCopyRemoved();
+        break;
+      case 'changed':
+        await handleCopyChanged();
+        break;
+    }
+  }, [handleCopyAll, handleCopyAdded, handleCopyRemoved, handleCopyChanged]);
 
   const similarityPercentage = useMemo(() => {
     if (!diffResult) return 0;
@@ -217,6 +341,46 @@ export const HomePage: React.FC = () => {
   const hasNoDifferences = useMemo(() => {
     return diffResult && !DiffService.hasDifferences(diffResult);
   }, [diffResult]);
+
+  // Keyboard shortcuts
+  const keyboardShortcuts: KeyboardShortcut[] = useMemo(() => {
+    if (!diffResult?.lines) return [];
+
+    return [
+      {
+        key: 'c',
+        ctrlKey: true,
+        action: handleCopyAll,
+        description: '全ての差分をコピー'
+      },
+      {
+        key: 'c',
+        ctrlKey: true,
+        shiftKey: true,
+        action: handleCopyChanged,
+        description: '変更行のみコピー'
+      },
+      {
+        key: 'a',
+        ctrlKey: true,
+        shiftKey: true,
+        action: handleCopyAdded,
+        description: '追加行のみコピー'
+      },
+      {
+        key: 'r',
+        ctrlKey: true,
+        shiftKey: true,
+        action: handleCopyRemoved,
+        description: '削除行のみコピー'
+      }
+    ];
+  }, [diffResult?.lines, handleCopyAll, handleCopyChanged, handleCopyAdded, handleCopyRemoved]);
+
+  useKeyboardShortcuts({
+    enabled: !isProcessing && !!diffResult && !!originalFile && !!modifiedFile,
+    shortcuts: keyboardShortcuts
+  });
 
   const displayError = error || fileError;
 
@@ -239,19 +403,6 @@ export const HomePage: React.FC = () => {
       subtitle="File Comparison Tool"
       actions={
         <div className="flex items-center gap-3">
-          {canCalculateDiff && (
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">View Mode:</span>
-              <ToggleSwitch
-                value={viewMode === 'split' ? 'side-by-side' : viewMode}
-                options={[
-                  { value: 'side-by-side', label: 'Side by Side' },
-                  { value: 'unified', label: 'Unified' }
-                ]}
-                onChange={(value) => setViewMode(value as ViewMode)}
-              />
-            </div>
-          )}
           <Button
             variant="secondary"
             onClick={handleClear}
@@ -509,6 +660,10 @@ export const HomePage: React.FC = () => {
                     <DiffViewer 
                       lines={diffResult.lines} 
                       viewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
+                      onCopy={handleCopy}
+                      onCopyLine={handleCopyLine}
+                      showCopyButtons={true}
+                      loading={isCopying}
                     />
                   </div>
                 )}
