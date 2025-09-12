@@ -1,4 +1,5 @@
-import type { DiffResult, DiffLine, DiffStats, DiffType } from '../types/types'
+import type { DiffResult, DiffLine, DiffStats, DiffType, ComparisonOptions } from '../types/types'
+import { TextPreprocessor } from '../utils/textPreprocessor'
 
 interface Edit {
   op: 'add' | 'delete' | 'equal'
@@ -8,10 +9,29 @@ interface Edit {
 export class DiffService {
   /**
    * Myers差分アルゴリズムを使用してテキストの差分を計算
+   * @param original - Original text
+   * @param modified - Modified text
+   * @param options - Optional comparison options
    */
-  static calculateDiff(original: string, modified: string): DiffResult {
-    const originalLines = original.split('\n')
-    const modifiedLines = modified.split('\n')
+  static calculateDiff(
+    original: string, 
+    modified: string, 
+    options?: ComparisonOptions
+  ): DiffResult {
+    // Apply preprocessing if options are provided
+    let processedOriginal = original;
+    let processedModified = modified;
+    
+    if (options && TextPreprocessor.hasActiveOptions(options)) {
+      [processedOriginal, processedModified] = TextPreprocessor.preprocessTexts(
+        original,
+        modified,
+        options
+      );
+    }
+    
+    const originalLines = processedOriginal.split('\n')
+    const modifiedLines = processedModified.split('\n')
     
     const edits = this.computeDiff(originalLines, modifiedLines)
     const lines = this.createDiffLines(edits)
