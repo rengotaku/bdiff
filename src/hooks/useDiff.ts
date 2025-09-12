@@ -59,7 +59,7 @@ export function useDiff(): UseDiffReturn {
   }, [])
 
   const setComparisonOptions = useCallback((options: ComparisonOptions) => {
-    setState(prev => ({ ...prev, comparisonOptions: options, diffResult: null }))
+    setState(prev => ({ ...prev, comparisonOptions: options }))
   }, [])
 
   const clearError = useCallback(() => {
@@ -99,7 +99,7 @@ export function useDiff(): UseDiffReturn {
         isProcessing: false 
       }))
     }
-  }, [state.originalFile, state.modifiedFile, state.comparisonOptions])
+  }, [state.originalFile, state.modifiedFile])
 
   const clearAll = useCallback(() => {
     setState({
