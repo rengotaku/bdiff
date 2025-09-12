@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -88,7 +87,6 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ lines, viewMode }) => {
 };
 
 export const HomePage: React.FC = () => {
-  const navigate = useNavigate();
   const {
     setOriginalFile,
     setModifiedFile,
@@ -210,11 +208,6 @@ export const HomePage: React.FC = () => {
     setModifiedText('');
   }, [clearAll]);
 
-  const handleNewComparison = useCallback(() => {
-    clearAll();
-    setOriginalText('');
-    setModifiedText('');
-  }, [clearAll]);
 
   const similarityPercentage = useMemo(() => {
     if (!diffResult) return 0;
