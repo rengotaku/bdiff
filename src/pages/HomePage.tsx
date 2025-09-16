@@ -395,6 +395,10 @@ export const HomePage: React.FC = () => {
               isCopying={isCopying}
               hasNoDifferences={Boolean(hasNoDifferences)}
               similarityPercentage={similarityPercentage}
+              originalFile={originalFile}
+              modifiedFile={modifiedFile}
+              onExportSuccess={(filename) => showSuccessToast('エクスポート完了', `${filename} をダウンロードしました`)}
+              onExportError={(error) => showErrorToast('エクスポート失敗', error)}
             />
           </div>
         )}
