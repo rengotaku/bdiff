@@ -5,8 +5,9 @@ import { Tooltip } from '../ui/Tooltip';
 import { ToggleSwitch } from '../ui/ToggleSwitch';
 import { NoDifferencesDisplay } from './NoDifferencesDisplay';
 import { DiffViewer } from './DiffViewer';
+import { HTMLExportButton } from '../export/HTMLExportButton';
 import type { CopyType } from '../ui/CopySelect';
-import type { DiffResult, ViewMode } from '../../types/types';
+import type { DiffResult, ViewMode, FileInfo } from '../../types/types';
 
 export interface FileComparisonPanelProps {
   diffResult: DiffResult;
@@ -17,6 +18,10 @@ export interface FileComparisonPanelProps {
   isCopying: boolean;
   hasNoDifferences: boolean;
   similarityPercentage: number;
+  originalFile?: FileInfo | null;
+  modifiedFile?: FileInfo | null;
+  onExportSuccess?: (filename: string) => void;
+  onExportError?: (error: string) => void;
 }
 
 export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
@@ -27,7 +32,11 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
   onCopyLine,
   isCopying,
   hasNoDifferences,
-  similarityPercentage
+  similarityPercentage,
+  originalFile,
+  modifiedFile,
+  onExportSuccess,
+  onExportError
 }) => {
   return (
     <Card className="flex-1">
@@ -59,8 +68,17 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
             </div>
           </div>
           
-          {/* View Mode */}
+          {/* Export Button and View Mode */}
           <div className="flex items-center gap-3">
+            <HTMLExportButton
+              diffResult={diffResult}
+              originalFile={originalFile}
+              modifiedFile={modifiedFile}
+              variant="secondary"
+              size="sm"
+              onSuccess={onExportSuccess}
+              onError={onExportError}
+            />
             <span className="text-sm text-gray-600">View Mode:</span>
             <ToggleSwitch
               value={viewMode === 'split' ? 'side-by-side' : viewMode}

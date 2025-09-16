@@ -218,6 +218,7 @@ export const DiffPage: React.FC = () => {
   }
 
   // No files state
+  console.log('DiffPage condition check:', { originalFile: !!originalFile, modifiedFile: !!modifiedFile, diffResult: !!diffResult });
   if (!originalFile || !modifiedFile || !diffResult) {
     return (
       <PageLayout
@@ -347,6 +348,15 @@ export const DiffPage: React.FC = () => {
                   
                   
                   <div className="pt-2 space-y-2">
+                    {/* Debug info */}
+                    {console.log('DiffPage - HTMLExportButton props:', {
+                      hasDiffResult: !!diffResult,
+                      hasOriginalFile: !!originalFile,
+                      hasModifiedFile: !!modifiedFile,
+                      diffResultStats: diffResult?.stats,
+                      originalFileName: originalFile?.name,
+                      modifiedFileName: modifiedFile?.name
+                    })}
                     <HTMLExportButton
                       diffResult={diffResult}
                       originalFile={originalFile}
