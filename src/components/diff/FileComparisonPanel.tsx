@@ -18,8 +18,8 @@ export interface FileComparisonPanelProps {
   isCopying: boolean;
   hasNoDifferences: boolean;
   similarityPercentage: number;
-  originalFile?: FileInfo | null;
-  modifiedFile?: FileInfo | null;
+  originalFile?: FileInfo | null | undefined;
+  modifiedFile?: FileInfo | null | undefined;
   onExportSuccess?: (filename: string) => void;
   onExportError?: (error: string) => void;
 }
@@ -72,8 +72,8 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
           <div className="flex items-center gap-3">
             <HTMLExportButton
               diffResult={diffResult}
-              originalFile={originalFile}
-              modifiedFile={modifiedFile}
+              originalFile={originalFile || null}
+              modifiedFile={modifiedFile || null}
               variant="secondary"
               size="sm"
               onSuccess={onExportSuccess}
