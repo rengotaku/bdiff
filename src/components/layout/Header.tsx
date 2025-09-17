@@ -17,7 +17,7 @@ const Header: React.FC<HeaderProps> = ({
   actions,
   navigation,
   className,
-  sticky = true,
+  sticky = false,
 }) => {
   return (
     <header
@@ -32,10 +32,10 @@ const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center justify-between h-16">
           {/* Left side - Logo and title */}
           <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+            <div className="flex-shrink-0 flex items-end gap-4">
+              <h1 className="text-3xl font-bold text-gray-dark">{title}</h1>
               {subtitle && (
-                <p className="text-sm text-gray-500 mt-0.5">{subtitle}</p>
+                <p className="text-xs text-gray-light">{subtitle}</p>
               )}
             </div>
           </div>

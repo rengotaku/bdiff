@@ -1,7 +1,6 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
 import { cn } from '../../utils/cn';
-import { Header, HeaderProps, Navigation } from './Header';
+import { Header, HeaderProps } from './Header';
 
 export interface PageLayoutProps {
   children: React.ReactNode;
@@ -230,22 +229,10 @@ const ContentLayout: React.FC<ContentLayoutProps> = ({
   children,
   ...props
 }) => {
-  const location = useLocation();
-  
-  // Navigation items for the app
-  const navigationItems = [
-    {
-      label: 'Compare',
-      href: '/',
-      active: location.pathname === '/'
-    }
-  ];
-
   const header = {
     title: title || 'BDiff',
     subtitle,
-    actions,
-    navigation: <Navigation items={navigationItems} variant="underline" />
+    actions
   };
 
   return (

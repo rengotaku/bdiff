@@ -1,8 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { ComparisonOptions } from '../../types/types';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
-import { InfoIcon } from '../ui/InfoIcon';
-import { Tooltip } from '../ui/Tooltip';
 
 interface ComparisonOptionsProps {
   options: ComparisonOptions;
@@ -18,8 +15,6 @@ export const ComparisonOptionsComponent: React.FC<ComparisonOptionsProps> = ({
   onChange,
   disabled = false
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState(true);
-
   const handleOptionChange = (key: keyof ComparisonOptions) => {
     onChange({
       ...options,
@@ -27,40 +22,8 @@ export const ComparisonOptionsComponent: React.FC<ComparisonOptionsProps> = ({
     });
   };
 
-  const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
-  };
-
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            Comparison Options
-            <Tooltip content="Customize how text comparison is performed">
-              <InfoIcon className="h-4 w-4 text-gray-400" />
-            </Tooltip>
-          </div>
-          <button
-            onClick={toggleCollapse}
-            className="flex items-center justify-center w-6 h-6 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
-            aria-label={isCollapsed ? "Expand comparison options" : "Collapse comparison options"}
-          >
-            <svg
-              className={`w-4 h-4 transform transition-transform ${
-                isCollapsed ? 'rotate-0' : 'rotate-180'
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-        </CardTitle>
-      </CardHeader>
-      {!isCollapsed && (
-        <CardContent className="space-y-3">
+    <div className="space-y-3">
           <label className="flex items-start gap-3 cursor-pointer group">
             <input
               type="checkbox"
@@ -148,9 +111,7 @@ export const ComparisonOptionsComponent: React.FC<ComparisonOptionsProps> = ({
               </div>
             </div>
           )}
-        </CardContent>
-      )}
-    </Card>
+    </div>
   );
 };
 

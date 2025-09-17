@@ -79,14 +79,14 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="📄 HTML エクスポート設定"
+      title="📄 HTML Export Settings"
       size="lg"
     >
       <div className="space-y-6">
         {/* Filename Preview */}
         {suggestedFilename && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <div className="text-sm font-medium text-blue-900">出力ファイル名</div>
+            <div className="text-sm font-medium text-blue-900">Output Filename</div>
             <div className="text-sm text-blue-700 mt-1 font-mono">{suggestedFilename}</div>
           </div>
         )}
@@ -94,25 +94,25 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
         {/* Custom Title */}
         <div>
           <label htmlFor="custom-title" className="block text-sm font-medium mb-2">
-            カスタムタイトル (オプション)
+            Custom Title (Optional)
           </label>
           <input
             id="custom-title"
             type="text"
             value={customTitle}
             onChange={(e) => setCustomTitle(e.target.value)}
-            placeholder="デフォルトのタイトルを使用"
+            placeholder="Use default title"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           <div className="text-xs text-gray-500 mt-1">
-            空欄の場合、自動生成されたタイトルが使用されます
+            If left blank, an auto-generated title will be used
           </div>
         </div>
 
         {/* Display Options */}
         <Card>
           <CardContent className="p-4">
-            <h3 className="text-sm font-medium mb-3">📋 表示オプション</h3>
+            <h3 className="text-sm font-medium mb-3">📋 Display Options</h3>
             <div className="space-y-3">
               <label className="flex items-center">
                 <input

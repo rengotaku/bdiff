@@ -5,7 +5,7 @@ import { ContentLayout } from '../components/layout/PageLayout';
 import { FileUploadArea } from '../components/diff/FileUploadArea';
 import { FileComparisonPanel } from '../components/diff/FileComparisonPanel';
 import { DiffSettingsPanel } from '../components/diff/DiffSettingsPanel';
-import ComparisonOptions from '../components/diff/ComparisonOptions';
+import { ComparisonOptionsSidebar } from '../components/diff/ComparisonOptionsSidebar';
 import { useToastHelpers } from '../components/common/Toast';
 import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
@@ -30,8 +30,7 @@ export const HomePage: React.FC = () => {
     viewMode,
     setViewMode,
     comparisonOptions,
-    setComparisonOptions,
-    clearAll
+    setComparisonOptions
   } = useDiffContext();
   
   const { readFile, isReading, error: fileError } = useFileReader();
@@ -46,8 +45,8 @@ export const HomePage: React.FC = () => {
     copyText,
     isLoading: isCopying
   } = useClipboard({
-    onSuccess: (message) => showSuccessToast('コピー完了', message),
-    onError: (error) => showErrorToast('コピー失敗', error)
+    onSuccess: (message) => showSuccessToast('Copy Complete', message),
+    onError: (error) => showErrorToast('Copy Failed', error)
   });
   
   // Text input states
@@ -153,12 +152,18 @@ export const HomePage: React.FC = () => {
     await calculateDiff();
   }, [calculateDiff]);
 
-  // Clear all data
-  const handleClear = useCallback(() => {
-    clearAll();
+  // Clear original text
+  const handleClearOriginal = useCallback(() => {
     setOriginalText('');
+    setOriginalFile(null);
+  }, [setOriginalFile]);
+
+  // Clear modified text
+  const handleClearModified = useCallback(() => {
     setModifiedText('');
-  }, [clearAll]);
+    setModifiedFile(null);
+  }, [setModifiedFile]);
+
 
   // Copy handlers
   const handleCopyAll = useCallback(async () => {
@@ -166,7 +171,7 @@ export const HomePage: React.FC = () => {
     
     const filename = originalFile?.name && modifiedFile?.name 
       ? `${originalFile.name} vs ${modifiedFile.name}`
-      : '差分比較結果';
+      : 'Diff Comparison Result';
       
     try {
       await copyDiff(diffResult.lines, { 
@@ -252,28 +257,28 @@ export const HomePage: React.FC = () => {
         key: 'c',
         ctrlKey: true,
         action: handleCopyAll,
-        description: '全ての差分をコピー'
+        description: 'Copy all differences'
       },
       {
         key: 'c',
         ctrlKey: true,
         shiftKey: true,
         action: handleCopyChanged,
-        description: '変更行のみコピー'
+        description: 'Copy changed lines only'
       },
       {
         key: 'a',
         ctrlKey: true,
         shiftKey: true,
         action: handleCopyAdded,
-        description: '追加行のみコピー'
+        description: 'Copy added lines only'
       },
       {
         key: 'r',
         ctrlKey: true,
         shiftKey: true,
         action: handleCopyRemoved,
-        description: '削除行のみコピー'
+        description: 'Copy removed lines only'
       }
     ];
   }, [diffResult?.lines, handleCopyAll, handleCopyChanged, handleCopyAdded, handleCopyRemoved]);
@@ -301,69 +306,63 @@ export const HomePage: React.FC = () => {
   return (
     <ContentLayout
       title="BDiff"
-      subtitle="File Comparison Tool"
-      actions={
-        <DiffSettingsPanel
-          canCalculateDiff={canCalculateDiff}
-          isProcessing={isProcessing}
-          isReading={isReading}
-          onStartComparison={handleStartComparison}
-          onClear={handleClear}
-        />
-      }
+      subtitle="Visualizing Changes, Beautifully"
     >
       <div className="space-y-8">
         {/* File Upload Areas */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <FileUploadArea
-            title="Original Text"
-            placeholder="Paste, type your original text here, or drop a file..."
-            value={originalText}
-            onChange={(value) => handleTextChange(value, 'original')}
-            onFileSelect={(file) => handleFileSelect(file, 'original')}
-            fileInfo={originalFile || undefined}
-            isDragging={isDragging && dragTarget === 'original'}
-            onDragEnter={(e) => handleDragEnter(e, 'original')}
-            onDragLeave={handleDragLeave}
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, 'original')}
-            disabled={isReading || isProcessing}
-            tooltipColor="green"
-          />
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <FileUploadArea
+              title="Original Text"
+              placeholder="Paste, type your original text here, or drop a file..."
+              value={originalText}
+              onChange={(value) => handleTextChange(value, 'original')}
+              onFileSelect={(file) => handleFileSelect(file, 'original')}
+              onClear={handleClearOriginal}
+              fileInfo={originalFile || undefined}
+              isDragging={isDragging && dragTarget === 'original'}
+              onDragEnter={(e) => handleDragEnter(e, 'original')}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, 'original')}
+              disabled={isReading || isProcessing}
+            />
 
-          <FileUploadArea
-            title="Modified Text"
-            placeholder="Paste, type your modified text here, or drop a file..."
-            value={modifiedText}
-            onChange={(value) => handleTextChange(value, 'modified')}
-            onFileSelect={(file) => handleFileSelect(file, 'modified')}
-            fileInfo={modifiedFile || undefined}
-            isDragging={isDragging && dragTarget === 'modified'}
-            onDragEnter={(e) => handleDragEnter(e, 'modified')}
-            onDragLeave={handleDragLeave}
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, 'modified')}
-            disabled={isReading || isProcessing}
-            tooltipColor="blue"
-          />
-        </div>
+            <FileUploadArea
+              title="Modified Text"
+              placeholder="Paste, type your modified text here, or drop a file..."
+              value={modifiedText}
+              onChange={(value) => handleTextChange(value, 'modified')}
+              onFileSelect={(file) => handleFileSelect(file, 'modified')}
+              onClear={handleClearModified}
+              fileInfo={modifiedFile || undefined}
+              isDragging={isDragging && dragTarget === 'modified'}
+              onDragEnter={(e) => handleDragEnter(e, 'modified')}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, 'modified')}
+              disabled={isReading || isProcessing}
+            />
+          </div>
 
-        {/* Comparison Options */}
-        <div className="max-w-md">
-          <ComparisonOptions
-            options={comparisonOptions}
-            onChange={setComparisonOptions}
-            disabled={isReading || isProcessing}
-          />
+          {/* Compare Files Button */}
+          <div className="flex justify-center">
+            <DiffSettingsPanel
+              canCalculateDiff={canCalculateDiff}
+              isProcessing={isProcessing}
+              isReading={isReading}
+              onStartComparison={handleStartComparison}
+            />
+          </div>
         </div>
 
         {/* Error Display */}
         {displayError && (
           <Card>
             <CardContent>
-              <div className="bg-red-50 border border-red-200 rounded-md p-4">
-                <div className="text-red-700 font-medium">Error</div>
-                <div className="text-red-600 mt-1">{displayError}</div>
+              <div className="bg-red-50 border border-danger rounded-md p-4">
+                <div className="text-danger-dark font-medium">Error</div>
+                <div className="text-danger mt-1">{displayError}</div>
               </div>
             </CardContent>
           </Card>
@@ -397,11 +396,18 @@ export const HomePage: React.FC = () => {
               similarityPercentage={similarityPercentage}
               originalFile={originalFile}
               modifiedFile={modifiedFile}
-              onExportSuccess={(filename) => showSuccessToast('エクスポート完了', `${filename} をダウンロードしました`)}
-              onExportError={(error) => showErrorToast('エクスポート失敗', error)}
+              onExportSuccess={(filename) => showSuccessToast('Export Complete', `Downloaded ${filename}`)}
+              onExportError={(error) => showErrorToast('Export Failed', error)}
             />
           </div>
         )}
+
+        {/* Comparison Options Sidebar */}
+        <ComparisonOptionsSidebar
+          options={comparisonOptions}
+          onChange={setComparisonOptions}
+          disabled={isReading || isProcessing}
+        />
       </div>
     </ContentLayout>
   );

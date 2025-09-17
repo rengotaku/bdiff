@@ -216,16 +216,16 @@ export class ClipboardService {
     if (error instanceof Error) {
       // Return user-friendly messages
       if (error.message.includes('denied')) {
-        return 'クリップボードへのアクセスが拒否されました。ブラウザの設定でクリップボードのアクセスを許可してください。'
+        return 'Clipboard access denied. Please allow clipboard access in your browser settings.'
       }
       if (error.message.includes('HTTPS')) {
-        return 'クリップボード機能にはHTTPS接続が必要です。'
+        return 'Clipboard functionality requires HTTPS connection.'
       }
       if (error.message.includes('not supported')) {
-        return 'このブラウザではクリップボード機能がサポートされていません。'
+        return 'Clipboard functionality is not supported in this browser.'
       }
-      return `クリップボードエラー: ${error.message}`
+      return `Clipboard error: ${error.message}`
     }
-    return 'クリップボードへのコピーに失敗しました。'
+    return 'Failed to copy to clipboard.'
   }
 }
