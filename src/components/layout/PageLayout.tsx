@@ -238,11 +238,6 @@ const ContentLayout: React.FC<ContentLayoutProps> = ({
       label: 'Compare',
       href: '/',
       active: location.pathname === '/'
-    },
-    {
-      label: 'History',
-      href: '/history', 
-      active: location.pathname === '/history'
     }
   ];
 
