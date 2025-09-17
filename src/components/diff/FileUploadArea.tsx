@@ -1,7 +1,6 @@
 import React, { useCallback, useId, memo, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
-import { Tooltip } from '../ui/Tooltip';
-import { InfoIcon } from '../ui/InfoIcon';
+import { Button } from '../ui/Button';
 import type { FileInfo } from '../../types/types';
 
 export interface FileUploadAreaProps {
@@ -29,8 +28,8 @@ export interface FileUploadAreaProps {
   onDrop: (e: React.DragEvent) => void;
   /** Whether the component is disabled */
   disabled?: boolean;
-  /** Tooltip color theme */
-  tooltipColor?: 'green' | 'blue';
+  /** Callback when clear button is clicked */
+  onClear?: () => void;
 }
 
 /**
@@ -50,7 +49,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = memo(({
   onDragOver,
   onDrop,
   disabled = false,
-  tooltipColor = 'green'
+  onClear
 }) => {
   const textareaId = useId();
   const fileInputId = useId();
@@ -79,13 +78,6 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = memo(({
     onChange(e.target.value);
   }, [onChange]);
 
-  /**
-   * Get file type from filename
-   */
-  const getFileType = useCallback((filename: string): string => {
-    const extension = filename.split('.').pop();
-    return extension?.toUpperCase() || 'Unknown';
-  }, []);
 
   /**
    * Format file size for display
@@ -110,32 +102,20 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = memo(({
   return (
     <Card className={isDragging ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}>
       <CardHeader>
-        <div className="flex items-center gap-2">
-          <CardTitle id={labelId}>{title}</CardTitle>
-          {fileInfo && (
-            <Tooltip
-              content={
-                <div className="space-y-2 min-w-64">
-                  <div className={`font-medium ${
-                    tooltipColor === 'green' ? 'text-green-200' : 'text-blue-200'
-                  } mb-2`}>
-                    {title} Information
-                  </div>
-                  <div className="space-y-1 text-sm">
-                    <div><strong>Name:</strong> {fileInfo.name}</div>
-                    <div><strong>Size:</strong> {formatFileSize(fileInfo.size)}</div>
-                    <div><strong>Type:</strong> {getFileType(fileInfo.name)}</div>
-                    {fileInfo.lastModified && (
-                      <div><strong>Modified:</strong> {fileInfo.lastModified.toLocaleString()}</div>
-                    )}
-                    <div><strong>Lines:</strong> {fileInfo.content.split('\n').length.toLocaleString()}</div>
-                  </div>
-                </div>
-              }
-              position="bottom"
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CardTitle id={labelId}>{title}</CardTitle>
+          </div>
+          {onClear && (value || fileInfo) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClear}
+              disabled={disabled}
+              className="text-gray-500 hover:text-gray-700"
             >
-              <InfoIcon size="sm" aria-label={`${title} file information`} />
-            </Tooltip>
+              Clear
+            </Button>
           )}
         </div>
       </CardHeader>
@@ -146,7 +126,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = memo(({
           <textarea
             id={textareaId}
             aria-labelledby={labelId}
-            aria-describedby={`${textareaId}-help ${textareaId}-count`}
+            aria-describedby={`${textareaId}-count`}
             className={`
               w-full h-64 p-4 border rounded-md resize-none font-mono text-sm 
               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
@@ -171,20 +151,22 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = memo(({
             aria-invalid={false}
           />
 
-          {/* Helper text */}
-          <div id={`${textareaId}-help`} className="text-xs text-gray-500">
-            Drop a file here, paste text, or use the file browser below
-          </div>
 
           {/* Footer with character count and file input */}
           <div className="flex items-center justify-between">
-            <span 
-              id={`${textareaId}-count`} 
-              className="text-sm text-gray-500"
-              aria-live="polite"
-            >
-              {characterCountText}
-            </span>
+            <div className="flex items-center gap-4 text-sm text-gray-500">
+              <span 
+                id={`${textareaId}-count`} 
+                aria-live="polite"
+              >
+                {characterCountText}
+              </span>
+              {fileInfo && (
+                <span>
+                  <strong>Loaded:</strong> {fileInfo.name} ({formatFileSize(fileInfo.size)})
+                </span>
+              )}
+            </div>
             
             <div>
               <label htmlFor={fileInputId} className="cursor-pointer group">
@@ -213,13 +195,6 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = memo(({
               </div>
             </div>
           </div>
-
-          {/* File upload status */}
-          {fileInfo && (
-            <div className="text-xs text-gray-600 bg-gray-50 rounded px-3 py-2 border-l-2 border-gray-300">
-              <strong>Loaded:</strong> {fileInfo.name} ({formatFileSize(fileInfo.size)})
-            </div>
-          )}
 
           {/* Loading or error states could be added here */}
           {disabled && (

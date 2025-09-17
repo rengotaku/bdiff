@@ -2,7 +2,6 @@ import { useState, useCallback, useMemo, useEffect } from 'react'
 import type { FileInfo, DiffResult, ViewMode, InputType, ComparisonOptions } from '../types/types'
 import { DiffService } from '../services/diffService'
 import { TextPreprocessor } from '../utils/textPreprocessor'
-import { useHistory } from '../contexts/HistoryContext'
 
 interface UseDiffState {
   originalFile: FileInfo | null
@@ -32,8 +31,6 @@ export interface UseDiffReturn extends UseDiffState, UseDiffActions {
 }
 
 export function useDiff(): UseDiffReturn {
-  const { addHistoryItem } = useHistory()
-  
   const [state, setState] = useState<UseDiffState>({
     originalFile: null,
     modifiedFile: null,
@@ -81,9 +78,6 @@ export function useDiff(): UseDiffReturn {
     setState(prev => ({ ...prev, isProcessing: true, error: null }))
 
     try {
-      // Record start time for performance tracking
-      const startTime = performance.now()
-      
       // 少し遅延を入れて処理中の状態を見せる
       await new Promise(resolve => setTimeout(resolve, 100))
 
@@ -93,36 +87,11 @@ export function useDiff(): UseDiffReturn {
         state.comparisonOptions
       )
 
-      const processingTime = performance.now() - startTime
-
       setState(prev => ({ 
         ...prev, 
         diffResult: result, 
         isProcessing: false 
       }))
-
-      // Save to history if successful
-      try {
-        const historyItem = await addHistoryItem(
-          state.originalFile,
-          state.modifiedFile,
-          result.stats,
-          state.comparisonOptions,
-          processingTime
-        )
-        if (historyItem) {
-          console.log('✅ Diff saved to history:', {
-            id: historyItem.id,
-            files: `${historyItem.originalFile.name} vs ${historyItem.modifiedFile.name}`,
-            timestamp: historyItem.timestamp
-          })
-        } else {
-          console.warn('⚠️ History save skipped - check consent and auto-save settings')
-        }
-      } catch (historyError) {
-        // Don't fail the diff calculation if history saving fails
-        console.error('❌ Failed to save to history:', historyError)
-      }
     } catch (error) {
       setState(prev => ({ 
         ...prev, 
@@ -130,7 +99,7 @@ export function useDiff(): UseDiffReturn {
         isProcessing: false 
       }))
     }
-  }, [state.originalFile, state.modifiedFile, state.comparisonOptions, addHistoryItem])
+  }, [state.originalFile, state.modifiedFile, state.comparisonOptions])
 
   const clearAll = useCallback(() => {
     setState({

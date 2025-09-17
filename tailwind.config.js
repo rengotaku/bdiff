@@ -7,14 +7,22 @@ export default {
   theme: {
     extend: {
       colors: {
+        // New Color Palette
         primary: {
-          DEFAULT: '#2563eb',
-          hover: '#1d4ed8',
+          DEFAULT: '#3182CE',  // Main blue
+          hover: '#2C5282',    // Darker blue
+          dark: '#2A4365',     // Darkest blue
         },
-        secondary: {
-          DEFAULT: '#64748b',
-          hover: '#475569',
+        gray: {
+          light: '#4A5568',    // Light gray for text
+          DEFAULT: '#2D3748',  // Main gray
+          dark: '#1A202C',     // Dark gray
         },
+        danger: {
+          DEFAULT: '#E53E3E',  // Warning red
+          dark: '#C53030',     // Darker red
+        },
+        // Keep diff colors for file comparison
         diff: {
           added: '#d4f4dd',
           'added-dark': '#16a34a',

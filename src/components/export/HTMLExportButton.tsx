@@ -140,7 +140,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
         className={className}
         title={!canExport ? '比較結果がありません' : 'HTMLファイルとしてエクスポート'}
       >
-        📄 HTML エクスポート
+        📄 HTML Export
       </Button>
 
       <HTMLExportDialog
