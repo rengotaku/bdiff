@@ -381,7 +381,7 @@ export const DiffPage: React.FC = () => {
             {hasNoDifferences ? (
               <NoDifferencesDisplay />
             ) : (
-              <div className="max-h-96 overflow-auto">
+              <div className="overflow-auto">
                 <DiffViewer 
                   lines={diffResult.lines} 
                   viewMode={viewMode === 'split' ? 'side-by-side' : viewMode}

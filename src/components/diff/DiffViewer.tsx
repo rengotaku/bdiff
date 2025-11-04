@@ -85,7 +85,7 @@ const SideBySidePanel = memo<{
         size="sm"
       />
     </div>
-    <div className="border rounded-md overflow-hidden" role="region" aria-label={title}>
+    <div className="border rounded-md overflow-visible" role="region" aria-label={title}>
       {lines.map((line, index) => (
         <DiffLineComponent
           key={`${line.lineNumber}-${index}`}
@@ -118,7 +118,7 @@ const UnifiedPanel = memo<{
         size="sm"
       />
     </div>
-    <div className="border rounded-md overflow-hidden" role="region" aria-label="Unified diff view">
+    <div className="border rounded-md overflow-visible" role="region" aria-label="Unified diff view">
       {lines.map((line, index) => (
         <DiffLineComponent
           key={`${line.lineNumber}-${index}`}
