@@ -92,3 +92,39 @@ Issue-22-long-string-diff-display-issue-phase1
 - 差分表示の全ての箇所で長いコンテンツが適切に表示される
 - ユーザビリティの大幅改善
 - モバイル表示での対応改善
+
+### 最終修正: テキスト折り返し問題の完全解決 (2025-11-05)
+
+#### 問題の再発見
+コンテンツ切り詰め問題を修正後、ユーザーから「直ってません」との報告。
+出力されたHTMLを分析した結果、`break-words` クラスが適用されているにも関わらず、テキストが折り返されていないことが判明。
+
+#### 根本原因の特定
+**Flexbox Container Width Issue**:
+- `break-words` は**コンテナの幅が制約されている場合のみ動作**
+- `<div class="flex-1 relative">` は無制限に成長可能
+- 結果として、テキストが折り返される必要がない状態
+
+#### 実装した最終修正
+1. **DiffViewer.tsx:43**: `flex-1 relative` → `flex-1 relative min-w-0`
+   - `min-w-0` により flex item が親の幅制約を尊重
+2. **diffRendering.ts:8**: ベースクラスに `min-w-0` を追加
+3. **global.css**: 強化されたCSS規則
+   - `word-break: break-all` による強制的な文字単位での折り返し
+   - `overflow-wrap: anywhere` による最強の折り返し設定
+   - `.flex-1 { min-width: 0; }` による全体的な修正
+   - `.diff-line-text` クラスによる特定の折り返し制御
+4. **DiffViewer.tsx:48**: `diff-line-text` クラスを追加
+
+#### 技術的詳細
+- **CSS Flexbox の原理**: flex item はデフォルトで `min-width: auto` を持ち、内容に基づいて最小幅が決まる
+- **解決策**: `min-width: 0` により、flex item が親の幅制約内に強制的に収まる
+- **多層防御**: 複数のCSS手法を組み合わせて確実な折り返しを実現
+
+#### 検証方法
+- HTML出力の詳細分析
+- 長い連続文字列でのテスト
+- Flexbox レイアウトの動作確認
+
+#### 期待される結果
+修正後のHTMLでは、`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccccccccccccccccccccddddddddddddddddd1234` のような長い文字列が適切に折り返される。

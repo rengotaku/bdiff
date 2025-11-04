@@ -40,12 +40,12 @@ const DiffLineComponent = memo<{
       <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none">
         {line.lineNumber}
       </div>
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-w-0">
         <div className={getLineClassName(line.type)}>
           <span className="text-gray-400 select-none mr-2" aria-hidden="true">
             {getPrefixSymbol(line.type)}
           </span>
-          <span className="font-mono text-sm whitespace-pre-wrap break-words">
+          <span className="font-mono text-sm whitespace-pre-wrap break-words diff-line-text">
             {line.content || '\n'}
           </span>
         </div>

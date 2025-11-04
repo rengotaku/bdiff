@@ -38,10 +38,25 @@
   .diff-line-content {
     @apply break-words;
     overflow-wrap: anywhere;
+    word-break: break-all;
   }
 
   /* Ensure long continuous strings wrap properly */
   .font-mono {
     @apply break-words;
+    overflow-wrap: anywhere;
+    word-break: break-all;
+  }
+
+  /* Force text wrapping in flex containers */
+  .flex-1 {
+    min-width: 0;
+  }
+
+  /* Specific fix for diff line content */
+  .diff-line-text {
+    overflow-wrap: anywhere;
+    word-break: break-all;
+    hyphens: auto;
   }
 }
