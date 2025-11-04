@@ -33,30 +33,9 @@
     @apply mx-auto px-4 sm:px-6 lg:px-8;
   }
 
-  /* Enhanced text wrapping for diff content */
-  .diff-content,
-  .diff-line-content {
-    @apply break-words;
-    overflow-wrap: anywhere;
-    word-break: break-all;
-  }
-
-  /* Ensure long continuous strings wrap properly */
-  .font-mono {
-    @apply break-words;
-    overflow-wrap: anywhere;
-    word-break: break-all;
-  }
-
-  /* Force text wrapping in flex containers */
-  .flex-1 {
-    min-width: 0;
-  }
-
-  /* Specific fix for diff line content */
+  /* Diff text wrapping - single comprehensive rule */
   .diff-line-text {
     overflow-wrap: anywhere;
     word-break: break-all;
-    hyphens: auto;
   }
 }

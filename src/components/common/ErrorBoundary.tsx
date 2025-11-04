@@ -92,7 +92,7 @@ class ErrorBoundary extends Component<Props, State> {
                   <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700 mb-2">
                     Error Details (Development)
                   </summary>
-                  <div className="bg-gray-50 rounded-md p-3 text-xs font-mono text-gray-800 whitespace-pre-wrap break-words border overflow-auto max-h-32">
+                  <div className="bg-gray-50 rounded-md p-3 text-xs font-mono text-gray-800 whitespace-pre-wrap border overflow-auto max-h-32">
                     {this.state.error.toString()}
                     {this.state.errorInfo?.componentStack}
                   </div>

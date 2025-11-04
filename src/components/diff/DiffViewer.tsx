@@ -45,7 +45,7 @@ const DiffLineComponent = memo<{
           <span className="text-gray-400 select-none mr-2" aria-hidden="true">
             {getPrefixSymbol(line.type)}
           </span>
-          <span className="font-mono text-sm whitespace-pre-wrap break-words diff-line-text">
+          <span className="font-mono text-sm whitespace-pre-wrap diff-line-text">
             {line.content || '\n'}
           </span>
         </div>
