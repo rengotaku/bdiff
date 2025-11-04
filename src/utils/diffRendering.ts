@@ -5,7 +5,7 @@ import type { DiffLine } from '../types/types';
  */
 
 export const getLineClassName = (type: DiffLine['type']): string => {
-  const base = 'font-mono text-sm border-l-4 px-4 py-1 whitespace-pre-wrap';
+  const base = 'font-mono text-sm border-l-4 px-4 py-1 whitespace-pre-wrap break-words';
   switch (type) {
     case 'added':
       return `${base} bg-green-50 border-green-400 text-green-800`;

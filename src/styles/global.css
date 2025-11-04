@@ -32,4 +32,16 @@
   .container {
     @apply mx-auto px-4 sm:px-6 lg:px-8;
   }
+
+  /* Enhanced text wrapping for diff content */
+  .diff-content,
+  .diff-line-content {
+    @apply break-words;
+    overflow-wrap: anywhere;
+  }
+
+  /* Ensure long continuous strings wrap properly */
+  .font-mono {
+    @apply break-words;
+  }
 }
