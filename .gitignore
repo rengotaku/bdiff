@@ -86,3 +86,11 @@ test-results.xml
 tsconfig.tsbuildinfo
 */tsconfig.tsbuildinfo
 *.tsbuildinfo
+
+# Test files and temporary content
+*.txt
+
+# Documentation files - only CLAUDE.md allowed in root
+/*.md
+!CLAUDE.md
+!/README.md

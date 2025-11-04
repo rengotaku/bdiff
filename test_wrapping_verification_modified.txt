@@ -1,8 +1,0 @@
-Test file for verifying text wrapping behavior - MODIFIED
-This line contains a very long string without spaces: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccccccccccccccccccccddddddddddddddddd1234567890MODIFIED
-Normal line - CHANGED
-Another very long line: xxxxxxxxxxxxxyyyyyyyyyyyyyzzzzzzzzzzzzzzzwwwwwwwwwwwwwvvvvvvvvvvvvuuuuuuuuuuuutttttttttttsssssssssssrrrrrrrrrrr UPDATED
-Short line - MODIFIED
-URL example: https://modified-very-long-domain-name-that-should-wrap-when-displayed-in-diff-view.example.com/very/long/path/to/some/resource/that/keeps/going/and/going/until/it/becomes/unreasonably/long
-Code: const veryLongVariableNameThatShouldWrapProperlyInDiffViewWhenDisplayedToTheUserToPreventOverflowIssues = "modified value";
-End of test - FINAL
