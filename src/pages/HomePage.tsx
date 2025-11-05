@@ -60,7 +60,7 @@ export const HomePage: React.FC = () => {
   // Ref for auto-scroll
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  // Handle text input changes
+  // Handle text input changes (typing in textarea)
   const handleTextChange = useCallback((text: string, target: 'original' | 'modified') => {
     const fileInfo: FileInfo = {
       name: target === 'original' ? 'Original Text' : 'Modified Text',
@@ -68,13 +68,32 @@ export const HomePage: React.FC = () => {
       size: new Blob([text]).size,
       lastModified: new Date()
     };
-    
+
     if (target === 'original') {
       setOriginalText(text);
-      setOriginalFile(fileInfo);
+      setOriginalFile(fileInfo, false); // false = text input, not file
     } else {
       setModifiedText(text);
-      setModifiedFile(fileInfo);
+      setModifiedFile(fileInfo, false); // false = text input, not file
+    }
+    clearError();
+  }, [setOriginalFile, setModifiedFile, clearError]);
+
+  // Handle file content changes (from file upload/drop)
+  const handleFileContent = useCallback((text: string, target: 'original' | 'modified', fileName: string) => {
+    const fileInfo: FileInfo = {
+      name: fileName,
+      content: text,
+      size: new Blob([text]).size,
+      lastModified: new Date()
+    };
+
+    if (target === 'original') {
+      setOriginalText(text);
+      setOriginalFile(fileInfo, true); // true = from file
+    } else {
+      setModifiedText(text);
+      setModifiedFile(fileInfo, true); // true = from file
     }
     clearError();
   }, [setOriginalFile, setModifiedFile, clearError]);
@@ -114,7 +133,7 @@ export const HomePage: React.FC = () => {
       const file = files[0];
       const fileInfo = await readFile(file);
       if (fileInfo) {
-        handleTextChange(fileInfo.content, target);
+        handleFileContent(fileInfo.content, target, fileInfo.name);
       }
       return;
     }
@@ -137,15 +156,15 @@ export const HomePage: React.FC = () => {
     if (uriList) {
       console.warn('File URIs dropped from file manager detected. Please use the file input dialog for better compatibility.');
     }
-  }, [readFile, handleTextChange]);
+  }, [readFile, handleFileContent, handleTextChange]);
 
   // File selection handlers
   const handleFileSelect = useCallback(async (file: File, target: 'original' | 'modified') => {
     const fileInfo = await readFile(file);
     if (fileInfo) {
-      handleTextChange(fileInfo.content, target);
+      handleFileContent(fileInfo.content, target, fileInfo.name);
     }
-  }, [readFile, handleTextChange]);
+  }, [readFile, handleFileContent]);
 
   // Handle comparison start
   const handleStartComparison = useCallback(async () => {
