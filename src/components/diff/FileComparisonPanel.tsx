@@ -117,7 +117,7 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
             <NoDifferencesDisplay />
           </div>
         ) : (
-          <div className="h-[70vh] overflow-auto border rounded-md">
+          <div className="max-h-[80vh] overflow-auto border rounded-md">
             <DiffViewer 
               lines={diffResult.lines} 
               viewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
