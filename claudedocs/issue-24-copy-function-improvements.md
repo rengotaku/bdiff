@@ -60,8 +60,25 @@ Simplified the copy functionality according to Issue #24 requirements.
   - Changed export callbacks to `console.log`/`console.error`
   - Removed `copyAddedLines`, `copyRemovedLines`, `copyChangedLines` from `useClipboard` destructuring
 
-### 4. Column Copy Functionality
-**Status**: No column copy feature was found in the codebase (may have been removed previously)
+### 4. Column Copy Functionality ✅
+**Before**: Individual line copy buttons (📋) appeared on hover for each diff line
+**After**: All individual line copy buttons removed
+
+**Files Modified**:
+- `src/components/diff/DiffViewer.tsx`
+  - Removed `onCopyLine` prop and functionality
+  - Removed copy button from `DiffLineComponent`
+  - Removed `showCopyButtons` prop (no longer needed)
+  - Removed `useCallback` import (no longer needed)
+
+- `src/components/diff/FileComparisonPanel.tsx`
+  - Removed `onCopyLine` prop
+
+- `src/pages/HomePage.tsx`
+  - Removed `handleCopyLine` function
+  - Removed `copyText` from `useClipboard` destructuring
+  - Removed `formatLineForCopy` import
+  - Removed `DiffLine` type import
 
 ## Behavior Changes
 
