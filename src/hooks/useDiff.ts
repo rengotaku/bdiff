@@ -12,11 +12,13 @@ interface UseDiffState {
   viewMode: ViewMode
   inputType: InputType
   comparisonOptions: ComparisonOptions
+  originalIsFromFile: boolean
+  modifiedIsFromFile: boolean
 }
 
 interface UseDiffActions {
-  setOriginalFile: (file: FileInfo | null) => void
-  setModifiedFile: (file: FileInfo | null) => void
+  setOriginalFile: (file: FileInfo | null, isFromFile?: boolean) => void
+  setModifiedFile: (file: FileInfo | null, isFromFile?: boolean) => void
   setViewMode: (mode: ViewMode) => void
   setInputType: (type: InputType) => void
   setComparisonOptions: (options: ComparisonOptions) => void
@@ -39,15 +41,31 @@ export function useDiff(): UseDiffReturn {
     error: null,
     viewMode: 'side-by-side',
     inputType: 'file',
-    comparisonOptions: TextPreprocessor.getDefaultOptions()
+    comparisonOptions: TextPreprocessor.getDefaultOptions(),
+    originalIsFromFile: false,
+    modifiedIsFromFile: false
   })
 
-  const setOriginalFile = useCallback((file: FileInfo | null) => {
-    setState(prev => ({ ...prev, originalFile: file, error: null }))
+  const setOriginalFile = useCallback((file: FileInfo | null, isFromFile: boolean = false) => {
+    setState(prev => ({
+      ...prev,
+      originalFile: file,
+      error: null,
+      originalIsFromFile: isFromFile,
+      // Clear diff result when text is manually edited (not from file upload)
+      diffResult: isFromFile ? prev.diffResult : null
+    }))
   }, [])
 
-  const setModifiedFile = useCallback((file: FileInfo | null) => {
-    setState(prev => ({ ...prev, modifiedFile: file, error: null }))
+  const setModifiedFile = useCallback((file: FileInfo | null, isFromFile: boolean = false) => {
+    setState(prev => ({
+      ...prev,
+      modifiedFile: file,
+      error: null,
+      modifiedIsFromFile: isFromFile,
+      // Clear diff result when text is manually edited (not from file upload)
+      diffResult: isFromFile ? prev.diffResult : null
+    }))
   }, [])
 
   const setViewMode = useCallback((mode: ViewMode) => {
@@ -110,16 +128,19 @@ export function useDiff(): UseDiffReturn {
       error: null,
       viewMode: 'side-by-side',
       inputType: 'file',
-      comparisonOptions: TextPreprocessor.getDefaultOptions()
+      comparisonOptions: TextPreprocessor.getDefaultOptions(),
+      originalIsFromFile: false,
+      modifiedIsFromFile: false
     })
   }, [])
 
-  // Auto-compare when both files are uploaded
+  // Auto-compare only when both files are from file uploads (not text input)
   useEffect(() => {
-    if (state.originalFile && state.modifiedFile && !state.isProcessing && !state.diffResult) {
+    if (state.originalFile && state.modifiedFile && !state.isProcessing && !state.diffResult &&
+        state.originalIsFromFile && state.modifiedIsFromFile) {
       calculateDiff()
     }
-  }, [state.originalFile, state.modifiedFile, state.isProcessing, state.diffResult, calculateDiff])
+  }, [state.originalFile, state.modifiedFile, state.isProcessing, state.diffResult, state.originalIsFromFile, state.modifiedIsFromFile, calculateDiff])
 
   const canCalculateDiff = useMemo(() => {
     return !!(state.originalFile && state.modifiedFile) && !state.isProcessing
