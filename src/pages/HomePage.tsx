@@ -5,6 +5,7 @@ import { FileUploadArea } from '../components/diff/FileUploadArea';
 import { FileComparisonPanel } from '../components/diff/FileComparisonPanel';
 import { DiffSettingsPanel } from '../components/diff/DiffSettingsPanel';
 import { ComparisonOptionsSidebar } from '../components/diff/ComparisonOptionsSidebar';
+import { useToastHelpers } from '../components/common/Toast';
 import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
 import { useClipboard } from '../hooks/useClipboard';
@@ -30,12 +31,16 @@ export const HomePage: React.FC = () => {
   } = useDiffContext();
   
   const { readFile, isReading, error: fileError } = useFileReader();
+  const { success: showSuccessToast, error: showErrorToast } = useToastHelpers();
 
-  // Copy functionality - simple copy without toast notifications
+  // Copy functionality with toast notifications
   const {
     copyDiff,
     isLoading: isCopying
-  } = useClipboard();
+  } = useClipboard({
+    onSuccess: (message) => showSuccessToast('コピー完了', message),
+    onError: (error) => showErrorToast('コピー失敗', error)
+  });
   
   // Drag and drop states
   const [isDragging, setIsDragging] = useState(false);
@@ -304,8 +309,8 @@ export const HomePage: React.FC = () => {
               similarityPercentage={similarityPercentage}
               originalFile={originalFile}
               modifiedFile={modifiedFile}
-              onExportSuccess={(filename) => console.log('Export success:', filename)}
-              onExportError={(error) => console.error('Export error:', error)}
+              onExportSuccess={(filename) => showSuccessToast('エクスポート完了', `${filename} をダウンロードしました`)}
+              onExportError={(error) => showErrorToast('エクスポート失敗', error)}
             />
           </div>
         )}

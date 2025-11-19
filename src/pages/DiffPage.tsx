@@ -13,6 +13,7 @@ import { NoDifferencesDisplay } from '../components/diff/NoDifferencesDisplay';
 import { CollapsibleFileSelector } from '../components/diff/CollapsibleFileSelector';
 import { DiffViewer } from '../components/diff/DiffViewer';
 import { HTMLExportButton } from '../components/export/HTMLExportButton';
+import { useToastHelpers } from '../components/common/Toast';
 import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
 import { useClipboard } from '../hooks/useClipboard';
@@ -36,12 +37,16 @@ export const DiffPage: React.FC = () => {
   } = useDiffContext();
   
   const { readFile } = useFileReader();
+  const { success: showSuccessToast, error: showErrorToast } = useToastHelpers();
 
-  // Copy functionality - simple copy without toast notifications
+  // Copy functionality with toast notifications
   const {
     copyDiff,
     isLoading: isCopying
-  } = useClipboard();
+  } = useClipboard({
+    onSuccess: (message) => showSuccessToast('コピー完了', message),
+    onError: (error) => showErrorToast('コピー失敗', error)
+  });
 
   const handleGoBack = useCallback(() => {
     navigate('/');
@@ -283,8 +288,8 @@ export const DiffPage: React.FC = () => {
                       variant="secondary"
                       size="sm"
                       className="w-full"
-                      onSuccess={(filename) => console.log('Export success:', filename)}
-                      onError={(error) => console.error('Export error:', error)}
+                      onSuccess={(filename) => showSuccessToast('エクスポート完了', `${filename} をダウンロードしました`)}
+                      onError={(error) => showErrorToast('エクスポート失敗', error)}
                     />
                     <Button
                       variant="primary"
