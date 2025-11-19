@@ -93,7 +93,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
 
     try {
       await ClipboardService.copyText(text)
-      handleSuccess('テキストをクリップボードにコピーしました')
+      handleSuccess()
     } catch (error) {
       handleError(error)
       throw error
@@ -127,11 +127,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
         : DiffFormatter.format(lines, { ...formatOptions, format })
 
       await copyText(content)
-      
-      // Get stats for success message
-      const stats = DiffFormatter.getLineStats(lines)
-      const totalChanges = stats.added + stats.removed + stats.modified
-      handleSuccess(`差分をコピーしました (変更: ${totalChanges}行)`)
+      handleSuccess()
       
     } catch (error) {
       handleError(error)
@@ -158,7 +154,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     }
 
     await copyDiff(addedLines, options)
-    handleSuccess(`追加行をコピーしました (${addedLines.length}行)`)
+    handleSuccess()
   }, [copyDiff, handleSuccess, handleError])
 
   const copyRemovedLines = useCallback(async (
@@ -180,7 +176,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     }
 
     await copyDiff(removedLines, options)
-    handleSuccess(`削除行をコピーしました (${removedLines.length}行)`)
+    handleSuccess()
   }, [copyDiff, handleSuccess, handleError])
 
   const copyChangedLines = useCallback(async (
@@ -202,10 +198,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     }
 
     await copyDiff(changedLines, options)
-    
-    const stats = DiffFormatter.getLineStats(changedLines)
-    const totalChanges = stats.added + stats.removed + stats.modified
-    handleSuccess(`変更行をコピーしました (${totalChanges}行)`)
+    handleSuccess()
   }, [copyDiff, handleSuccess, handleError])
 
   return {

@@ -44,7 +44,7 @@ export const DiffPage: React.FC = () => {
     copyDiff,
     isLoading: isCopying
   } = useClipboard({
-    onSuccess: (message) => showSuccessToast('コピー完了', message),
+    onSuccess: () => showSuccessToast('コピー完了', '差分をクリップボードにコピーしました'),
     onError: (error) => showErrorToast('コピー失敗', error)
   });
 
