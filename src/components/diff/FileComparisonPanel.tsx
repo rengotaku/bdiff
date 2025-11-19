@@ -12,7 +12,6 @@ export interface FileComparisonPanelProps {
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
   onCopy: () => void;
-  onCopyLine?: (line: any) => Promise<void>;
   isCopying: boolean;
   hasNoDifferences: boolean;
   similarityPercentage: number;
@@ -27,7 +26,6 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
   viewMode,
   onViewModeChange,
   onCopy,
-  onCopyLine,
   isCopying,
   hasNoDifferences,
   similarityPercentage,
@@ -117,12 +115,10 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
           </div>
         ) : (
           <div className="max-h-[80vh] overflow-auto border rounded-md">
-            <DiffViewer 
-              lines={diffResult.lines} 
+            <DiffViewer
+              lines={diffResult.lines}
               viewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
               onCopy={onCopy}
-              onCopyLine={onCopyLine}
-              showCopyButtons={true}
               loading={isCopying}
             />
           </div>

@@ -9,8 +9,7 @@ import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
 import { useClipboard } from '../hooks/useClipboard';
 import { DiffService } from '../services/diffService';
-import { formatLineForCopy } from '../utils/diffRendering';
-import type { FileInfo, DiffLine } from '../types/types';
+import type { FileInfo } from '../types/types';
 
 export const HomePage: React.FC = () => {
   const {
@@ -35,7 +34,6 @@ export const HomePage: React.FC = () => {
   // Copy functionality - simple copy without toast notifications
   const {
     copyDiff,
-    copyText,
     isLoading: isCopying
   } = useClipboard();
   
@@ -187,15 +185,6 @@ export const HomePage: React.FC = () => {
   }, [diffResult, copyDiff, originalFile, modifiedFile]);
 
 
-  const handleCopyLine = useCallback(async (line: DiffLine) => {
-    try {
-      const content = formatLineForCopy(line);
-      await copyText(content);
-    } catch (error) {
-      // Error silently handled
-      console.error('Copy line failed:', error);
-    }
-  }, [copyText]);
 
   const similarityPercentage = useMemo(() => {
     if (!diffResult) return 0;
@@ -310,7 +299,6 @@ export const HomePage: React.FC = () => {
               viewMode={viewMode}
               onViewModeChange={setViewMode}
               onCopy={handleCopy}
-              onCopyLine={handleCopyLine}
               isCopying={isCopying}
               hasNoDifferences={Boolean(hasNoDifferences)}
               similarityPercentage={similarityPercentage}
