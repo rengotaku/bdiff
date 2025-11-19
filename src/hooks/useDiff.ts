@@ -47,11 +47,25 @@ export function useDiff(): UseDiffReturn {
   })
 
   const setOriginalFile = useCallback((file: FileInfo | null, isFromFile: boolean = false) => {
-    setState(prev => ({ ...prev, originalFile: file, error: null, originalIsFromFile: isFromFile }))
+    setState(prev => ({
+      ...prev,
+      originalFile: file,
+      error: null,
+      originalIsFromFile: isFromFile,
+      // Clear diff result when text is manually edited (not from file upload)
+      diffResult: isFromFile ? prev.diffResult : null
+    }))
   }, [])
 
   const setModifiedFile = useCallback((file: FileInfo | null, isFromFile: boolean = false) => {
-    setState(prev => ({ ...prev, modifiedFile: file, error: null, modifiedIsFromFile: isFromFile }))
+    setState(prev => ({
+      ...prev,
+      modifiedFile: file,
+      error: null,
+      modifiedIsFromFile: isFromFile,
+      // Clear diff result when text is manually edited (not from file upload)
+      diffResult: isFromFile ? prev.diffResult : null
+    }))
   }, [])
 
   const setViewMode = useCallback((mode: ViewMode) => {

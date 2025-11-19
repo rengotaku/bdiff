@@ -49,10 +49,6 @@ export const HomePage: React.FC = () => {
     onError: (error) => showErrorToast('Copy Failed', error)
   });
   
-  // Text input states
-  const [originalText, setOriginalText] = useState('');
-  const [modifiedText, setModifiedText] = useState('');
-  
   // Drag and drop states
   const [isDragging, setIsDragging] = useState(false);
   const [dragTarget, setDragTarget] = useState<'original' | 'modified' | null>(null);
@@ -70,10 +66,8 @@ export const HomePage: React.FC = () => {
     };
 
     if (target === 'original') {
-      setOriginalText(text);
       setOriginalFile(fileInfo, false); // false = text input, not file
     } else {
-      setModifiedText(text);
       setModifiedFile(fileInfo, false); // false = text input, not file
     }
     clearError();
@@ -89,10 +83,8 @@ export const HomePage: React.FC = () => {
     };
 
     if (target === 'original') {
-      setOriginalText(text);
       setOriginalFile(fileInfo, true); // true = from file
     } else {
-      setModifiedText(text);
       setModifiedFile(fileInfo, true); // true = from file
     }
     clearError();
@@ -173,13 +165,11 @@ export const HomePage: React.FC = () => {
 
   // Clear original text
   const handleClearOriginal = useCallback(() => {
-    setOriginalText('');
     setOriginalFile(null);
   }, [setOriginalFile]);
 
   // Clear modified text
   const handleClearModified = useCallback(() => {
-    setModifiedText('');
     setModifiedFile(null);
   }, [setModifiedFile]);
 
@@ -334,7 +324,7 @@ export const HomePage: React.FC = () => {
             <FileUploadArea
               title="Original Text"
               placeholder="Paste, type your original text here, or drop a file..."
-              value={originalText}
+              value={originalFile?.content || ''}
               onChange={(value) => handleTextChange(value, 'original')}
               onFileSelect={(file) => handleFileSelect(file, 'original')}
               onClear={handleClearOriginal}
@@ -350,7 +340,7 @@ export const HomePage: React.FC = () => {
             <FileUploadArea
               title="Modified Text"
               placeholder="Paste, type your modified text here, or drop a file..."
-              value={modifiedText}
+              value={modifiedFile?.content || ''}
               onChange={(value) => handleTextChange(value, 'modified')}
               onFileSelect={(file) => handleFileSelect(file, 'modified')}
               onClear={handleClearModified}
@@ -388,13 +378,15 @@ export const HomePage: React.FC = () => {
         )}
 
         {/* Status Display */}
-        {(isProcessing || !canCalculateDiff) && (
+        {(isProcessing || !canCalculateDiff || (!diffResult && canCalculateDiff)) && (
           <Card>
             <CardContent className="py-3">
               <div className="text-sm text-gray-600 text-center">
                 {isProcessing
                   ? 'Auto-comparing files...'
-                  : 'Select or enter content for both original and modified versions'
+                  : !canCalculateDiff
+                  ? 'Select or enter content for both original and modified versions'
+                  : 'Ready to compare - Click "Compare Files" button'
                 }
               </div>
             </CardContent>
