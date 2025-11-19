@@ -1,16 +1,13 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Card, CardContent } from '../components/ui/Card';
-import { type CopyType } from '../components/ui/CopySelect';
 import { ContentLayout } from '../components/layout/PageLayout';
 import { FileUploadArea } from '../components/diff/FileUploadArea';
 import { FileComparisonPanel } from '../components/diff/FileComparisonPanel';
 import { DiffSettingsPanel } from '../components/diff/DiffSettingsPanel';
 import { ComparisonOptionsSidebar } from '../components/diff/ComparisonOptionsSidebar';
-import { useToastHelpers } from '../components/common/Toast';
 import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
 import { useClipboard } from '../hooks/useClipboard';
-import { useKeyboardShortcuts, type KeyboardShortcut } from '../hooks/useKeyboardShortcuts';
 import { DiffService } from '../services/diffService';
 import { formatLineForCopy } from '../utils/diffRendering';
 import type { FileInfo, DiffLine } from '../types/types';
@@ -34,20 +31,13 @@ export const HomePage: React.FC = () => {
   } = useDiffContext();
   
   const { readFile, isReading, error: fileError } = useFileReader();
-  const { success: showSuccessToast, error: showErrorToast } = useToastHelpers();
-  
-  // Copy functionality
+
+  // Copy functionality - simple copy without toast notifications
   const {
     copyDiff,
-    copyAddedLines,
-    copyRemovedLines,
-    copyChangedLines,
     copyText,
     isLoading: isCopying
-  } = useClipboard({
-    onSuccess: (message) => showSuccessToast('Copy Complete', message),
-    onError: (error) => showErrorToast('Copy Failed', error)
-  });
+  } = useClipboard();
   
   // Drag and drop states
   const [isDragging, setIsDragging] = useState(false);
@@ -174,16 +164,16 @@ export const HomePage: React.FC = () => {
   }, [setModifiedFile]);
 
 
-  // Copy handlers
-  const handleCopyAll = useCallback(async () => {
+  // Simplified copy handler - only copy all
+  const handleCopy = useCallback(async () => {
     if (!diffResult?.lines) return;
-    
-    const filename = originalFile?.name && modifiedFile?.name 
+
+    const filename = originalFile?.name && modifiedFile?.name
       ? `${originalFile.name} vs ${modifiedFile.name}`
       : 'Diff Comparison Result';
-      
+
     try {
-      await copyDiff(diffResult.lines, { 
+      await copyDiff(diffResult.lines, {
         format: 'diff',
         filename,
         originalFilename: originalFile?.name,
@@ -191,62 +181,21 @@ export const HomePage: React.FC = () => {
         includeHeader: true
       });
     } catch (error) {
-      // Error handled by useClipboard onError callback
+      // Error silently handled
+      console.error('Copy failed:', error);
     }
   }, [diffResult, copyDiff, originalFile, modifiedFile]);
 
-  const handleCopyAdded = useCallback(async () => {
-    if (!diffResult?.lines) return;
-    try {
-      await copyAddedLines(diffResult.lines, { format: 'diff', includeHeader: true });
-    } catch (error) {
-      // Error handled by useClipboard onError callback
-    }
-  }, [diffResult, copyAddedLines]);
-
-  const handleCopyRemoved = useCallback(async () => {
-    if (!diffResult?.lines) return;
-    try {
-      await copyRemovedLines(diffResult.lines, { format: 'diff', includeHeader: true });
-    } catch (error) {
-      // Error handled by useClipboard onError callback
-    }
-  }, [diffResult, copyRemovedLines]);
-
-  const handleCopyChanged = useCallback(async () => {
-    if (!diffResult?.lines) return;
-    try {
-      await copyChangedLines(diffResult.lines, { format: 'diff', includeHeader: true });
-    } catch (error) {
-      // Error handled by useClipboard onError callback
-    }
-  }, [diffResult, copyChangedLines]);
 
   const handleCopyLine = useCallback(async (line: DiffLine) => {
     try {
       const content = formatLineForCopy(line);
       await copyText(content);
     } catch (error) {
-      // Error handled by useClipboard onError callback
+      // Error silently handled
+      console.error('Copy line failed:', error);
     }
   }, [copyText]);
-
-  const handleCopy = useCallback(async (type: CopyType) => {
-    switch (type) {
-      case 'all':
-        await handleCopyAll();
-        break;
-      case 'added':
-        await handleCopyAdded();
-        break;
-      case 'removed':
-        await handleCopyRemoved();
-        break;
-      case 'changed':
-        await handleCopyChanged();
-        break;
-    }
-  }, [handleCopyAll, handleCopyAdded, handleCopyRemoved, handleCopyChanged]);
 
   const similarityPercentage = useMemo(() => {
     if (!diffResult) return 0;
@@ -256,46 +205,6 @@ export const HomePage: React.FC = () => {
   const hasNoDifferences = useMemo(() => {
     return diffResult && !DiffService.hasDifferences(diffResult);
   }, [diffResult]);
-
-  // Keyboard shortcuts
-  const keyboardShortcuts: KeyboardShortcut[] = useMemo(() => {
-    if (!diffResult?.lines) return [];
-
-    return [
-      {
-        key: 'c',
-        ctrlKey: true,
-        action: handleCopyAll,
-        description: 'Copy all differences'
-      },
-      {
-        key: 'c',
-        ctrlKey: true,
-        shiftKey: true,
-        action: handleCopyChanged,
-        description: 'Copy changed lines only'
-      },
-      {
-        key: 'a',
-        ctrlKey: true,
-        shiftKey: true,
-        action: handleCopyAdded,
-        description: 'Copy added lines only'
-      },
-      {
-        key: 'r',
-        ctrlKey: true,
-        shiftKey: true,
-        action: handleCopyRemoved,
-        description: 'Copy removed lines only'
-      }
-    ];
-  }, [diffResult?.lines, handleCopyAll, handleCopyChanged, handleCopyAdded, handleCopyRemoved]);
-
-  useKeyboardShortcuts({
-    enabled: !isProcessing && !!diffResult && !!originalFile && !!modifiedFile,
-    shortcuts: keyboardShortcuts
-  });
 
   const displayError = error || fileError;
 
@@ -407,8 +316,8 @@ export const HomePage: React.FC = () => {
               similarityPercentage={similarityPercentage}
               originalFile={originalFile}
               modifiedFile={modifiedFile}
-              onExportSuccess={(filename) => showSuccessToast('Export Complete', `Downloaded ${filename}`)}
-              onExportError={(error) => showErrorToast('Export Failed', error)}
+              onExportSuccess={(filename) => console.log('Export success:', filename)}
+              onExportError={(error) => console.error('Export error:', error)}
             />
           </div>
         )}

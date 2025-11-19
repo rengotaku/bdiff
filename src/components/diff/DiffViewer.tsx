@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, memo } from 'react';
-import { CopySelect, type CopyType } from '../ui/CopySelect';
+import { CopyButton } from '../ui/CopyButton';
 import { getLineClassName, getPrefixSymbol } from '../../utils/diffRendering';
 import type { DiffLine, ViewMode } from '../../types/types';
 
@@ -9,7 +9,7 @@ export interface DiffViewerProps {
   /** Display mode for the diff viewer */
   viewMode: ViewMode;
   /** Callback for copy operations */
-  onCopy: (type: CopyType) => void;
+  onCopy: () => void;
   /** Optional callback for copying individual lines */
   onCopyLine?: (line: DiffLine) => Promise<void>;
   /** Whether to show copy buttons */
@@ -33,8 +33,8 @@ const DiffLineComponent = memo<{
   }, [line, onCopyLine]);
 
   return (
-    <div 
-      key={index} 
+    <div
+      key={index}
       className="flex items-start group hover:bg-gray-25 transition-colors duration-150"
     >
       <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none">
@@ -72,17 +72,18 @@ DiffLineComponent.displayName = 'DiffLineComponent';
 const SideBySidePanel = memo<{
   lines: DiffLine[];
   title: string;
-  onCopy: (type: CopyType) => void;
+  onCopy: () => void;
   loading: boolean;
   onCopyLine?: (line: DiffLine) => Promise<void>;
 }>(({ lines, title, onCopy, loading, onCopyLine }) => (
   <div className="space-y-1">
     <div className="flex items-center justify-between mb-2 px-4">
       <div className="font-medium text-sm text-gray-700">{title}</div>
-      <CopySelect
-        onCopy={onCopy}
+      <CopyButton
+        onClick={onCopy}
         loading={loading}
         size="sm"
+        label="全てコピー"
       />
     </div>
     <div className="border rounded-md overflow-visible" role="region" aria-label={title}>
@@ -105,17 +106,18 @@ SideBySidePanel.displayName = 'SideBySidePanel';
  */
 const UnifiedPanel = memo<{
   lines: DiffLine[];
-  onCopy: (type: CopyType) => void;
+  onCopy: () => void;
   loading: boolean;
   onCopyLine?: (line: DiffLine) => Promise<void>;
 }>(({ lines, onCopy, loading, onCopyLine }) => (
   <div className="space-y-2">
     <div className="flex items-center justify-between px-4">
       <div className="font-medium text-sm text-gray-700">差分表示</div>
-      <CopySelect
-        onCopy={onCopy}
+      <CopyButton
+        onClick={onCopy}
         loading={loading}
         size="sm"
+        label="全てコピー"
       />
     </div>
     <div className="border rounded-md overflow-visible" role="region" aria-label="Unified diff view">
@@ -135,24 +137,24 @@ UnifiedPanel.displayName = 'UnifiedPanel';
 
 /**
  * Main diff viewer component with optimized rendering for large diffs
- * 
+ *
  * @param props - DiffViewer configuration
  * @returns Rendered diff viewer component
  */
-export const DiffViewer: React.FC<DiffViewerProps> = memo(({ 
-  lines, 
-  viewMode, 
-  onCopy, 
-  onCopyLine, 
-  showCopyButtons = true, 
-  loading = false 
+export const DiffViewer: React.FC<DiffViewerProps> = memo(({
+  lines,
+  viewMode,
+  onCopy,
+  onCopyLine,
+  showCopyButtons = true,
+  loading = false
 }) => {
   // Memoize filtered lines for side-by-side view to prevent unnecessary recalculations
   const { originalLines, modifiedLines } = useMemo(() => {
     if (viewMode !== 'side-by-side') {
       return { originalLines: [], modifiedLines: [] };
     }
-    
+
     return {
       originalLines: lines.filter(l => l.type !== 'added'),
       modifiedLines: lines.filter(l => l.type !== 'removed')

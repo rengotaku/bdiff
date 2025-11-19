@@ -5,14 +5,13 @@ import { Tooltip } from '../ui/Tooltip';
 import { NoDifferencesDisplay } from './NoDifferencesDisplay';
 import { DiffViewer } from './DiffViewer';
 import { HTMLExportButton } from '../export/HTMLExportButton';
-import type { CopyType } from '../ui/CopySelect';
 import type { DiffResult, ViewMode, FileInfo } from '../../types/types';
 
 export interface FileComparisonPanelProps {
   diffResult: DiffResult;
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
-  onCopy: (type: CopyType) => void;
+  onCopy: () => void;
   onCopyLine?: (line: any) => Promise<void>;
   isCopying: boolean;
   hasNoDifferences: boolean;
