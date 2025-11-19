@@ -1,5 +1,4 @@
 import React, { useMemo, memo } from 'react';
-import { CopyButton } from '../ui/CopyButton';
 import { getLineClassName, getPrefixSymbol } from '../../utils/diffRendering';
 import type { DiffLine, ViewMode } from '../../types/types';
 
@@ -8,10 +7,6 @@ export interface DiffViewerProps {
   lines: DiffLine[];
   /** Display mode for the diff viewer */
   viewMode: ViewMode;
-  /** Callback for copy operations */
-  onCopy: () => void;
-  /** Loading state for copy operations */
-  loading?: boolean;
 }
 
 /**
@@ -51,18 +46,10 @@ DiffLineComponent.displayName = 'DiffLineComponent';
 const SideBySidePanel = memo<{
   lines: DiffLine[];
   title: string;
-  onCopy: () => void;
-  loading: boolean;
-}>(({ lines, title, onCopy, loading }) => (
+}>(({ lines, title }) => (
   <div className="space-y-1">
     <div className="flex items-center justify-between mb-2 px-4">
       <div className="font-medium text-sm text-gray-700">{title}</div>
-      <CopyButton
-        onClick={onCopy}
-        loading={loading}
-        size="sm"
-        label="全てコピー"
-      />
     </div>
     <div className="border rounded-md overflow-visible" role="region" aria-label={title}>
       {lines.map((line, index) => (
@@ -83,19 +70,8 @@ SideBySidePanel.displayName = 'SideBySidePanel';
  */
 const UnifiedPanel = memo<{
   lines: DiffLine[];
-  onCopy: () => void;
-  loading: boolean;
-}>(({ lines, onCopy, loading }) => (
+}>(({ lines }) => (
   <div className="space-y-2">
-    <div className="flex items-center justify-between px-4">
-      <div className="font-medium text-sm text-gray-700">差分表示</div>
-      <CopyButton
-        onClick={onCopy}
-        loading={loading}
-        size="sm"
-        label="全てコピー"
-      />
-    </div>
     <div className="border rounded-md overflow-visible" role="region" aria-label="Unified diff view">
       {lines.map((line, index) => (
         <DiffLineComponent
@@ -118,9 +94,7 @@ UnifiedPanel.displayName = 'UnifiedPanel';
  */
 export const DiffViewer: React.FC<DiffViewerProps> = memo(({
   lines,
-  viewMode,
-  onCopy,
-  loading = false
+  viewMode
 }) => {
   // Memoize filtered lines for side-by-side view to prevent unnecessary recalculations
   const { originalLines, modifiedLines } = useMemo(() => {
@@ -141,14 +115,10 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
         <SideBySidePanel
           lines={originalLines}
           title="Original"
-          onCopy={onCopy}
-          loading={loading}
         />
         <SideBySidePanel
           lines={modifiedLines}
           title="Modified"
-          onCopy={onCopy}
-          loading={loading}
         />
       </div>
     );
@@ -158,8 +128,6 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
   return (
     <UnifiedPanel
       lines={lines}
-      onCopy={onCopy}
-      loading={loading}
     />
   );
 });

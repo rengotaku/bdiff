@@ -13,6 +13,7 @@ import { NoDifferencesDisplay } from '../components/diff/NoDifferencesDisplay';
 import { CollapsibleFileSelector } from '../components/diff/CollapsibleFileSelector';
 import { DiffViewer } from '../components/diff/DiffViewer';
 import { HTMLExportButton } from '../components/export/HTMLExportButton';
+import { CopyButton } from '../components/ui/CopyButton';
 import { useToastHelpers } from '../components/common/Toast';
 import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
@@ -278,9 +279,16 @@ export const DiffPage: React.FC = () => {
                     ]}
                     onChange={(value) => setViewMode(value as ViewMode)}
                   />
-                  
-                  
+
+
                   <div className="pt-2 space-y-2">
+                    <CopyButton
+                      onClick={handleCopy}
+                      loading={isCopying}
+                      size="sm"
+                      label="📋 全てコピー"
+                      className="w-full"
+                    />
                     <HTMLExportButton
                       diffResult={diffResult}
                       originalFile={originalFile}
@@ -316,11 +324,9 @@ export const DiffPage: React.FC = () => {
               <NoDifferencesDisplay />
             ) : (
               <div className="overflow-auto">
-                <DiffViewer 
-                  lines={diffResult.lines} 
+                <DiffViewer
+                  lines={diffResult.lines}
                   viewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
-                  onCopy={handleCopy}
-                  loading={isCopying}
                 />
               </div>
             )}

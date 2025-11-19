@@ -103,7 +103,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
   }, [isSupported, handleSuccess, handleError])
 
   const copyDiff = useCallback(async (
-    lines: DiffLine[], 
+    lines: DiffLine[],
     copyOptions: CopyOptions = {}
   ): Promise<void> => {
     if (!lines || lines.length === 0) {
@@ -118,17 +118,17 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     } = copyOptions
 
     try {
-      const content = includeHeader 
-        ? DiffFormatter.formatWithHeader(lines, { 
-            ...formatOptions, 
-            format, 
-            filename 
+      const content = includeHeader
+        ? DiffFormatter.formatWithHeader(lines, {
+            ...formatOptions,
+            format,
+            filename
           })
         : DiffFormatter.format(lines, { ...formatOptions, format })
 
       await copyText(content)
-      handleSuccess()
-      
+      // handleSuccess() is already called inside copyText()
+
     } catch (error) {
       handleError(error)
       throw error
@@ -136,11 +136,11 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
   }, [copyText, handleSuccess, handleError])
 
   const copyAddedLines = useCallback(async (
-    lines: DiffLine[], 
+    lines: DiffLine[],
     copyOptions: CopyOptions = {}
   ): Promise<void> => {
     const addedLines = DiffFormatter.getAddedLines(lines)
-    
+
     if (addedLines.length === 0) {
       const error = new Error('コピーする追加行がありません')
       handleError(error)
@@ -154,15 +154,15 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     }
 
     await copyDiff(addedLines, options)
-    handleSuccess()
+    // handleSuccess() is already called inside copyDiff() -> copyText()
   }, [copyDiff, handleSuccess, handleError])
 
   const copyRemovedLines = useCallback(async (
-    lines: DiffLine[], 
+    lines: DiffLine[],
     copyOptions: CopyOptions = {}
   ): Promise<void> => {
     const removedLines = DiffFormatter.getRemovedLines(lines)
-    
+
     if (removedLines.length === 0) {
       const error = new Error('コピーする削除行がありません')
       handleError(error)
@@ -176,15 +176,15 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     }
 
     await copyDiff(removedLines, options)
-    handleSuccess()
+    // handleSuccess() is already called inside copyDiff() -> copyText()
   }, [copyDiff, handleSuccess, handleError])
 
   const copyChangedLines = useCallback(async (
-    lines: DiffLine[], 
+    lines: DiffLine[],
     copyOptions: CopyOptions = {}
   ): Promise<void> => {
     const changedLines = DiffFormatter.getChangedLines(lines)
-    
+
     if (changedLines.length === 0) {
       const error = new Error('コピーする変更行がありません')
       handleError(error)
@@ -198,7 +198,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     }
 
     await copyDiff(changedLines, options)
-    handleSuccess()
+    // handleSuccess() is already called inside copyDiff() -> copyText()
   }, [copyDiff, handleSuccess, handleError])
 
   return {
