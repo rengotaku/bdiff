@@ -42,8 +42,7 @@ dev: ## Start development server with port management
 	@lsof -ti:$(PORT) | xargs -r kill -9 2>/dev/null || echo "Port $(PORT) is free"
 	@sleep 1
 	@echo "$(COLOR_BLUE)Starting development server on port $(PORT)...$(COLOR_RESET)"
-	@npx vite --port $(PORT) --host
-
+	@npm run dev
 
 kill-port: ## Kill processes running on port 14000
 	@echo "$(COLOR_YELLOW)Checking and killing processes on port $(PORT)...$(COLOR_RESET)"
