@@ -1,7 +1,7 @@
 # Makefile for bdiff project
 # Development and build automation
 
-.PHONY: help install dev dev-simple build preview clean test lint typecheck kill-port setup deps-update deps-audit security-check docker-build docker-run git-status commit
+.PHONY: help install dev build preview clean test lint typecheck kill-port setup deps-update deps-audit security-check docker-build docker-run git-status commit
 
 # Default port for development server
 PORT := 14000
@@ -37,13 +37,13 @@ setup: install ## Complete project setup
 	@echo "$(COLOR_GREEN)Setup complete!$(COLOR_RESET)"
 
 # Development commands
-dev: kill-port ## Start development server with port management
+dev: ## Start development server with port management
+	@echo "$(COLOR_YELLOW)Checking and killing processes on port $(PORT)...$(COLOR_RESET)"
+	@lsof -ti:$(PORT) | xargs -r kill -9 2>/dev/null || echo "Port $(PORT) is free"
+	@sleep 1
 	@echo "$(COLOR_BLUE)Starting development server on port $(PORT)...$(COLOR_RESET)"
-	@npm run dev
+	@npx vite --port $(PORT) --host
 
-dev-simple: ## Start development server without port killing
-	@echo "$(COLOR_BLUE)Starting simple development server...$(COLOR_RESET)"
-	@npm run dev:simple
 
 kill-port: ## Kill processes running on port 14000
 	@echo "$(COLOR_YELLOW)Checking and killing processes on port $(PORT)...$(COLOR_RESET)"
