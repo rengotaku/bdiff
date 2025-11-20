@@ -1,5 +1,14 @@
-import type { DiffResult, FileInfo, DiffStats } from '../types/types';
+import type { DiffResult, FileInfo, DiffStats, DiffLine } from '../types/types';
 import { DiffExporter } from '../utils/diffExport';
+
+/**
+ * Interface for paired lines in side-by-side view
+ */
+interface LinePair {
+  original: DiffLine | null;
+  modified: DiffLine | null;
+  pairType: 'unchanged' | 'modified' | 'added' | 'removed';
+}
 
 /**
  * Configuration options for HTML export
@@ -17,6 +26,8 @@ export interface HtmlExportOptions {
   title?: string;
   /** Whether to include only differences (hide unchanged lines) */
   differencesOnly: boolean;
+  /** View mode for the diff display */
+  viewMode: 'unified' | 'side-by-side';
 }
 
 /**
@@ -28,6 +39,7 @@ export const DEFAULT_HTML_EXPORT_OPTIONS: HtmlExportOptions = {
   includeStats: true,
   theme: 'light',
   differencesOnly: false,
+  viewMode: 'unified', // Default to unified for backward compatibility
 };
 
 /**
@@ -49,17 +61,19 @@ export class HtmlExportService {
     const timestamp = new Date().toISOString();
     
     // Filter lines if differences-only mode is enabled
-    const linesToExport = opts.differencesOnly 
+    const linesToExport = opts.differencesOnly
       ? diffResult.lines.filter(line => line.type !== 'unchanged')
       : diffResult.lines;
 
-    // Generate the diff content HTML
-    const diffHtml = DiffExporter.toHtml(linesToExport, {
-      includeLineNumbers: opts.includeLineNumbers,
-      selectedTypes: opts.differencesOnly 
-        ? ['added', 'removed', 'modified'] 
-        : ['added', 'removed', 'modified', 'unchanged']
-    });
+    // Generate the diff content HTML based on view mode
+    const diffHtml = opts.viewMode === 'side-by-side'
+      ? this.generateSideBySideView(linesToExport, opts)
+      : DiffExporter.toHtml(linesToExport, {
+          includeLineNumbers: opts.includeLineNumbers,
+          selectedTypes: opts.differencesOnly
+            ? ['added', 'removed', 'modified']
+            : ['added', 'removed', 'modified', 'unchanged']
+        });
 
     return `<!DOCTYPE html>
 <html lang="ja" data-theme="${opts.theme}">
@@ -454,30 +468,249 @@ ${this.getEmbeddedCSS(opts.theme)}
       }
     }
 
+    /* Side-by-side view styles */
+    .side-by-side-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .side-panel {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .side-panel-header {
+      padding: 0.75rem 1rem;
+      background-color: var(--header-bg);
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 600;
+      font-size: 0.875rem;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .side-panel-content {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .side-line {
+      display: flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.875rem;
+      line-height: 1.5rem;
+      min-height: 1.5rem;
+      border-left: 3px solid transparent;
+      transition: background-color 150ms;
+    }
+
+    .side-line:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+
+    .side-line.empty {
+      background-color: var(--bg-color);
+      opacity: 0.3;
+    }
+
+    .side-line.removed {
+      background-color: var(--removed-bg);
+      border-left-color: var(--removed-border);
+      color: var(--removed-text);
+    }
+
+    .side-line.added {
+      background-color: var(--added-bg);
+      border-left-color: var(--added-border);
+      color: var(--added-text);
+    }
+
+    .side-line.modified {
+      background-color: var(--modified-bg);
+      border-left-color: var(--modified-border);
+      color: var(--modified-text);
+    }
+
+    .side-line.unchanged {
+      background-color: var(--unchanged-bg);
+      color: var(--unchanged-text);
+    }
+
+    .side-line-number {
+      display: inline-block;
+      min-width: 3rem;
+      text-align: right;
+      margin-right: 0.75rem;
+      color: var(--unchanged-text);
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+
+    .side-content {
+      flex: 1;
+      white-space: pre;
+      word-break: break-all;
+      overflow-x: auto;
+    }
+
+    .empty-diff {
+      padding: 2rem;
+      text-align: center;
+      color: var(--unchanged-text);
+      font-style: italic;
+    }
+
     /* Responsive design */
     @media (max-width: 768px) {
       .file-comparison {
         grid-template-columns: 1fr;
         gap: 16px;
       }
-      
+
       .comparison-arrow {
         transform: rotate(90deg);
       }
-      
+
       .stats-grid {
         grid-template-columns: repeat(2, 1fr);
       }
-      
+
       .diff-line {
         font-size: 12px;
+      }
+
+      /* Stack side-by-side panels on mobile */
+      .side-by-side-container {
+        grid-template-columns: 1fr;
+      }
+
+      .side-panel-header::before {
+        content: attr(data-side) ' ';
       }
     }`;
   }
 
   /**
-   * Download the HTML content as a file
+   * Pair diff lines for side-by-side display
+   * Intelligently matches original and modified lines for aligned comparison
    */
+  private static pairLinesForSideBySide(lines: DiffLine[]): LinePair[] {
+    const pairs: LinePair[] = [];
+    let originalIndex = 0;
+    let modifiedIndex = 0;
+
+    // Separate lines into original (no additions) and modified (no removals)
+    const originalLines = lines.filter(l => l.type !== 'added');
+    const modifiedLines = lines.filter(l => l.type !== 'removed');
+
+    while (originalIndex < originalLines.length || modifiedIndex < modifiedLines.length) {
+      const origLine = originalLines[originalIndex];
+      const modLine = modifiedLines[modifiedIndex];
+
+      if (origLine && modLine && origLine.type === 'unchanged' && modLine.type === 'unchanged') {
+        // Both unchanged - pair them
+        pairs.push({
+          original: origLine,
+          modified: modLine,
+          pairType: 'unchanged'
+        });
+        originalIndex++;
+        modifiedIndex++;
+      } else if (origLine && modLine && origLine.type === 'modified' && modLine.type === 'modified') {
+        // Both modified - pair them
+        pairs.push({
+          original: origLine,
+          modified: modLine,
+          pairType: 'modified'
+        });
+        originalIndex++;
+        modifiedIndex++;
+      } else if (origLine && origLine.type === 'removed') {
+        // Removed line - no pair on right
+        pairs.push({
+          original: origLine,
+          modified: null,
+          pairType: 'removed'
+        });
+        originalIndex++;
+      } else if (modLine && modLine.type === 'added') {
+        // Added line - no pair on left
+        pairs.push({
+          original: null,
+          modified: modLine,
+          pairType: 'added'
+        });
+        modifiedIndex++;
+      } else {
+        // Fallback: advance both
+        pairs.push({
+          original: origLine || null,
+          modified: modLine || null,
+          pairType: 'unchanged'
+        });
+        if (origLine) originalIndex++;
+        if (modLine) modifiedIndex++;
+      }
+    }
+
+    return pairs;
+  }
+
+  /**
+   * Generate side-by-side HTML view of diff
+   */
+  private static generateSideBySideView(
+    lines: DiffLine[],
+    options: HtmlExportOptions
+  ): string {
+    const pairs = this.pairLinesForSideBySide(lines);
+
+    if (pairs.length === 0) {
+      return '<div class="side-by-side-container"><div class="empty-diff">No differences to display</div></div>';
+    }
+
+    const renderLine = (line: DiffLine | null): string => {
+      if (!line) {
+        return '<div class="side-line empty"></div>';
+      }
+
+      const lineNumber = options.includeLineNumbers 
+        ? `<span class="side-line-number">${line.lineNumber}:</span>` 
+        : '';
+      
+      const content = this.escapeHtml(line.content || '');
+      const typeClass = line.type === 'unchanged' ? 'unchanged' : 
+                       line.type === 'added' ? 'added' : 
+                       line.type === 'removed' ? 'removed' : 'modified';
+
+      return `<div class="side-line ${typeClass}">${lineNumber}<span class="side-content">${content}</span></div>`;
+    };
+
+    return `
+      <div class="side-by-side-container">
+        <div class="side-panel">
+          <div class="side-panel-header">📄 Original</div>
+          <div class="side-panel-content">
+            ${pairs.map(pair => renderLine(pair.original)).join('')}
+          </div>
+        </div>
+        <div class="side-panel">
+          <div class="side-panel-header">📄 Modified</div>
+          <div class="side-panel-content">
+            ${pairs.map(pair => renderLine(pair.modified)).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
   static downloadHtml(htmlContent: string, filename: string): void {
     try {
       const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
