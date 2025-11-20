@@ -46,7 +46,7 @@ const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('mb-4 border-b border-gray-100 pb-3', className)}
+      className={cn('mb-4', className)}
       {...props}
     />
   )

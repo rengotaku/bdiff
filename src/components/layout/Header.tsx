@@ -29,11 +29,11 @@ const Header: React.FC<HeaderProps> = ({
     >
       <div className="max-w-7xl mx-auto">
         {/* Main header content */}
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-12">
           {/* Left side - Logo and title */}
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-end gap-4">
-              <h1 className="text-3xl font-bold text-gray-dark">{title}</h1>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">{title}</h1>
               {subtitle && (
                 <p className="text-xs text-gray-light">{subtitle}</p>
               )}

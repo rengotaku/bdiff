@@ -37,7 +37,7 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
 }) => {
   return (
     <Card className="flex-1">
-      <CardHeader className="pb-3">
+      <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             {/* Statistics with Tooltips */}
@@ -71,18 +71,18 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
               onClick={onCopy}
               loading={isCopying}
               size="sm"
-              label="📋 全てコピー"
+              label="全てコピー"
             />
             <HTMLExportButton
               diffResult={diffResult}
               originalFile={originalFile || null}
               modifiedFile={modifiedFile || null}
-              variant="secondary"
+              variant="ghost"
               size="sm"
               onSuccess={onExportSuccess}
               onError={onExportError}
             />
-            <div className="flex items-center gap-1 bg-gray-100 rounded-md p-1">
+            <div className="flex items-center gap-1 bg-gray-100 rounded-md">
               <button
                 onClick={() => onViewModeChange('split')}
                 className={`p-2 rounded transition-colors ${

@@ -4,8 +4,6 @@ import { PageLayout } from '../components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
-import { Tooltip } from '../components/ui/Tooltip';
-import { InfoIcon } from '../components/ui/InfoIcon';
 import { ToggleSwitch } from '../components/ui/ToggleSwitch';
 import { EmptyState } from '../components/common/EmptyState';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
@@ -195,57 +193,60 @@ export const DiffPage: React.FC = () => {
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* File Information */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-semibold text-gray-900">File Information</h3>
-                  <Tooltip
-                    content={
-                      <div className="space-y-3 min-w-64">
-                        <div>
-                          <div className="font-medium text-green-200 mb-1">Original File</div>
-                          <div className="space-y-1 text-sm">
-                            <div>Name: {originalFile.name}</div>
-                            <div>Size: {originalFile.size.toLocaleString()} bytes</div>
-                            <div>Type: {originalFile.name.split('.').pop()?.toUpperCase() || 'Unknown'}</div>
-                            <div>Modified: {originalFile.lastModified?.toLocaleString()}</div>
-                            <div>Lines: {originalFile.content.split('\n').length.toLocaleString()}</div>
-                          </div>
-                        </div>
-                        <div className="border-t border-gray-600 pt-2">
-                          <div className="font-medium text-blue-200 mb-1">Modified File</div>
-                          <div className="space-y-1 text-sm">
-                            <div>Name: {modifiedFile.name}</div>
-                            <div>Size: {modifiedFile.size.toLocaleString()} bytes</div>
-                            <div>Type: {modifiedFile.name.split('.').pop()?.toUpperCase() || 'Unknown'}</div>
-                            <div>Modified: {modifiedFile.lastModified?.toLocaleString()}</div>
-                            <div>Lines: {modifiedFile.content.split('\n').length.toLocaleString()}</div>
-                          </div>
-                        </div>
+              <div className="space-y-4 min-h-[200px] flex flex-col justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">File Information</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="text-sm font-medium text-green-700 mb-1">Original</div>
+                      <div className="text-sm text-gray-600">{originalFile.name}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-blue-700 mb-1">Modified</div>
+                      <div className="text-sm text-gray-600">{modifiedFile.name}</div>
+                    </div>
+                  </div>
+                </div>
+                <details className="text-xs text-gray-500">
+                  <summary className="cursor-pointer hover:text-gray-700 transition-colors">
+                    詳細情報を表示
+                  </summary>
+                  <div className="mt-3 space-y-3 pl-4">
+                    <div>
+                      <div className="font-medium text-green-700 mb-1">Original File</div>
+                      <div className="space-y-1">
+                        <div>Size: {originalFile.size.toLocaleString()} bytes</div>
+                        <div>Type: {originalFile.name.split('.').pop()?.toUpperCase() || 'Unknown'}</div>
+                        <div>Modified: {originalFile.lastModified?.toLocaleString()}</div>
+                        <div>Lines: {originalFile.content.split('\n').length.toLocaleString()}</div>
                       </div>
-                    }
-                    position="bottom"
-                  >
-                    <InfoIcon size="sm" />
-                  </Tooltip>
-                </div>
-                <div className="text-sm text-gray-600">
-                  Comparing {originalFile.name} with {modifiedFile.name}
-                </div>
+                    </div>
+                    <div className="border-t border-gray-200 pt-2">
+                      <div className="font-medium text-blue-700 mb-1">Modified File</div>
+                      <div className="space-y-1">
+                        <div>Size: {modifiedFile.size.toLocaleString()} bytes</div>
+                        <div>Type: {modifiedFile.name.split('.').pop()?.toUpperCase() || 'Unknown'}</div>
+                        <div>Modified: {modifiedFile.lastModified?.toLocaleString()}</div>
+                        <div>Lines: {modifiedFile.content.split('\n').length.toLocaleString()}</div>
+                      </div>
+                    </div>
+                  </div>
+                </details>
               </div>
 
               {/* Comparison Statistics */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Comparison Statistics</h3>
+              <div className="space-y-4 min-h-[200px]">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Comparison Statistics</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-700">Similarity</span>
-                    <Badge 
+                    <Badge
                       variant={similarityPercentage >= 80 ? 'success' : similarityPercentage >= 50 ? 'warning' : 'destructive'}
                     >
                       {similarityPercentage}%
                     </Badge>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-600">Added</span>
@@ -268,9 +269,9 @@ export const DiffPage: React.FC = () => {
               </div>
 
               {/* View Mode and Actions */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">View Mode</h3>
-                <div className="space-y-3">
+              <div className="space-y-4 min-h-[200px] flex flex-col justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">View Mode</h3>
                   <ToggleSwitch
                     value={viewMode === 'split' ? 'side-by-side' : viewMode}
                     options={[
@@ -279,35 +280,34 @@ export const DiffPage: React.FC = () => {
                     ]}
                     onChange={(value) => setViewMode(value as ViewMode)}
                   />
+                </div>
 
-
-                  <div className="pt-2 space-y-2">
-                    <CopyButton
-                      onClick={handleCopy}
-                      loading={isCopying}
-                      size="sm"
-                      label="📋 全てコピー"
-                      className="w-full"
-                    />
-                    <HTMLExportButton
-                      diffResult={diffResult}
-                      originalFile={originalFile}
-                      modifiedFile={modifiedFile}
-                      variant="secondary"
-                      size="sm"
-                      className="w-full"
-                      onSuccess={(filename) => showSuccessToast('エクスポート完了', `${filename} をダウンロードしました`)}
-                      onError={(error) => showErrorToast('エクスポート失敗', error)}
-                    />
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={handleNewComparison}
-                      className="w-full"
-                    >
-                      New Comparison
-                    </Button>
-                  </div>
+                <div className="space-y-3">
+                  <CopyButton
+                    onClick={handleCopy}
+                    loading={isCopying}
+                    size="sm"
+                    label="全てコピー"
+                    className="w-full h-10"
+                  />
+                  <HTMLExportButton
+                    diffResult={diffResult}
+                    originalFile={originalFile}
+                    modifiedFile={modifiedFile}
+                    variant="ghost"
+                    size="sm"
+                    className="w-full h-10"
+                    onSuccess={(filename) => showSuccessToast('エクスポート完了', `${filename} をダウンロードしました`)}
+                    onError={(error) => showErrorToast('エクスポート失敗', error)}
+                  />
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleNewComparison}
+                    className="w-full h-10"
+                  >
+                    New Comparison
+                  </Button>
                 </div>
               </div>
             </div>
