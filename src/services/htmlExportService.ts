@@ -374,11 +374,11 @@ ${this.getEmbeddedCSS(opts.theme)}
     .diff-line {
       display: flex;
       align-items: center;
-      padding: 4px 12px;
+      padding: 2px 12px;
       font-size: 14px;
-      line-height: 1.4;
+      line-height: 1.25;
       border-left: 3px solid transparent;
-      min-height: 24px;
+      min-height: 20px;
     }
 
     .diff-line:hover {
