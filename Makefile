@@ -6,6 +6,13 @@
 # Default port for development server
 PORT := 14000
 
+# Shell configuration for nodenv
+SHELL := /bin/bash
+.SHELLFLAGS := -c
+
+# Export nodenv initialization
+export PATH := $(HOME)/.nodenv/shims:$(PATH)
+
 # Color output
 COLOR_RESET := \033[0m
 COLOR_GREEN := \033[32m
@@ -49,8 +56,8 @@ dev-bg: ## Start development server in background
 	@lsof -ti:$(PORT) | xargs -r kill -9 2>/dev/null || echo "Port $(PORT) is free"
 	@sleep 1
 	@echo "$(COLOR_BLUE)Starting development server in background on port $(PORT)...$(COLOR_RESET)"
-	@npm run dev > dev-server.log 2>&1 & echo $$! > .dev-server.pid
-	@sleep 2
+	@bash -c 'eval "$$(nodenv init - bash 2>/dev/null || true)"; npm run dev' > dev-server.log 2>&1 & echo $$! > .dev-server.pid
+	@sleep 3
 	@if [ -f .dev-server.pid ] && ps -p $$(cat .dev-server.pid) > /dev/null 2>&1; then \
 		echo "$(COLOR_GREEN)Development server started in background (PID: $$(cat .dev-server.pid))$(COLOR_RESET)"; \
 		echo "$(COLOR_CYAN)Access at: http://localhost:$(PORT)$(COLOR_RESET)"; \
@@ -58,6 +65,7 @@ dev-bg: ## Start development server in background
 		echo "$(COLOR_YELLOW)Stop server: make dev-stop$(COLOR_RESET)"; \
 	else \
 		echo "$(COLOR_RED)Failed to start server. Check dev-server.log for errors$(COLOR_RESET)"; \
+		cat dev-server.log 2>/dev/null || echo "No log file found"; \
 		exit 1; \
 	fi
 
