@@ -49,12 +49,17 @@ dev-bg: ## Start development server in background
 	@lsof -ti:$(PORT) | xargs -r kill -9 2>/dev/null || echo "Port $(PORT) is free"
 	@sleep 1
 	@echo "$(COLOR_BLUE)Starting development server in background on port $(PORT)...$(COLOR_RESET)"
-	@nohup npm run dev > dev-server.log 2>&1 & echo $$! > .dev-server.pid
+	@npm run dev > dev-server.log 2>&1 & echo $$! > .dev-server.pid
 	@sleep 2
-	@echo "$(COLOR_GREEN)Development server started in background (PID: $$(cat .dev-server.pid))$(COLOR_RESET)"
-	@echo "$(COLOR_CYAN)Access at: http://localhost:$(PORT)$(COLOR_RESET)"
-	@echo "$(COLOR_YELLOW)View logs: tail -f dev-server.log$(COLOR_RESET)"
-	@echo "$(COLOR_YELLOW)Stop server: make dev-stop$(COLOR_RESET)"
+	@if [ -f .dev-server.pid ] && ps -p $$(cat .dev-server.pid) > /dev/null 2>&1; then \
+		echo "$(COLOR_GREEN)Development server started in background (PID: $$(cat .dev-server.pid))$(COLOR_RESET)"; \
+		echo "$(COLOR_CYAN)Access at: http://localhost:$(PORT)$(COLOR_RESET)"; \
+		echo "$(COLOR_YELLOW)View logs: tail -f dev-server.log$(COLOR_RESET)"; \
+		echo "$(COLOR_YELLOW)Stop server: make dev-stop$(COLOR_RESET)"; \
+	else \
+		echo "$(COLOR_RED)Failed to start server. Check dev-server.log for errors$(COLOR_RESET)"; \
+		exit 1; \
+	fi
 
 dev-stop: ## Stop background development server
 	@if [ -f .dev-server.pid ]; then \
