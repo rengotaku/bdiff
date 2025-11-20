@@ -385,22 +385,22 @@ ${this.getEmbeddedCSS(opts.theme)}
       background: rgba(0, 0, 0, 0.05);
     }
 
-    .diff-line.diff-line-added {
+    .diff-line.diff-added {
       background: var(--added-bg);
       border-left-color: var(--added-border);
     }
 
-    .diff-line.diff-line-removed {
+    .diff-line.diff-removed {
       background: var(--removed-bg);
       border-left-color: var(--removed-border);
     }
 
-    .diff-line.diff-line-modified {
+    .diff-line.diff-modified {
       background: var(--modified-bg);
       border-left-color: var(--modified-border);
     }
 
-    .diff-line.diff-line-unchanged {
+    .diff-line.diff-unchanged {
       background: var(--unchanged-bg);
       border-left-color: var(--unchanged-border);
     }
