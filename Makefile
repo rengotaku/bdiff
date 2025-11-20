@@ -6,12 +6,9 @@
 # Default port for development server
 PORT := 14000
 
-# Shell configuration for nodenv
-SHELL := /bin/bash
-.SHELLFLAGS := -c
-
-# Export nodenv initialization
-export PATH := $(HOME)/.nodenv/shims:$(PATH)
+# Node.js paths (auto-detected from nodenv/anyenv)
+NPM := $(shell which npm 2>/dev/null || echo npm)
+NODE := $(shell which node 2>/dev/null || echo node)
 
 # Color output
 COLOR_RESET := \033[0m
@@ -36,7 +33,7 @@ help: ## Display this help message
 # Installation and setup
 install: ## Install dependencies
 	@echo "$(COLOR_BLUE)Installing dependencies...$(COLOR_RESET)"
-	@npm install
+	@$(NPM) install
 
 setup: install ## Complete project setup
 	@echo "$(COLOR_BLUE)Setting up development environment...$(COLOR_RESET)"
@@ -49,14 +46,15 @@ dev: ## Start development server with port management
 	@lsof -ti:$(PORT) | xargs -r kill -9 2>/dev/null || echo "Port $(PORT) is free"
 	@sleep 1
 	@echo "$(COLOR_BLUE)Starting development server on port $(PORT)...$(COLOR_RESET)"
-	@npm run dev
+	@$(NPM) run dev
 
 dev-bg: ## Start development server in background
 	@echo "$(COLOR_YELLOW)Checking and killing processes on port $(PORT)...$(COLOR_RESET)"
 	@lsof -ti:$(PORT) | xargs -r kill -9 2>/dev/null || echo "Port $(PORT) is free"
 	@sleep 1
 	@echo "$(COLOR_BLUE)Starting development server in background on port $(PORT)...$(COLOR_RESET)"
-	@bash -c 'eval "$$(nodenv init - bash 2>/dev/null || true)"; npm run dev' > dev-server.log 2>&1 & echo $$! > .dev-server.pid
+	@echo "Using: $(NPM)" >> dev-server.log
+	@$(NPM) run dev >> dev-server.log 2>&1 & echo $$! > .dev-server.pid
 	@sleep 3
 	@if [ -f .dev-server.pid ] && ps -p $$(cat .dev-server.pid) > /dev/null 2>&1; then \
 		echo "$(COLOR_GREEN)Development server started in background (PID: $$(cat .dev-server.pid))$(COLOR_RESET)"; \
@@ -86,12 +84,12 @@ kill-port: ## Kill processes running on port 14000
 # Build and deployment
 build: typecheck ## Build project for production
 	@echo "$(COLOR_BLUE)Building project for production...$(COLOR_RESET)"
-	@npm run build
+	@$(NPM) run build
 	@echo "$(COLOR_GREEN)Build completed! Output in dist/$(COLOR_RESET)"
 
 preview: build ## Preview production build
 	@echo "$(COLOR_BLUE)Starting preview server...$(COLOR_RESET)"
-	@npm run preview
+	@$(NPM) run preview
 
 # Quality assurance
 typecheck: ## Run TypeScript type checking
@@ -104,21 +102,21 @@ lint: ## Run linting (if available)
 
 test: ## Run tests
 	@echo "$(COLOR_YELLOW)Running tests...$(COLOR_RESET)"
-	@npm test
+	@$(NPM) test
 
 # Dependency management
 deps-update: ## Update dependencies
 	@echo "$(COLOR_BLUE)Updating dependencies...$(COLOR_RESET)"
-	@npm update
-	@npm outdated || true
+	@$(NPM) update
+	@$(NPM) outdated || true
 
 deps-audit: ## Run security audit
 	@echo "$(COLOR_BLUE)Running security audit...$(COLOR_RESET)"
-	@npm audit
+	@$(NPM) audit
 
 security-check: deps-audit ## Complete security check
 	@echo "$(COLOR_BLUE)Running comprehensive security check...$(COLOR_RESET)"
-	@npm audit --audit-level moderate
+	@$(NPM) audit --audit-level moderate
 
 # Cleanup commands
 clean: ## Clean build artifacts and node_modules
@@ -129,7 +127,7 @@ clean: ## Clean build artifacts and node_modules
 
 clean-cache: ## Clean npm cache
 	@echo "$(COLOR_YELLOW)Cleaning npm cache...$(COLOR_RESET)"
-	@npm cache clean --force
+	@$(NPM) cache clean --force
 
 # Git operations
 git-status: ## Show git status with file changes
@@ -159,8 +157,8 @@ restart: kill-port dev ## Restart development server
 
 status: ## Show project status
 	@echo "$(COLOR_CYAN)Project Status:$(COLOR_RESET)"
-	@echo "Node.js: $$(node --version)"
-	@echo "npm: $$(npm --version)"
+	@echo "Node.js: $$($(NODE) --version)"
+	@echo "npm: $$($(NPM) --version)"
 	@echo "Project: $$(cat package.json | grep version | head -1 | awk -F: '{ print $$2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')"
 	@echo ""
 	@echo "$(COLOR_YELLOW)Port Status:$(COLOR_RESET)"
@@ -185,7 +183,7 @@ deploy-prep: clean install build ## Prepare for deployment
 # Advanced development
 dev-debug: ## Start development with debug information
 	@echo "$(COLOR_BLUE)Starting development server with debug info...$(COLOR_RESET)"
-	@DEBUG=vite:* npm run dev
+	@DEBUG=vite:* $(NPM) run dev
 
 analyze: build ## Analyze bundle size
 	@echo "$(COLOR_BLUE)Analyzing bundle size...$(COLOR_RESET)"
@@ -195,8 +193,10 @@ analyze: build ## Analyze bundle size
 env-info: ## Display environment information
 	@echo "$(COLOR_CYAN)Environment Information:$(COLOR_RESET)"
 	@echo "OS: $$(uname -s) $$(uname -r)"
-	@echo "Node.js: $$(node --version)"
-	@echo "npm: $$(npm --version)"
+	@echo "Node.js: $$($(NODE) --version)"
+	@echo "npm: $$($(NPM) --version)"
+	@echo "NPM path: $(NPM)"
+	@echo "Node path: $(NODE)"
 	@echo "Git: $$(git --version)"
 	@echo "Working Directory: $$(pwd)"
 	@echo "Free Disk Space: $$(df -h . | tail -1 | awk '{print $$4}')"
