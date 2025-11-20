@@ -363,70 +363,86 @@ ${this.getEmbeddedCSS(opts.theme)}
       margin-bottom: 16px;
     }
 
+    /* Diff container - matching application */
     .diff-container {
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
-      background: var(--bg-color);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      overflow-x: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      overflow: visible;
     }
 
-    .diff-line {
+    /* Diff line wrapper - matching DiffViewer structure */
+    .diff-line-wrapper {
       display: flex;
-      align-items: center;
-      padding: 1px 12px;
-      margin: 0;
-      font-size: 13px;
-      line-height: 1.2;
-      border-left: 3px solid transparent;
-      min-height: 18px;
+      align-items: flex-start;
     }
 
-    .diff-line:hover {
-      background: rgba(0, 0, 0, 0.05);
+    .diff-line-wrapper:hover {
+      background-color: rgba(249, 250, 251, 0.5);
+      transition: background-color 150ms;
+    }
+
+    /* Line number column */
+    .line-number {
+      flex-shrink: 0;
+      width: 64px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: #6b7280;
+      background-color: #f9fafb;
+      border-right: 1px solid #e5e7eb;
+      user-select: none;
+    }
+
+    /* Content column */
+    .diff-line-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Diff line styles - matching getLineClassName */
+    .diff-line {
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+      font-size: 14px;
+      border-left: 4px solid;
+      padding: 4px 16px;
+      white-space: pre-wrap;
     }
 
     .diff-line.diff-added {
-      background: var(--added-bg);
-      border-left-color: var(--added-border);
+      background-color: #f0fdf4;
+      border-left-color: #4ade80;
+      color: #166534;
     }
 
     .diff-line.diff-removed {
-      background: var(--removed-bg);
-      border-left-color: var(--removed-border);
+      background-color: #fef2f2;
+      border-left-color: #f87171;
+      color: #991b1b;
     }
 
     .diff-line.diff-modified {
-      background: var(--modified-bg);
-      border-left-color: var(--modified-border);
+      background-color: #eff6ff;
+      border-left-color: #60a5fa;
+      color: #1e40af;
     }
 
     .diff-line.diff-unchanged {
-      background: var(--unchanged-bg);
-      border-left-color: var(--unchanged-border);
+      background-color: #ffffff;
+      border-left-color: #e5e7eb;
+      color: #374151;
     }
 
     .diff-symbol {
-      display: inline-block;
-      width: 20px;
-      font-weight: bold;
-      text-align: center;
+      display: inline;
+      color: #9ca3af;
+      user-select: none;
       margin-right: 8px;
     }
 
-    .line-number {
-      display: inline-block;
-      min-width: 50px;
-      text-align: right;
-      margin-right: 12px;
-      color: var(--unchanged-text);
-      font-size: 12px;
-    }
-
     .diff-content {
-      flex: 1;
-      white-space: pre;
-      word-break: break-all;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+      font-size: 14px;
+      white-space: pre-wrap;
     }
 
     /* Footer */

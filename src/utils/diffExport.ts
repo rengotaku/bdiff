@@ -177,25 +177,27 @@ export class DiffExporter {
       }
 
       const htmlLines = ['<div class="diff-container">'];
-      
+
       filteredLines.forEach((line, index) => {
         const className = DiffStyler.getLineClass(line.type);
         const symbol = this.escapeHtml(DiffStyler.getDiffSymbol(line.type));
-        const content = this.escapeHtml(line.content || '');
-        const lineNumber = includeLineNumbers 
-          ? `<span class="line-number">${line.lineNumber}:</span>` 
-          : '';
+        const content = this.escapeHtml(line.content || '\n');
         const lineId = `line-${index + 1}`;
-        
+
+        // Matching DiffViewer structure from DiffViewer.tsx
         htmlLines.push(
-          `<div class="diff-line ${className}" id="${lineId}">` +
-          `<span class="diff-symbol">${symbol}</span>` +
-          lineNumber +
+          `<div class="diff-line-wrapper" id="${lineId}">` +
+          (includeLineNumbers ? `<div class="line-number">${line.lineNumber}</div>` : '') +
+          `<div class="diff-line-content">` +
+          `<div class="diff-line ${className}">` +
+          `<span class="diff-symbol" aria-hidden="true">${symbol}</span>` +
           `<span class="diff-content">${content}</span>` +
+          '</div>' +
+          '</div>' +
           '</div>'
         );
       });
-      
+
       htmlLines.push('</div>');
       return htmlLines.join('\n');
     } catch (error) {
