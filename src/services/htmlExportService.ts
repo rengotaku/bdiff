@@ -107,34 +107,39 @@ ${this.getEmbeddedCSS(opts.theme)}
   private static generateHeader(originalFile: FileInfo, modifiedFile: FileInfo, timestamp: string): string {
     return `
     <header class="report-header">
-      <h1>📄 BDiff Comparison Report</h1>
-      <div class="metadata">
-        <div class="metadata-row">
-          <span class="label">Generated:</span>
-          <span class="value">${new Date(timestamp).toLocaleString('ja-JP')}</span>
-        </div>
-        <div class="file-comparison">
-          <div class="file-info original-file">
-            <h3>📄 Original File</h3>
-            <div class="file-details">
-              <div><strong>Name:</strong> ${this.escapeHtml(originalFile.name)}</div>
-              <div><strong>Size:</strong> ${originalFile.size.toLocaleString()} bytes</div>
-              <div><strong>Lines:</strong> ${originalFile.content.split('\\n').length.toLocaleString()}</div>
-              ${originalFile.lastModified ? `<div><strong>Modified:</strong> ${originalFile.lastModified.toLocaleString('en-US')}</div>` : ''}
+      <details class="header-details">
+        <summary class="header-summary">
+          <h1>📄 BDiff Comparison Report</h1>
+          <span class="toggle-icon">▶</span>
+        </summary>
+        <div class="metadata">
+          <div class="metadata-row">
+            <span class="label">Generated:</span>
+            <span class="value">${new Date(timestamp).toLocaleString('ja-JP')}</span>
+          </div>
+          <div class="file-comparison">
+            <div class="file-info original-file">
+              <h3>📄 Original File</h3>
+              <div class="file-details">
+                <div><strong>Name:</strong> ${this.escapeHtml(originalFile.name)}</div>
+                <div><strong>Size:</strong> ${originalFile.size.toLocaleString()} bytes</div>
+                <div><strong>Lines:</strong> ${originalFile.content.split('\\n').length.toLocaleString()}</div>
+                ${originalFile.lastModified ? `<div><strong>Modified:</strong> ${originalFile.lastModified.toLocaleString('en-US')}</div>` : ''}
+              </div>
+            </div>
+            <div class="comparison-arrow">↔️</div>
+            <div class="file-info modified-file">
+              <h3>📄 Modified File</h3>
+              <div class="file-details">
+                <div><strong>Name:</strong> ${this.escapeHtml(modifiedFile.name)}</div>
+                <div><strong>Size:</strong> ${modifiedFile.size.toLocaleString()} bytes</div>
+                <div><strong>Lines:</strong> ${modifiedFile.content.split('\\n').length.toLocaleString()}</div>
+                ${modifiedFile.lastModified ? `<div><strong>Modified:</strong> ${modifiedFile.lastModified.toLocaleString('en-US')}</div>` : ''}
+              </div>
             </div>
           </div>
-          <div class="comparison-arrow">↔️</div>
-          <div class="file-info modified-file">
-            <h3>📄 Modified File</h3>
-            <div class="file-details">
-              <div><strong>Name:</strong> ${this.escapeHtml(modifiedFile.name)}</div>
-              <div><strong>Size:</strong> ${modifiedFile.size.toLocaleString()} bytes</div>
-              <div><strong>Lines:</strong> ${modifiedFile.content.split('\\n').length.toLocaleString()}</div>
-              ${modifiedFile.lastModified ? `<div><strong>Modified:</strong> ${modifiedFile.lastModified.toLocaleString('en-US')}</div>` : ''}
-            </div>
-          </div>
         </div>
-      </div>
+      </details>
     </header>`;
   }
 
@@ -144,28 +149,12 @@ ${this.getEmbeddedCSS(opts.theme)}
   private static generateStatsSection(stats: DiffStats): string {
     return `
     <section class="stats-section">
-      <h2>📊 Statistics</h2>
-      <div class="stats-grid">
-        <div class="stat-card added">
-          <div class="stat-number">+${stats.added.toLocaleString()}</div>
-          <div class="stat-label">Added Lines</div>
-        </div>
-        <div class="stat-card removed">
-          <div class="stat-number">-${stats.removed.toLocaleString()}</div>
-          <div class="stat-label">Removed Lines</div>
-        </div>
-        <div class="stat-card modified">
-          <div class="stat-number">${stats.modified.toLocaleString()}</div>
-          <div class="stat-label">Changed Lines</div>
-        </div>
-        <div class="stat-card unchanged">
-          <div class="stat-number">${stats.unchanged.toLocaleString()}</div>
-          <div class="stat-label">Unchanged Lines</div>
-        </div>
-        <div class="stat-card similarity">
-          <div class="stat-number">${Math.round(stats.similarity)}%</div>
-          <div class="stat-label">Similarity</div>
-        </div>
+      <div class="stats-inline">
+        <span class="stat-item added">+${stats.added.toLocaleString()}</span>
+        <span class="stat-item removed">-${stats.removed.toLocaleString()}</span>
+        <span class="stat-item modified">~${stats.modified.toLocaleString()}</span>
+        <span class="stat-item unchanged">=${stats.unchanged.toLocaleString()}</span>
+        <span class="stat-item similarity">${Math.round(stats.similarity)}%</span>
       </div>
     </section>`;
   }
@@ -231,16 +220,50 @@ ${this.getEmbeddedCSS(opts.theme)}
     /* Header styles */
     .report-header {
       background: var(--header-bg);
-      padding: 24px;
+      padding: 16px;
       border-radius: 8px;
       border: 1px solid var(--border-color);
-      margin-bottom: 24px;
+      margin-bottom: 16px;
     }
 
-    .report-header h1 {
-      font-size: 28px;
-      margin-bottom: 16px;
-      text-align: center;
+    .header-details {
+      border: none;
+    }
+
+    .header-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      padding: 8px 0;
+    }
+
+    .header-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .header-summary h1 {
+      font-size: 20px;
+      margin: 0;
+      flex: 1;
+    }
+
+    .toggle-icon {
+      font-size: 14px;
+      transition: transform 0.2s ease;
+      margin-left: 12px;
+    }
+
+    .header-details[open] .toggle-icon {
+      transform: rotate(90deg);
+    }
+
+    .metadata {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
     }
 
     .metadata-row {
@@ -278,70 +301,60 @@ ${this.getEmbeddedCSS(opts.theme)}
       text-align: center;
     }
 
-    /* Stats section */
+    /* Stats section - Compact inline display */
     .stats-section {
-      margin-bottom: 32px;
-    }
-
-    .stats-section h2 {
-      font-size: 20px;
       margin-bottom: 16px;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      padding: 16px;
-      text-align: center;
-      border-radius: 8px;
-      border: 2px solid;
-    }
-
-    .stat-card.added {
-      background: var(--added-bg);
-      border-color: var(--added-border);
-      color: var(--added-text);
-    }
-
-    .stat-card.removed {
-      background: var(--removed-bg);
-      border-color: var(--removed-border);
-      color: var(--removed-text);
-    }
-
-    .stat-card.modified {
-      background: var(--modified-bg);
-      border-color: var(--modified-border);
-      color: var(--modified-text);
-    }
-
-    .stat-card.unchanged {
-      background: var(--unchanged-bg);
-      border-color: var(--unchanged-border);
-      color: var(--unchanged-text);
-    }
-
-    .stat-card.similarity {
+      padding: 12px 16px;
       background: var(--header-bg);
-      border-color: var(--border-color);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .stats-inline {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .stat-item {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      white-space: nowrap;
+    }
+
+    .stat-item.added {
+      background: var(--added-bg);
+      color: var(--added-text);
+      border: 1px solid var(--added-border);
+    }
+
+    .stat-item.removed {
+      background: var(--removed-bg);
+      color: var(--removed-text);
+      border: 1px solid var(--removed-border);
+    }
+
+    .stat-item.modified {
+      background: var(--modified-bg);
+      color: var(--modified-text);
+      border: 1px solid var(--modified-border);
+    }
+
+    .stat-item.unchanged {
+      background: var(--unchanged-bg);
+      color: var(--unchanged-text);
+      border: 1px solid var(--unchanged-border);
+    }
+
+    .stat-item.similarity {
+      background: var(--bg-color);
       color: var(--text-color);
-    }
-
-    .stat-number {
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      border: 1px solid var(--border-color);
+      font-weight: 600;
     }
 
     /* Diff section */
@@ -444,25 +457,44 @@ ${this.getEmbeddedCSS(opts.theme)}
         max-width: none;
         padding: 16px;
       }
-      
+
       .report-header {
         break-inside: avoid;
       }
-      
-      .stats-grid {
-        grid-template-columns: repeat(5, 1fr);
+
+      /* Force header to be expanded when printing */
+      .header-details {
+        display: block;
       }
-      
+
+      .header-summary {
+        cursor: default;
+      }
+
+      .toggle-icon {
+        display: none;
+      }
+
+      .header-details .metadata {
+        display: block !important;
+      }
+
+      /* Compact stats for print */
+      .stats-inline {
+        gap: 12px;
+        font-size: 12px;
+      }
+
       .diff-line {
         break-inside: avoid;
         font-size: 11px;
         padding: 2px 8px;
       }
-      
+
       .diff-container {
         border: 1px solid #000;
       }
-      
+
       .report-footer {
         break-inside: avoid;
       }
