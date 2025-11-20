@@ -1,7 +1,7 @@
 # Makefile for bdiff project
 # Development and build automation
 
-.PHONY: help install dev build preview clean test lint typecheck kill-port setup deps-update deps-audit security-check docker-build docker-run git-status commit
+.PHONY: help install dev dev-bg dev-stop build preview clean test lint typecheck kill-port setup deps-update deps-audit security-check docker-build docker-run git-status commit
 
 # Default port for development server
 PORT := 14000
@@ -43,6 +43,28 @@ dev: ## Start development server with port management
 	@sleep 1
 	@echo "$(COLOR_BLUE)Starting development server on port $(PORT)...$(COLOR_RESET)"
 	@npm run dev
+
+dev-bg: ## Start development server in background
+	@echo "$(COLOR_YELLOW)Checking and killing processes on port $(PORT)...$(COLOR_RESET)"
+	@lsof -ti:$(PORT) | xargs -r kill -9 2>/dev/null || echo "Port $(PORT) is free"
+	@sleep 1
+	@echo "$(COLOR_BLUE)Starting development server in background on port $(PORT)...$(COLOR_RESET)"
+	@nohup npm run dev > dev-server.log 2>&1 & echo $$! > .dev-server.pid
+	@sleep 2
+	@echo "$(COLOR_GREEN)Development server started in background (PID: $$(cat .dev-server.pid))$(COLOR_RESET)"
+	@echo "$(COLOR_CYAN)Access at: http://localhost:$(PORT)$(COLOR_RESET)"
+	@echo "$(COLOR_YELLOW)View logs: tail -f dev-server.log$(COLOR_RESET)"
+	@echo "$(COLOR_YELLOW)Stop server: make dev-stop$(COLOR_RESET)"
+
+dev-stop: ## Stop background development server
+	@if [ -f .dev-server.pid ]; then \
+		echo "$(COLOR_YELLOW)Stopping development server...$(COLOR_RESET)"; \
+		kill $$(cat .dev-server.pid) 2>/dev/null || echo "Server not running"; \
+		rm -f .dev-server.pid; \
+		echo "$(COLOR_GREEN)Server stopped$(COLOR_RESET)"; \
+	else \
+		echo "$(COLOR_YELLOW)No server PID file found$(COLOR_RESET)"; \
+	fi
 
 kill-port: ## Kill processes running on port 14000
 	@echo "$(COLOR_YELLOW)Checking and killing processes on port $(PORT)...$(COLOR_RESET)"

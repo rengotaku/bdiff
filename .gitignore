@@ -94,3 +94,7 @@ tsconfig.tsbuildinfo
 /*.md
 !CLAUDE.md
 !/README.md
+
+# Development server logs
+dev-server.log
+.dev-server.pid
