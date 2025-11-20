@@ -1,5 +1,6 @@
 import type { DiffResult, FileInfo, DiffStats, DiffLine } from '../types/types';
 import { DiffExporter } from '../utils/diffExport';
+import { TAILWIND_CSS } from './tailwindEmbedded';
 
 /**
  * Interface for paired lines in side-by-side view
@@ -175,8 +176,17 @@ ${this.getEmbeddedCSS(opts.theme)}
    */
   private static getEmbeddedCSS(theme: 'light' | 'dark'): string {
     const isLight = theme === 'light';
-    
+
     return `
+    /* ========================================
+       TAILWIND CSS (Full Application Styles)
+       ======================================== */
+    ${TAILWIND_CSS}
+
+    /* ========================================
+       CUSTOM EXPORT STYLES
+       ======================================== */
+
     /* CSS Variables for theming */
     :root {
       --bg-color: ${isLight ? '#ffffff' : '#1a1a1a'};
