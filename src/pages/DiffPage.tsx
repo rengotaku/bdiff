@@ -7,18 +7,17 @@ import { Badge } from '../components/ui/Badge';
 import { Tooltip } from '../components/ui/Tooltip';
 import { InfoIcon } from '../components/ui/InfoIcon';
 import { ToggleSwitch } from '../components/ui/ToggleSwitch';
-import { type CopyType } from '../components/ui/CopySelect';
 import { EmptyState } from '../components/common/EmptyState';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { NoDifferencesDisplay } from '../components/diff/NoDifferencesDisplay';
 import { CollapsibleFileSelector } from '../components/diff/CollapsibleFileSelector';
 import { DiffViewer } from '../components/diff/DiffViewer';
 import { HTMLExportButton } from '../components/export/HTMLExportButton';
+import { CopyButton } from '../components/ui/CopyButton';
 import { useToastHelpers } from '../components/common/Toast';
 import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
 import { useClipboard } from '../hooks/useClipboard';
-import { useKeyboardShortcuts, type KeyboardShortcut } from '../hooks/useKeyboardShortcuts';
 import { DiffService } from '../services/diffService';
 import type { ViewMode } from '../types/types';
 
@@ -40,16 +39,13 @@ export const DiffPage: React.FC = () => {
   
   const { readFile } = useFileReader();
   const { success: showSuccessToast, error: showErrorToast } = useToastHelpers();
-  
-  // Copy functionality
+
+  // Copy functionality with toast notifications
   const {
     copyDiff,
-    copyAddedLines,
-    copyRemovedLines,
-    copyChangedLines,
     isLoading: isCopying
   } = useClipboard({
-    onSuccess: (message) => showSuccessToast('コピー完了', message),
+    onSuccess: () => showSuccessToast('コピー完了', '差分をクリップボードにコピーしました'),
     onError: (error) => showErrorToast('コピー失敗', error)
   });
 
@@ -77,48 +73,27 @@ export const DiffPage: React.FC = () => {
     await calculateDiff();
   }, [calculateDiff]);
 
-  // Unified copy handler
-  const handleCopy = useCallback(async (type: CopyType) => {
+  // Simplified copy handler - only copy all
+  const handleCopy = useCallback(async () => {
     if (!diffResult?.lines) return;
-    
-    const filename = originalFile?.name && modifiedFile?.name 
+
+    const filename = originalFile?.name && modifiedFile?.name
       ? `${originalFile.name} vs ${modifiedFile.name}`
       : '差分比較結果';
-      
+
     try {
-      switch (type) {
-        case 'all':
-          await copyDiff(diffResult.lines, { 
-            format: 'diff',
-            filename,
-            originalFilename: originalFile?.name,
-            modifiedFilename: modifiedFile?.name,
-            includeHeader: true
-          });
-          break;
-        case 'added':
-          await copyAddedLines(diffResult.lines, { 
-            format: 'diff',
-            includeHeader: true
-          });
-          break;
-        case 'removed':
-          await copyRemovedLines(diffResult.lines, { 
-            format: 'diff',
-            includeHeader: true
-          });
-          break;
-        case 'changed':
-          await copyChangedLines(diffResult.lines, { 
-            format: 'diff',
-            includeHeader: true
-          });
-          break;
-      }
+      await copyDiff(diffResult.lines, {
+        format: 'diff',
+        filename,
+        originalFilename: originalFile?.name,
+        modifiedFilename: modifiedFile?.name,
+        includeHeader: true
+      });
     } catch (error) {
-      // Error handled by useClipboard onError callback
+      // Error silently handled
+      console.error('Copy failed:', error);
     }
-  }, [diffResult, copyDiff, copyAddedLines, copyRemovedLines, copyChangedLines, originalFile, modifiedFile]);
+  }, [diffResult, copyDiff, originalFile, modifiedFile]);
 
   const similarityPercentage = useMemo(() => {
     if (!diffResult) return 0;
@@ -128,46 +103,6 @@ export const DiffPage: React.FC = () => {
   const hasNoDifferences = useMemo(() => {
     return diffResult && !DiffService.hasDifferences(diffResult);
   }, [diffResult]);
-
-  // Keyboard shortcuts
-  const keyboardShortcuts: KeyboardShortcut[] = useMemo(() => {
-    if (!diffResult?.lines) return [];
-
-    return [
-      {
-        key: 'c',
-        ctrlKey: true,
-        action: () => handleCopy('all'),
-        description: '全ての差分をコピー'
-      },
-      {
-        key: 'c',
-        ctrlKey: true,
-        shiftKey: true,
-        action: () => handleCopy('changed'),
-        description: '変更行のみコピー'
-      },
-      {
-        key: 'a',
-        ctrlKey: true,
-        shiftKey: true,
-        action: () => handleCopy('added'),
-        description: '追加行のみコピー'
-      },
-      {
-        key: 'r',
-        ctrlKey: true,
-        shiftKey: true,
-        action: () => handleCopy('removed'),
-        description: '削除行のみコピー'
-      }
-    ];
-  }, [diffResult?.lines, handleCopy]);
-
-  useKeyboardShortcuts({
-    enabled: !isProcessing && !error && !!diffResult && !!originalFile && !!modifiedFile,
-    shortcuts: keyboardShortcuts
-  });
 
   // Loading state
   if (isProcessing) {
@@ -344,9 +279,16 @@ export const DiffPage: React.FC = () => {
                     ]}
                     onChange={(value) => setViewMode(value as ViewMode)}
                   />
-                  
-                  
+
+
                   <div className="pt-2 space-y-2">
+                    <CopyButton
+                      onClick={handleCopy}
+                      loading={isCopying}
+                      size="sm"
+                      label="📋 全てコピー"
+                      className="w-full"
+                    />
                     <HTMLExportButton
                       diffResult={diffResult}
                       originalFile={originalFile}
@@ -382,11 +324,9 @@ export const DiffPage: React.FC = () => {
               <NoDifferencesDisplay />
             ) : (
               <div className="overflow-auto">
-                <DiffViewer 
-                  lines={diffResult.lines} 
+                <DiffViewer
+                  lines={diffResult.lines}
                   viewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
-                  onCopy={handleCopy}
-                  loading={isCopying}
                 />
               </div>
             )}

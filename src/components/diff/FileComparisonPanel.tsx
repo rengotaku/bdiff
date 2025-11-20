@@ -2,18 +2,17 @@ import React from 'react';
 import { Card, CardContent, CardHeader } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Tooltip } from '../ui/Tooltip';
+import { CopyButton } from '../ui/CopyButton';
 import { NoDifferencesDisplay } from './NoDifferencesDisplay';
 import { DiffViewer } from './DiffViewer';
 import { HTMLExportButton } from '../export/HTMLExportButton';
-import type { CopyType } from '../ui/CopySelect';
 import type { DiffResult, ViewMode, FileInfo } from '../../types/types';
 
 export interface FileComparisonPanelProps {
   diffResult: DiffResult;
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
-  onCopy: (type: CopyType) => void;
-  onCopyLine?: (line: any) => Promise<void>;
+  onCopy: () => void;
   isCopying: boolean;
   hasNoDifferences: boolean;
   similarityPercentage: number;
@@ -28,7 +27,6 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
   viewMode,
   onViewModeChange,
   onCopy,
-  onCopyLine,
   isCopying,
   hasNoDifferences,
   similarityPercentage,
@@ -67,8 +65,14 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
             </div>
           </div>
           
-          {/* Export Button and View Mode */}
+          {/* Copy, Export Button and View Mode */}
           <div className="flex items-center gap-3">
+            <CopyButton
+              onClick={onCopy}
+              loading={isCopying}
+              size="sm"
+              label="📋 全てコピー"
+            />
             <HTMLExportButton
               diffResult={diffResult}
               originalFile={originalFile || null}
@@ -118,13 +122,9 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
           </div>
         ) : (
           <div className="max-h-[80vh] overflow-auto border rounded-md">
-            <DiffViewer 
-              lines={diffResult.lines} 
+            <DiffViewer
+              lines={diffResult.lines}
               viewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
-              onCopy={onCopy}
-              onCopyLine={onCopyLine}
-              showCopyButtons={true}
-              loading={isCopying}
             />
           </div>
         )}
