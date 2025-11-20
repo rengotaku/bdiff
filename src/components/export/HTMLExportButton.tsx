@@ -30,7 +30,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
   diffResult,
   originalFile,
   modifiedFile,
-  variant = 'secondary',
+  variant = 'ghost',
   size = 'sm',
   className,
   onSuccess,

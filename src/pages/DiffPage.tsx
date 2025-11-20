@@ -294,7 +294,7 @@ export const DiffPage: React.FC = () => {
                     diffResult={diffResult}
                     originalFile={originalFile}
                     modifiedFile={modifiedFile}
-                    variant="secondary"
+                    variant="ghost"
                     size="sm"
                     className="w-full h-10"
                     onSuccess={(filename) => showSuccessToast('エクスポート完了', `${filename} をダウンロードしました`)}
