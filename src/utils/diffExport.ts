@@ -1,6 +1,7 @@
 import type { DiffLine, DiffType } from '../types/types'
 import { DiffParser } from './diffParsing'
 import { DiffStyler } from './diffStyling'
+import { getLineClassName, getPrefixSymbol } from './diffRendering'
 
 /**
  * Configuration options for diff formatting
@@ -176,22 +177,22 @@ export class DiffExporter {
         return '<div class="diff-container empty">No differences to display</div>';
       }
 
-      const htmlLines = ['<div class="diff-container">'];
+      const htmlLines = ['<div class="border rounded-md overflow-visible" role="region" aria-label="Unified Diff">'];
 
       filteredLines.forEach((line, index) => {
-        const className = DiffStyler.getLineClass(line.type);
-        const symbol = this.escapeHtml(DiffStyler.getDiffSymbol(line.type));
+        const className = getLineClassName(line.type);
+        const symbol = this.escapeHtml(getPrefixSymbol(line.type));
         const content = this.escapeHtml(line.content || '\n');
         const lineId = `line-${index + 1}`;
 
-        // Matching DiffViewer structure from DiffViewer.tsx
+        // Matching actual application Unified view structure with Tailwind classes
         htmlLines.push(
-          `<div class="diff-line-wrapper" id="${lineId}">` +
-          (includeLineNumbers ? `<div class="line-number">${line.lineNumber}</div>` : '') +
-          `<div class="diff-line-content">` +
-          `<div class="diff-line ${className}">` +
-          `<span class="diff-symbol" aria-hidden="true">${symbol}</span>` +
-          `<span class="diff-content">${content}</span>` +
+          `<div class="flex items-start hover:bg-gray-25 transition-colors duration-150" id="${lineId}">` +
+          (includeLineNumbers ? `<div class="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none">${line.lineNumber}</div>` : '') +
+          `<div class="flex-1 min-w-0">` +
+          `<div class="${className}">` +
+          `<span class="text-gray-400 select-none mr-2" aria-hidden="true">${symbol}</span>` +
+          `<span class="font-mono text-sm whitespace-pre-wrap diff-line-text">${content}</span>` +
           '</div>' +
           '</div>' +
           '</div>'

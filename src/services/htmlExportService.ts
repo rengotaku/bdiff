@@ -373,87 +373,9 @@ ${this.getEmbeddedCSS(opts.theme)}
       margin-bottom: 16px;
     }
 
-    /* Diff container - matching application */
-    .diff-container {
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      overflow: visible;
-    }
-
-    /* Diff line wrapper - matching DiffViewer structure */
-    .diff-line-wrapper {
-      display: flex;
-      align-items: flex-start;
-    }
-
-    .diff-line-wrapper:hover {
-      background-color: rgba(249, 250, 251, 0.5);
-      transition: background-color 150ms;
-    }
-
-    /* Line number column */
-    .line-number {
-      flex-shrink: 0;
-      width: 64px;
-      padding: 4px 8px;
-      font-size: 12px;
-      color: #6b7280;
-      background-color: #f9fafb;
-      border-right: 1px solid #e5e7eb;
-      user-select: none;
-    }
-
-    /* Content column */
-    .diff-line-content {
-      flex: 1;
-      min-width: 0;
-    }
-
-    /* Diff line styles - matching getLineClassName */
-    .diff-line {
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
-      font-size: 14px;
-      border-left: 4px solid;
-      padding: 4px 16px;
-      white-space: pre-wrap;
-    }
-
-    .diff-line.diff-added {
-      background-color: #f0fdf4;
-      border-left-color: #4ade80;
-      color: #166534;
-    }
-
-    .diff-line.diff-removed {
-      background-color: #fef2f2;
-      border-left-color: #f87171;
-      color: #991b1b;
-    }
-
-    .diff-line.diff-modified {
-      background-color: #eff6ff;
-      border-left-color: #60a5fa;
-      color: #1e40af;
-    }
-
-    .diff-line.diff-unchanged {
-      background-color: #ffffff;
-      border-left-color: #e5e7eb;
-      color: #374151;
-    }
-
-    .diff-symbol {
-      display: inline;
-      color: #9ca3af;
-      user-select: none;
-      margin-right: 8px;
-    }
-
-    .diff-content {
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
-      font-size: 14px;
-      white-space: pre-wrap;
-    }
+    /* Note: Unified view now uses Tailwind classes directly in HTML
+       No custom CSS needed for diff lines, as getLineClassName() provides
+       all necessary Tailwind utility classes (bg-*, border-*, text-*, etc.) */
 
     /* Footer */
     .report-footer {
