@@ -3,15 +3,6 @@ import { DiffExporter } from '../utils/diffExport';
 import { TAILWIND_CSS } from './tailwindEmbedded';
 
 /**
- * Interface for paired lines in side-by-side view
- */
-interface LinePair {
-  original: DiffLine | null;
-  modified: DiffLine | null;
-  pairType: 'unchanged' | 'modified' | 'added' | 'removed';
-}
-
-/**
  * Configuration options for HTML export
  */
 export interface HtmlExportOptions {
@@ -466,81 +457,19 @@ ${this.getEmbeddedCSS(opts.theme)}
   }
 
   /**
-   * Pair diff lines for side-by-side display
-   * Intelligently matches original and modified lines for aligned comparison
-   */
-  private static pairLinesForSideBySide(lines: DiffLine[]): LinePair[] {
-    const pairs: LinePair[] = [];
-    let originalIndex = 0;
-    let modifiedIndex = 0;
-
-    // Separate lines into original (no additions) and modified (no removals)
-    const originalLines = lines.filter(l => l.type !== 'added');
-    const modifiedLines = lines.filter(l => l.type !== 'removed');
-
-    while (originalIndex < originalLines.length || modifiedIndex < modifiedLines.length) {
-      const origLine = originalLines[originalIndex];
-      const modLine = modifiedLines[modifiedIndex];
-
-      if (origLine && modLine && origLine.type === 'unchanged' && modLine.type === 'unchanged') {
-        // Both unchanged - pair them
-        pairs.push({
-          original: origLine,
-          modified: modLine,
-          pairType: 'unchanged'
-        });
-        originalIndex++;
-        modifiedIndex++;
-      } else if (origLine && modLine && origLine.type === 'modified' && modLine.type === 'modified') {
-        // Both modified - pair them
-        pairs.push({
-          original: origLine,
-          modified: modLine,
-          pairType: 'modified'
-        });
-        originalIndex++;
-        modifiedIndex++;
-      } else if (origLine && origLine.type === 'removed') {
-        // Removed line - no pair on right
-        pairs.push({
-          original: origLine,
-          modified: null,
-          pairType: 'removed'
-        });
-        originalIndex++;
-      } else if (modLine && modLine.type === 'added') {
-        // Added line - no pair on left
-        pairs.push({
-          original: null,
-          modified: modLine,
-          pairType: 'added'
-        });
-        modifiedIndex++;
-      } else {
-        // Fallback: advance both
-        pairs.push({
-          original: origLine || null,
-          modified: modLine || null,
-          pairType: 'unchanged'
-        });
-        if (origLine) originalIndex++;
-        if (modLine) modifiedIndex++;
-      }
-    }
-
-    return pairs;
-  }
-
-  /**
    * Generate side-by-side HTML view of diff
    */
   private static generateSideBySideView(
     lines: DiffLine[],
     options: HtmlExportOptions
   ): string {
-    const pairs = this.pairLinesForSideBySide(lines);
+    // Separate lines for each panel - matching application behavior
+    // Original panel: removed + unchanged + modified lines
+    // Modified panel: added + unchanged + modified lines
+    const originalPanelLines = lines.filter(l => l.type !== 'added');
+    const modifiedPanelLines = lines.filter(l => l.type !== 'removed');
 
-    if (pairs.length === 0) {
+    if (originalPanelLines.length === 0 && modifiedPanelLines.length === 0) {
       return '<div class="grid grid-cols-2 gap-4"><div class="text-center text-gray-500 p-8">No differences to display</div></div>';
     }
 
@@ -568,17 +497,7 @@ ${this.getEmbeddedCSS(opts.theme)}
       }
     };
 
-    const renderLine = (line: DiffLine | null): string => {
-      if (!line) {
-        // Empty placeholder line to maintain alignment
-        return `<div class="flex items-start" style="min-height: 28px; opacity: 0.3;">
-          ${options.includeLineNumbers ? '<div class="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none"></div>' : ''}
-          <div class="flex-1 min-w-0">
-            <div class="font-mono text-sm border-l-4 px-4 py-1 whitespace-pre-wrap bg-gray-50 border-gray-200 text-gray-400">&nbsp;</div>
-          </div>
-        </div>`;
-      }
-
+    const renderLine = (line: DiffLine): string => {
       const content = this.escapeHtml(line.content || '');
       const lineClass = getLineClass(line.type);
       const symbol = getSymbol(line.type);
@@ -594,9 +513,9 @@ ${this.getEmbeddedCSS(opts.theme)}
       </div>`;
     };
 
-    // Build paired lines - both panels must have same number of lines for alignment
-    const originalLines = pairs.map(pair => renderLine(pair.original)).join('');
-    const modifiedLines = pairs.map(pair => renderLine(pair.modified)).join('');
+    // Render each panel independently - no pairing, no empty placeholders
+    const originalHtml = originalPanelLines.map(line => renderLine(line)).join('');
+    const modifiedHtml = modifiedPanelLines.map(line => renderLine(line)).join('');
 
     return `
       <div class="grid grid-cols-2 gap-4" role="main" aria-label="Side-by-side diff view">
@@ -605,7 +524,7 @@ ${this.getEmbeddedCSS(opts.theme)}
             <div class="font-medium text-sm text-gray-700">Original</div>
           </div>
           <div class="border rounded-md overflow-visible" role="region" aria-label="Original">
-            ${originalLines}
+            ${originalHtml}
           </div>
         </div>
         <div class="space-y-1">
@@ -613,7 +532,7 @@ ${this.getEmbeddedCSS(opts.theme)}
             <div class="font-medium text-sm text-gray-700">Modified</div>
           </div>
           <div class="border rounded-md overflow-visible" role="region" aria-label="Modified">
-            ${modifiedLines}
+            ${modifiedHtml}
           </div>
         </div>
       </div>`;
