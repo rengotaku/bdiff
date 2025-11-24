@@ -502,12 +502,11 @@ ${this.getEmbeddedCSS(opts.theme)}
       const lineClass = getLineClass(line.type);
       const symbol = getSymbol(line.type);
 
-      return `<div class="flex items-start hover:bg-gray-25 transition-colors duration-150">
-        ${options.includeLineNumbers ? `<div class="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none">${line.lineNumber}</div>` : ''}
+      return `<div class="flex items-start hover:bg-gray-50 transition-colors duration-150">
+        ${options.includeLineNumbers ? `<div class="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none text-right">${line.lineNumber}</div>` : ''}
         <div class="flex-1 min-w-0">
-          <div class="${lineClass}">
-            <span class="text-gray-400 select-none mr-2" aria-hidden="true">${symbol}</span>
-            <span class="font-mono text-sm whitespace-pre-wrap diff-line-text">${content}</span>
+          <div class="${lineClass} text-left">
+            <span class="inline text-gray-400 select-none mr-2" aria-hidden="true">${symbol}</span><span class="inline font-mono text-sm whitespace-pre-wrap diff-line-text">${content}</span>
           </div>
         </div>
       </div>`;
