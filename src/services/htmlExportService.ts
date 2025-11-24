@@ -449,105 +449,8 @@ ${this.getEmbeddedCSS(opts.theme)}
       }
     }
 
-    /* Side-by-side view styles */
-    .side-by-side-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .side-panel {
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .side-panel-header {
-      padding: 0.75rem 1rem;
-      background-color: var(--header-bg);
-      border-bottom: 1px solid var(--border-color);
-      font-weight: 600;
-      font-size: 0.875rem;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-
-    .side-panel-content {
-      overflow-y: auto;
-      flex: 1;
-    }
-
-    .side-line {
-      display: flex;
-      align-items: center;
-      padding: 0.25rem 0.75rem;
-      font-size: 0.875rem;
-      line-height: 1.5rem;
-      min-height: 1.5rem;
-      border-left: 3px solid transparent;
-      transition: background-color 150ms;
-    }
-
-    .side-line:hover {
-      background-color: rgba(0, 0, 0, 0.03);
-    }
-
-    .side-line.empty {
-      background-color: var(--bg-color);
-      opacity: 0.3;
-    }
-
-    .side-line.removed {
-      background-color: var(--removed-bg);
-      border-left-color: var(--removed-border);
-      color: var(--removed-text);
-    }
-
-    .side-line.added {
-      background-color: var(--added-bg);
-      border-left-color: var(--added-border);
-      color: var(--added-text);
-    }
-
-    .side-line.modified {
-      background-color: var(--modified-bg);
-      border-left-color: var(--modified-border);
-      color: var(--modified-text);
-    }
-
-    .side-line.unchanged {
-      background-color: var(--unchanged-bg);
-      color: var(--unchanged-text);
-    }
-
-    .side-line-number {
-      display: inline-block;
-      min-width: 3rem;
-      text-align: right;
-      margin-right: 0.75rem;
-      color: var(--unchanged-text);
-      font-size: 0.75rem;
-      opacity: 0.7;
-    }
-
-    .side-content {
-      flex: 1;
-      white-space: pre;
-      word-break: break-all;
-      overflow-x: auto;
-    }
-
-    .empty-diff {
-      padding: 2rem;
-      text-align: center;
-      color: var(--unchanged-text);
-      font-style: italic;
-    }
+    /* Note: Side-by-side view now uses Tailwind classes directly in HTML
+       No custom CSS needed - uses grid-cols-2, flex, border-l-4, etc. */
 
     /* Responsive design */
     @media (max-width: 768px) {
@@ -558,23 +461,6 @@ ${this.getEmbeddedCSS(opts.theme)}
 
       .comparison-arrow {
         transform: rotate(90deg);
-      }
-
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .diff-line {
-        font-size: 12px;
-      }
-
-      /* Stack side-by-side panels on mobile */
-      .side-by-side-container {
-        grid-template-columns: 1fr;
-      }
-
-      .side-panel-header::before {
-        content: attr(data-side) ' ';
       }
     }`;
   }
@@ -655,38 +541,79 @@ ${this.getEmbeddedCSS(opts.theme)}
     const pairs = this.pairLinesForSideBySide(lines);
 
     if (pairs.length === 0) {
-      return '<div class="side-by-side-container"><div class="empty-diff">No differences to display</div></div>';
+      return '<div class="grid grid-cols-2 gap-4"><div class="text-center text-gray-500 p-8">No differences to display</div></div>';
     }
+
+    // Get Tailwind class for line type - matching getLineClassName from diffRendering.ts
+    const getLineClass = (type: string): string => {
+      const base = 'font-mono text-sm border-l-4 px-4 py-1 whitespace-pre-wrap';
+      switch (type) {
+        case 'added':
+          return `${base} bg-green-50 border-green-400 text-green-800`;
+        case 'removed':
+          return `${base} bg-red-50 border-red-400 text-red-800`;
+        case 'modified':
+          return `${base} bg-blue-50 border-blue-400 text-blue-800`;
+        default:
+          return `${base} bg-white border-gray-200 text-gray-700`;
+      }
+    };
+
+    const getSymbol = (type: string): string => {
+      switch (type) {
+        case 'added': return '+ ';
+        case 'removed': return '- ';
+        case 'modified': return '~ ';
+        default: return '  ';
+      }
+    };
 
     const renderLine = (line: DiffLine | null): string => {
       if (!line) {
-        return '<div class="side-line empty"></div>';
+        // Empty placeholder line to maintain alignment
+        return `<div class="flex items-start" style="min-height: 28px; opacity: 0.3;">
+          ${options.includeLineNumbers ? '<div class="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none"></div>' : ''}
+          <div class="flex-1 min-w-0">
+            <div class="font-mono text-sm border-l-4 px-4 py-1 whitespace-pre-wrap bg-gray-50 border-gray-200 text-gray-400">&nbsp;</div>
+          </div>
+        </div>`;
       }
 
-      const lineNumber = options.includeLineNumbers 
-        ? `<span class="side-line-number">${line.lineNumber}:</span>` 
-        : '';
-      
       const content = this.escapeHtml(line.content || '');
-      const typeClass = line.type === 'unchanged' ? 'unchanged' : 
-                       line.type === 'added' ? 'added' : 
-                       line.type === 'removed' ? 'removed' : 'modified';
+      const lineClass = getLineClass(line.type);
+      const symbol = getSymbol(line.type);
 
-      return `<div class="side-line ${typeClass}">${lineNumber}<span class="side-content">${content}</span></div>`;
-    };
-
-    return `
-      <div class="side-by-side-container">
-        <div class="side-panel">
-          <div class="side-panel-header">📄 Original</div>
-          <div class="side-panel-content">
-            ${pairs.map(pair => renderLine(pair.original)).join('')}
+      return `<div class="flex items-start hover:bg-gray-25 transition-colors duration-150">
+        ${options.includeLineNumbers ? `<div class="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none">${line.lineNumber}</div>` : ''}
+        <div class="flex-1 min-w-0">
+          <div class="${lineClass}">
+            <span class="text-gray-400 select-none mr-2" aria-hidden="true">${symbol}</span>
+            <span class="font-mono text-sm whitespace-pre-wrap diff-line-text">${content}</span>
           </div>
         </div>
-        <div class="side-panel">
-          <div class="side-panel-header">📄 Modified</div>
-          <div class="side-panel-content">
-            ${pairs.map(pair => renderLine(pair.modified)).join('')}
+      </div>`;
+    };
+
+    // Build paired lines - both panels must have same number of lines for alignment
+    const originalLines = pairs.map(pair => renderLine(pair.original)).join('');
+    const modifiedLines = pairs.map(pair => renderLine(pair.modified)).join('');
+
+    return `
+      <div class="grid grid-cols-2 gap-4" role="main" aria-label="Side-by-side diff view">
+        <div class="space-y-1">
+          <div class="flex items-center justify-between mb-2 px-4">
+            <div class="font-medium text-sm text-gray-700">Original</div>
+          </div>
+          <div class="border rounded-md overflow-visible" role="region" aria-label="Original">
+            ${originalLines}
+          </div>
+        </div>
+        <div class="space-y-1">
+          <div class="flex items-center justify-between mb-2 px-4">
+            <div class="font-medium text-sm text-gray-700">Modified</div>
+          </div>
+          <div class="border rounded-md overflow-visible" role="region" aria-label="Modified">
+            ${modifiedLines}
           </div>
         </div>
       </div>`;
