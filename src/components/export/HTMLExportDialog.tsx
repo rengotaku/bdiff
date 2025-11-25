@@ -1,7 +1,22 @@
 import React, { useState, useCallback } from 'react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
-import { HtmlExportOptions, DEFAULT_HTML_EXPORT_OPTIONS } from '../../services/htmlExportService';
+import type { HtmlExportOptions } from '../../services/export';
+
+/**
+ * Default HTML export options
+ */
+const DEFAULT_HTML_EXPORT_OPTIONS: Required<HtmlExportOptions> = {
+  includeLineNumbers: true,
+  includeHeader: true,
+  includeStats: true,
+  theme: 'light',
+  differencesOnly: false,
+  viewMode: 'unified',
+  title: 'BDiff Comparison Report',
+  originalFile: undefined as any,
+  modifiedFile: undefined as any,
+};
 
 interface HTMLExportDialogProps {
   /** Whether the dialog is open */

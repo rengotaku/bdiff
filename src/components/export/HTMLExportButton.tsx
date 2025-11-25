@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Button } from '../ui/Button';
 import { HTMLExportDialog } from './HTMLExportDialog';
-import { HtmlExportService, type HtmlExportOptions } from '../../services/htmlExportService';
+import { ExportService, type HtmlExportOptions } from '../../services/export';
 import type { DiffResult, FileInfo } from '../../types/types';
 
 interface HTMLExportButtonProps {
@@ -70,25 +70,24 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
     }
 
     setIsExporting(true);
-    
+
     try {
-      // Generate HTML content
-      const htmlContent = HtmlExportService.generateHtmlDocument(
-        diffResult,
+      // Prepare export options with file information
+      const exportOptions: HtmlExportOptions = {
+        ...options,
         originalFile,
         modifiedFile,
-        options
-      );
+      };
 
-      // Generate filename
-      const filename = HtmlExportService.generateFilename(originalFile, modifiedFile);
+      // Export and download using new ExportService
+      ExportService.exportAndDownload(diffResult.lines, 'html', exportOptions);
 
-      // Download the file
-      HtmlExportService.downloadHtml(htmlContent, filename);
+      // Generate filename for success callback
+      const filename = ExportService.generateFilename(originalFile, modifiedFile, 'html');
 
       // Success callback
       onSuccess?.(filename);
-      
+
       // Close dialog
       setIsDialogOpen(false);
     } catch (error) {
@@ -109,16 +108,15 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
     }
 
     try {
-      // Generate HTML content
-      const htmlContent = HtmlExportService.generateHtmlDocument(
-        diffResult,
+      // Prepare export options with file information
+      const exportOptions: HtmlExportOptions = {
+        ...options,
         originalFile,
         modifiedFile,
-        options
-      );
+      };
 
-      // Open preview
-      HtmlExportService.previewHtml(htmlContent);
+      // Export and preview using new ExportService
+      ExportService.exportHtmlAndPreview(diffResult.lines, exportOptions);
     } catch (error) {
       console.error('Preview error:', error);
       onError?.(error instanceof Error ? error.message : 'プレビューの表示に失敗しました');
@@ -127,7 +125,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
 
   // Generate suggested filename for display
   const suggestedFilename = canExport && originalFile && modifiedFile
-    ? HtmlExportService.generateFilename(originalFile, modifiedFile)
+    ? ExportService.generateFilename(originalFile, modifiedFile, 'html')
     : '';
 
   return (

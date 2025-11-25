@@ -1,9 +1,27 @@
+/**
+ * @deprecated This file is maintained for backward compatibility only.
+ * Use the new ExportService from 'services/export' instead.
+ *
+ * Migration guide:
+ * Before: HtmlExportService.generateHtmlDocument(diffResult, original, modified, options)
+ * After:  ExportService.export(diffResult.lines, 'html', { ...options, originalFile: original, modifiedFile: modified })
+ *
+ * Before: HtmlExportService.downloadHtml(htmlContent, filename)
+ * After:  ExportService.exportAndDownload(lines, 'html', options)
+ *
+ * Before: HtmlExportService.previewHtml(htmlContent)
+ * After:  ExportService.exportHtmlAndPreview(lines, options)
+ *
+ * This file will be removed in version 2.0
+ */
+
 import type { DiffResult, FileInfo, DiffStats, DiffLine } from '../types/types';
 import { TAILWIND_CSS } from './tailwindEmbedded';
 import { SvgDiffRenderer } from './svgDiffRenderer';
 
 /**
  * Configuration options for HTML export
+ * @deprecated Use HtmlExportOptions from 'services/export' instead
  */
 export interface HtmlExportOptions {
   /** Whether to include line numbers in the diff display */
@@ -24,6 +42,7 @@ export interface HtmlExportOptions {
 
 /**
  * Default export options
+ * @deprecated Use default options from the new ExportService instead
  */
 export const DEFAULT_HTML_EXPORT_OPTIONS: HtmlExportOptions = {
   includeLineNumbers: true,
@@ -36,10 +55,12 @@ export const DEFAULT_HTML_EXPORT_OPTIONS: HtmlExportOptions = {
 
 /**
  * Service for exporting diff results to standalone HTML files
+ * @deprecated Use ExportService from 'services/export' instead
  */
 export class HtmlExportService {
   /**
    * Generate a complete, standalone HTML document from diff results
+   * @deprecated Use ExportService.export(lines, 'html', options) instead
    */
   static generateHtmlDocument(
     diffResult: DiffResult,
