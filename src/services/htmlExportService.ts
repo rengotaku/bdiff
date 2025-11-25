@@ -1,5 +1,6 @@
-import type { DiffResult, FileInfo, DiffStats } from '../types/types';
-import { DiffExporter } from '../utils/diffExport';
+import type { DiffResult, FileInfo, DiffStats, DiffLine } from '../types/types';
+import { TAILWIND_CSS } from './tailwindEmbedded';
+import { SvgDiffRenderer } from './svgDiffRenderer';
 
 /**
  * Configuration options for HTML export
@@ -17,6 +18,8 @@ export interface HtmlExportOptions {
   title?: string;
   /** Whether to include only differences (hide unchanged lines) */
   differencesOnly: boolean;
+  /** View mode for the diff display */
+  viewMode: 'unified' | 'side-by-side';
 }
 
 /**
@@ -28,6 +31,7 @@ export const DEFAULT_HTML_EXPORT_OPTIONS: HtmlExportOptions = {
   includeStats: true,
   theme: 'light',
   differencesOnly: false,
+  viewMode: 'unified', // Default to unified for backward compatibility
 };
 
 /**
@@ -44,29 +48,27 @@ export class HtmlExportService {
     options: Partial<HtmlExportOptions> = {}
   ): string {
     const opts = { ...DEFAULT_HTML_EXPORT_OPTIONS, ...options };
-    
-    const title = opts.title || `${originalFile.name} vs ${modifiedFile.name} - Diff Report`;
+
     const timestamp = new Date().toISOString();
     
     // Filter lines if differences-only mode is enabled
-    const linesToExport = opts.differencesOnly 
+    const linesToExport = opts.differencesOnly
       ? diffResult.lines.filter(line => line.type !== 'unchanged')
       : diffResult.lines;
 
-    // Generate the diff content HTML
-    const diffHtml = DiffExporter.toHtml(linesToExport, {
-      includeLineNumbers: opts.includeLineNumbers,
-      selectedTypes: opts.differencesOnly 
-        ? ['added', 'removed', 'modified'] 
-        : ['added', 'removed', 'modified', 'unchanged']
-    });
+    // Generate the diff content HTML based on view mode
+    // Both modes now use SVG for stable, consistent rendering
+    const diffHtml = opts.viewMode === 'side-by-side'
+      ? this.generateSideBySideView(linesToExport, opts)
+      : this.generateUnifiedView(linesToExport, opts);
 
     return `<!DOCTYPE html>
 <html lang="ja" data-theme="${opts.theme}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${this.escapeHtml(title)}</title>
+  <link rel="icon" type="image/svg+xml" href="https://bdiff.v41.me/favicon.svg">
+  <title>BDiff Comparison Report</title>
   <style>
 ${this.getEmbeddedCSS(opts.theme)}
   </style>
@@ -76,7 +78,6 @@ ${this.getEmbeddedCSS(opts.theme)}
     ${opts.includeHeader ? this.generateHeader(originalFile, modifiedFile, timestamp) : ''}
     ${opts.includeStats ? this.generateStatsSection(diffResult.stats) : ''}
     <section class="diff-section">
-      <h2>🔄 Comparison Result</h2>
       <div class="diff-content">
         ${diffHtml}
       </div>
@@ -93,34 +94,39 @@ ${this.getEmbeddedCSS(opts.theme)}
   private static generateHeader(originalFile: FileInfo, modifiedFile: FileInfo, timestamp: string): string {
     return `
     <header class="report-header">
-      <h1>📄 BDiff Comparison Report</h1>
-      <div class="metadata">
-        <div class="metadata-row">
-          <span class="label">Generated:</span>
-          <span class="value">${new Date(timestamp).toLocaleString('ja-JP')}</span>
-        </div>
-        <div class="file-comparison">
-          <div class="file-info original-file">
-            <h3>📄 Original File</h3>
-            <div class="file-details">
-              <div><strong>Name:</strong> ${this.escapeHtml(originalFile.name)}</div>
-              <div><strong>Size:</strong> ${originalFile.size.toLocaleString()} bytes</div>
-              <div><strong>Lines:</strong> ${originalFile.content.split('\\n').length.toLocaleString()}</div>
-              ${originalFile.lastModified ? `<div><strong>Modified:</strong> ${originalFile.lastModified.toLocaleString('en-US')}</div>` : ''}
+      <details class="header-details">
+        <summary class="header-summary">
+          <h1>BDiff Comparison Report</h1>
+          <span class="toggle-icon">▶</span>
+        </summary>
+        <div class="metadata">
+          <div class="metadata-row">
+            <span class="label">Generated:</span>
+            <span class="value">${new Date(timestamp).toLocaleString('ja-JP')}</span>
+          </div>
+          <div class="file-comparison">
+            <div class="file-info original-file">
+              <h3>📄 Original File</h3>
+              <div class="file-details">
+                <div><strong>Name:</strong> ${this.escapeHtml(originalFile.name)}</div>
+                <div><strong>Size:</strong> ${originalFile.size.toLocaleString()} bytes</div>
+                <div><strong>Lines:</strong> ${originalFile.content.split('\\n').length.toLocaleString()}</div>
+                ${originalFile.lastModified ? `<div><strong>Modified:</strong> ${originalFile.lastModified.toLocaleString('en-US')}</div>` : ''}
+              </div>
+            </div>
+            <div class="comparison-arrow">↔️</div>
+            <div class="file-info modified-file">
+              <h3>📄 Modified File</h3>
+              <div class="file-details">
+                <div><strong>Name:</strong> ${this.escapeHtml(modifiedFile.name)}</div>
+                <div><strong>Size:</strong> ${modifiedFile.size.toLocaleString()} bytes</div>
+                <div><strong>Lines:</strong> ${modifiedFile.content.split('\\n').length.toLocaleString()}</div>
+                ${modifiedFile.lastModified ? `<div><strong>Modified:</strong> ${modifiedFile.lastModified.toLocaleString('en-US')}</div>` : ''}
+              </div>
             </div>
           </div>
-          <div class="comparison-arrow">↔️</div>
-          <div class="file-info modified-file">
-            <h3>📄 Modified File</h3>
-            <div class="file-details">
-              <div><strong>Name:</strong> ${this.escapeHtml(modifiedFile.name)}</div>
-              <div><strong>Size:</strong> ${modifiedFile.size.toLocaleString()} bytes</div>
-              <div><strong>Lines:</strong> ${modifiedFile.content.split('\\n').length.toLocaleString()}</div>
-              ${modifiedFile.lastModified ? `<div><strong>Modified:</strong> ${modifiedFile.lastModified.toLocaleString('en-US')}</div>` : ''}
-            </div>
-          </div>
         </div>
-      </div>
+      </details>
     </header>`;
   }
 
@@ -130,28 +136,12 @@ ${this.getEmbeddedCSS(opts.theme)}
   private static generateStatsSection(stats: DiffStats): string {
     return `
     <section class="stats-section">
-      <h2>📊 Statistics</h2>
-      <div class="stats-grid">
-        <div class="stat-card added">
-          <div class="stat-number">+${stats.added.toLocaleString()}</div>
-          <div class="stat-label">Added Lines</div>
-        </div>
-        <div class="stat-card removed">
-          <div class="stat-number">-${stats.removed.toLocaleString()}</div>
-          <div class="stat-label">Removed Lines</div>
-        </div>
-        <div class="stat-card modified">
-          <div class="stat-number">${stats.modified.toLocaleString()}</div>
-          <div class="stat-label">Changed Lines</div>
-        </div>
-        <div class="stat-card unchanged">
-          <div class="stat-number">${stats.unchanged.toLocaleString()}</div>
-          <div class="stat-label">Unchanged Lines</div>
-        </div>
-        <div class="stat-card similarity">
-          <div class="stat-number">${Math.round(stats.similarity)}%</div>
-          <div class="stat-label">Similarity</div>
-        </div>
+      <div class="stats-inline">
+        <span class="stat-item added">+${stats.added.toLocaleString()}</span>
+        <span class="stat-item removed">-${stats.removed.toLocaleString()}</span>
+        <span class="stat-item modified">~${stats.modified.toLocaleString()}</span>
+        <span class="stat-item unchanged">=${stats.unchanged.toLocaleString()}</span>
+        <span class="stat-item similarity">${Math.round(stats.similarity)}%</span>
       </div>
     </section>`;
   }
@@ -163,7 +153,6 @@ ${this.getEmbeddedCSS(opts.theme)}
     return `
     <footer class="report-footer">
       <p>Generated by <a href="https://bdiff.v41.me" target="_blank">BDiff</a> - File Comparison Tool</p>
-      <p class="print-note">💡 This report is optimized for printing</p>
     </footer>`;
   }
 
@@ -172,8 +161,17 @@ ${this.getEmbeddedCSS(opts.theme)}
    */
   private static getEmbeddedCSS(theme: 'light' | 'dark'): string {
     const isLight = theme === 'light';
-    
+
     return `
+    /* ========================================
+       TAILWIND CSS (Full Application Styles)
+       ======================================== */
+    ${TAILWIND_CSS}
+
+    /* ========================================
+       CUSTOM EXPORT STYLES
+       ======================================== */
+
     /* CSS Variables for theming */
     :root {
       --bg-color: ${isLight ? '#ffffff' : '#1a1a1a'};
@@ -217,16 +215,51 @@ ${this.getEmbeddedCSS(opts.theme)}
     /* Header styles */
     .report-header {
       background: var(--header-bg);
-      padding: 24px;
+      padding: 0 16px;
       border-radius: 8px;
       border: 1px solid var(--border-color);
-      margin-bottom: 24px;
+      margin-bottom: 16px;
     }
 
-    .report-header h1 {
-      font-size: 28px;
-      margin-bottom: 16px;
-      text-align: center;
+    .header-details {
+      border: none;
+    }
+
+    .header-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .header-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .header-summary h1 {
+      font-size: 20px;
+      margin: 0;
+      flex: 1;
+    }
+
+    .toggle-icon {
+      font-size: 14px;
+      transition: transform 0.2s ease;
+      margin-left: 12px;
+    }
+
+    .header-details[open] .toggle-icon {
+      transform: rotate(90deg);
+    }
+
+    .metadata {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
     }
 
     .metadata-row {
@@ -264,70 +297,61 @@ ${this.getEmbeddedCSS(opts.theme)}
       text-align: center;
     }
 
-    /* Stats section */
+    /* Stats section - Compact inline display */
     .stats-section {
-      margin-bottom: 32px;
-    }
-
-    .stats-section h2 {
-      font-size: 20px;
       margin-bottom: 16px;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      padding: 16px;
-      text-align: center;
+      padding: 0 16px;
+      background: transparent;
       border-radius: 8px;
-      border: 2px solid;
+      border: none;
     }
 
-    .stat-card.added {
+    .stats-inline {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 0.75rem;
+      line-height: 1rem;
+      font-weight: 500;
+    }
+
+    .stat-item {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      white-space: nowrap;
+    }
+
+    .stat-item.added {
       background: var(--added-bg);
-      border-color: var(--added-border);
       color: var(--added-text);
+      border: 1px solid var(--added-border);
     }
 
-    .stat-card.removed {
+    .stat-item.removed {
       background: var(--removed-bg);
-      border-color: var(--removed-border);
       color: var(--removed-text);
+      border: 1px solid var(--removed-border);
     }
 
-    .stat-card.modified {
+    .stat-item.modified {
       background: var(--modified-bg);
-      border-color: var(--modified-border);
       color: var(--modified-text);
+      border: 1px solid var(--modified-border);
     }
 
-    .stat-card.unchanged {
+    .stat-item.unchanged {
       background: var(--unchanged-bg);
-      border-color: var(--unchanged-border);
       color: var(--unchanged-text);
+      border: 1px solid var(--unchanged-border);
     }
 
-    .stat-card.similarity {
-      background: var(--header-bg);
-      border-color: var(--border-color);
+    .stat-item.similarity {
+      background: var(--bg-color);
       color: var(--text-color);
-    }
-
-    .stat-number {
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      border: 1px solid var(--border-color);
+      font-weight: 600;
     }
 
     /* Diff section */
@@ -336,70 +360,9 @@ ${this.getEmbeddedCSS(opts.theme)}
       margin-bottom: 16px;
     }
 
-    .diff-container {
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
-      background: var(--bg-color);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      overflow-x: auto;
-    }
-
-    .diff-line {
-      display: flex;
-      align-items: center;
-      padding: 4px 12px;
-      font-size: 14px;
-      line-height: 1.4;
-      border-left: 3px solid transparent;
-      min-height: 24px;
-    }
-
-    .diff-line:hover {
-      background: rgba(0, 0, 0, 0.05);
-    }
-
-    .diff-line.diff-line-added {
-      background: var(--added-bg);
-      border-left-color: var(--added-border);
-    }
-
-    .diff-line.diff-line-removed {
-      background: var(--removed-bg);
-      border-left-color: var(--removed-border);
-    }
-
-    .diff-line.diff-line-modified {
-      background: var(--modified-bg);
-      border-left-color: var(--modified-border);
-    }
-
-    .diff-line.diff-line-unchanged {
-      background: var(--unchanged-bg);
-      border-left-color: var(--unchanged-border);
-    }
-
-    .diff-symbol {
-      display: inline-block;
-      width: 20px;
-      font-weight: bold;
-      text-align: center;
-      margin-right: 8px;
-    }
-
-    .line-number {
-      display: inline-block;
-      min-width: 50px;
-      text-align: right;
-      margin-right: 12px;
-      color: var(--unchanged-text);
-      font-size: 12px;
-    }
-
-    .diff-content {
-      flex: 1;
-      white-space: pre;
-      word-break: break-all;
-    }
+    /* Note: Unified view now uses Tailwind classes directly in HTML
+       No custom CSS needed for diff lines, as getLineClassName() provides
+       all necessary Tailwind utility classes (bg-*, border-*, text-*, etc.) */
 
     /* Footer */
     .report-footer {
@@ -430,29 +393,51 @@ ${this.getEmbeddedCSS(opts.theme)}
         max-width: none;
         padding: 16px;
       }
-      
+
       .report-header {
         break-inside: avoid;
       }
-      
-      .stats-grid {
-        grid-template-columns: repeat(5, 1fr);
+
+      /* Force header to be expanded when printing */
+      .header-details {
+        display: block;
       }
-      
+
+      .header-summary {
+        cursor: default;
+      }
+
+      .toggle-icon {
+        display: none;
+      }
+
+      .header-details .metadata {
+        display: block !important;
+      }
+
+      /* Compact stats for print */
+      .stats-inline {
+        gap: 12px;
+        font-size: 12px;
+      }
+
       .diff-line {
         break-inside: avoid;
         font-size: 11px;
         padding: 2px 8px;
       }
-      
+
       .diff-container {
         border: 1px solid #000;
       }
-      
+
       .report-footer {
         break-inside: avoid;
       }
     }
+
+    /* Note: Side-by-side view now uses Tailwind classes directly in HTML
+       No custom CSS needed - uses grid-cols-2, flex, border-l-4, etc. */
 
     /* Responsive design */
     @media (max-width: 768px) {
@@ -460,24 +445,124 @@ ${this.getEmbeddedCSS(opts.theme)}
         grid-template-columns: 1fr;
         gap: 16px;
       }
-      
+
       .comparison-arrow {
         transform: rotate(90deg);
-      }
-      
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      
-      .diff-line {
-        font-size: 12px;
       }
     }`;
   }
 
   /**
-   * Download the HTML content as a file
+   * Generate unified view using SVG image
+   * This approach provides stable layout and consistent rendering across browsers
    */
+  private static generateUnifiedView(
+    lines: DiffLine[],
+    options: HtmlExportOptions
+  ): string {
+    if (lines.length === 0) {
+      return '<div class="text-center text-gray-500 p-8">No differences to display</div>';
+    }
+
+    // Generate SVG data URI for unified view
+    const svgOptions = {
+      width: 1200, // Wider for unified view
+      lineHeight: 20,
+      fontFamily: "'SF Mono', Monaco, 'Cascadia Code', monospace",
+      fontSize: 13,
+      includeLineNumbers: options.includeLineNumbers,
+      theme: options.theme
+    };
+
+    const unifiedSvg = SvgDiffRenderer.generateSideBySideSvg(
+      lines,
+      [],
+      svgOptions
+    );
+
+    return `
+      <div class="border rounded-md overflow-hidden">
+        <img
+          src="${unifiedSvg}"
+          alt="Unified diff view"
+          class="w-full"
+          style="display: block; max-width: 100%; height: auto;"
+        />
+      </div>`;
+  }
+
+  /**
+   * Generate side-by-side view using SVG images
+   * This approach provides stable layout and consistent rendering across browsers
+   */
+  private static generateSideBySideView(
+    lines: DiffLine[],
+    options: HtmlExportOptions
+  ): string {
+    // Separate lines for each panel - matching application behavior
+    // Original panel: removed + unchanged + modified lines
+    // Modified panel: added + unchanged + modified lines
+    const originalPanelLines = lines.filter(l => l.type !== 'added');
+    const modifiedPanelLines = lines.filter(l => l.type !== 'removed');
+
+    if (originalPanelLines.length === 0 && modifiedPanelLines.length === 0) {
+      return '<div class="grid grid-cols-2 gap-4"><div class="text-center text-gray-500 p-8">No differences to display</div></div>';
+    }
+
+    // Generate SVG data URIs for each panel
+    const svgOptions = {
+      width: 600,
+      lineHeight: 20,
+      fontFamily: "'SF Mono', Monaco, 'Cascadia Code', monospace",
+      fontSize: 13,
+      includeLineNumbers: options.includeLineNumbers,
+      theme: options.theme
+    };
+
+    // Generate separate SVG for each panel
+    const originalSvg = SvgDiffRenderer.generateSideBySideSvg(
+      originalPanelLines,
+      [],
+      svgOptions
+    );
+
+    const modifiedSvg = SvgDiffRenderer.generateSideBySideSvg(
+      modifiedPanelLines,
+      [],
+      svgOptions
+    );
+
+    return `
+      <div class="grid grid-cols-2 gap-4" role="main" aria-label="Side-by-side diff view">
+        <div class="space-y-1">
+          <div class="flex items-center justify-between mb-2 px-4">
+            <div class="font-medium text-sm text-gray-700">Original</div>
+          </div>
+          <div class="border rounded-md overflow-hidden">
+            <img
+              src="${originalSvg}"
+              alt="Original file diff"
+              class="w-full"
+              style="display: block; max-width: 100%; height: auto;"
+            />
+          </div>
+        </div>
+        <div class="space-y-1">
+          <div class="flex items-center justify-between mb-2 px-4">
+            <div class="font-medium text-sm text-gray-700">Modified</div>
+          </div>
+          <div class="border rounded-md overflow-hidden">
+            <img
+              src="${modifiedSvg}"
+              alt="Modified file diff"
+              class="w-full"
+              style="display: block; max-width: 100%; height: auto;"
+            />
+          </div>
+        </div>
+      </div>`;
+  }
+
   static downloadHtml(htmlContent: string, filename: string): void {
     try {
       const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });

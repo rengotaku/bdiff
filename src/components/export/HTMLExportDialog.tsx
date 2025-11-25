@@ -118,7 +118,43 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
           </div>
         </div>
 
-        {/* Section 2: Options (2-column grid) */}
+        {/* Section 2: View Mode Selection */}
+        <div>
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">表示形式 (View Mode)</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <label className="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+              <input
+                type="radio"
+                name="viewMode"
+                value="unified"
+                checked={options.viewMode === 'unified'}
+                onChange={(e) => updateOption('viewMode', e.target.value as 'unified' | 'side-by-side')}
+                className="text-blue-600 focus:ring-blue-500"
+              />
+              <div className="ml-3 flex-1">
+                <div className="text-sm font-medium text-gray-900">Unified</div>
+                <div className="text-xs text-gray-500">1カラムの行単位表示</div>
+              </div>
+            </label>
+
+            <label className="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+              <input
+                type="radio"
+                name="viewMode"
+                value="side-by-side"
+                checked={options.viewMode === 'side-by-side'}
+                onChange={(e) => updateOption('viewMode', e.target.value as 'unified' | 'side-by-side')}
+                className="text-blue-600 focus:ring-blue-500"
+              />
+              <div className="ml-3 flex-1">
+                <div className="text-sm font-medium text-gray-900">Side by Side</div>
+                <div className="text-xs text-gray-500">2カラムの並列表示</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {/* Section 3: Options (2-column grid) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Display Options */}
           <div>
@@ -203,7 +239,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
           </div>
         </div>
 
-        {/* Section 3: Actions */}
+        {/* Section 4: Actions */}
         <div className="flex justify-between pt-4 border-t border-gray-200">
           <Button
             variant="ghost"
