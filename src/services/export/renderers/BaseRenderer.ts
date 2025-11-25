@@ -29,7 +29,7 @@ export abstract class BaseRenderer implements IRenderer {
   generateFilename(originalFile?: FileInfo, modifiedFile?: FileInfo): string {
     const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
-    if (originalFile && modifiedFile) {
+    if (originalFile?.name && modifiedFile?.name) {
       const originalName = this.stripExtension(originalFile.name);
       const modifiedName = this.stripExtension(modifiedFile.name);
       return this.sanitizeFilename(
@@ -116,6 +116,9 @@ export abstract class BaseRenderer implements IRenderer {
    * Strip file extension from filename
    */
   protected stripExtension(filename: string): string {
+    if (!filename) {
+      return '';
+    }
     return filename.replace(/\.[^/.]+$/, '');
   }
 
