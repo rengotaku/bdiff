@@ -76,6 +76,10 @@ export abstract class BaseRenderer implements IRenderer {
    * Escape HTML special characters
    */
   protected escapeHtml(text: string): string {
+    if (!text) {
+      return '';
+    }
+
     const htmlEscapes: Record<string, string> = {
       '&': '&amp;',
       '<': '&lt;',
@@ -91,6 +95,10 @@ export abstract class BaseRenderer implements IRenderer {
    * Escape markdown special characters
    */
   protected escapeMarkdown(text: string): string {
+    if (!text) {
+      return '';
+    }
+
     const mdEscapes: Record<string, string> = {
       '\\': '\\\\',
       '`': '\\`',
