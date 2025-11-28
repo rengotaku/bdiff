@@ -20,6 +20,7 @@ const DEFAULT_OPTIONS: Required<HtmlExportOptions> = {
   differencesOnly: false,
   viewMode: 'unified',
   title: 'BDiff Comparison Report',
+  filename: undefined as any,
   originalFile: undefined as any,
   modifiedFile: undefined as any,
 };

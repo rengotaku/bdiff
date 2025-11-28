@@ -17,6 +17,7 @@ const DEFAULT_OPTIONS: Required<MarkdownExportOptions> = {
   includeStats: true,
   includeHeader: true,
   title: 'Diff Comparison',
+  filename: undefined as any,
   originalFile: undefined as any,
   modifiedFile: undefined as any,
 };

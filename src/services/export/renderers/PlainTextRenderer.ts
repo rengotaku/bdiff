@@ -17,6 +17,7 @@ const DEFAULT_OPTIONS: Required<PlainTextExportOptions> = {
   includeHeader: true,
   columnWidth: 80,
   title: 'Diff Comparison',
+  filename: undefined as any,
   originalFile: undefined as any,
   modifiedFile: undefined as any,
 };
