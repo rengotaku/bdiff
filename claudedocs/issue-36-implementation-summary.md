@@ -36,12 +36,14 @@
    - `ComparisonOptionsSidebar` を削除
    - `Accordion` と `ComparisonOptionsHorizontal` を追加
 
-2. **新規ハンドラー追加**:
-   - `handleClearAll`: 両方のファイルを一度にクリアする関数
+2. **ハンドラーの変更**:
+   - `handleClearOriginal` と `handleClearModified` を削除
+   - `handleClearAll`: 両方のファイルを一度にクリアする関数を追加
 
 3. **レイアウトの変更**:
    - Comparison Options Accordion を Compare Files ボタンの上に配置
    - Compare Files ボタンの横に "Clear All" リンクを追加
+   - 各FileUploadAreaから `onClear` prop を削除（個別Clearボタンを非表示）
    - 画面下部の `ComparisonOptionsSidebar` を削除
 
 ### 3. 削除を検討可能なファイル
@@ -57,13 +59,15 @@
 - 画面右側に固定サイドバー
 - トグルボタンでサイドバーを開閉
 - オプションは縦並びで表示
-- 各ファイルエリアに個別のClearボタン
+- 各ファイルエリアに個別のClearボタン（2箇所）
 
 ### After (変更後)
 - Compare Filesボタンの上にアコーディオン
 - アコーディオンをクリックして開閉
 - オプションは横並びで表示（コンパクト）
-- Compare Filesボタンの横に統合されたClear Allリンク
+- Compare Filesボタンの横に統合されたClear Allリンク（1箇所）
+  - ファイルが選択されている時のみ表示される
+  - 両方のファイルを一度にクリア可能
 
 ## メリット
 

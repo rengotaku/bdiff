@@ -157,16 +157,7 @@ export const HomePage: React.FC = () => {
     await calculateDiff();
   }, [calculateDiff]);
 
-  // Clear original text
-  const handleClearOriginal = useCallback(() => {
-    setOriginalFile(null);
-  }, [setOriginalFile]);
-
-  // Clear modified text
-  const handleClearModified = useCallback(() => {
-    setModifiedFile(null);
-  }, [setModifiedFile]);
-
+  // Clear all files
   const handleClearAll = useCallback(() => {
     setOriginalFile(null);
     setModifiedFile(null);
@@ -237,7 +228,6 @@ export const HomePage: React.FC = () => {
               value={originalFile?.content || ''}
               onChange={(value) => handleTextChange(value, 'original')}
               onFileSelect={(file) => handleFileSelect(file, 'original')}
-              onClear={handleClearOriginal}
               fileInfo={originalFile || undefined}
               isDragging={isDragging && dragTarget === 'original'}
               onDragEnter={(e) => handleDragEnter(e, 'original')}
@@ -253,7 +243,6 @@ export const HomePage: React.FC = () => {
               value={modifiedFile?.content || ''}
               onChange={(value) => handleTextChange(value, 'modified')}
               onFileSelect={(file) => handleFileSelect(file, 'modified')}
-              onClear={handleClearModified}
               fileInfo={modifiedFile || undefined}
               isDragging={isDragging && dragTarget === 'modified'}
               onDragEnter={(e) => handleDragEnter(e, 'modified')}
