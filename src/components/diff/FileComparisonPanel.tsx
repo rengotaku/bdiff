@@ -71,7 +71,7 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
               onClick={onCopy}
               loading={isCopying}
               size="sm"
-              label="全てコピー"
+              label="Copy All"
             />
             <HTMLExportButton
               diffResult={diffResult}

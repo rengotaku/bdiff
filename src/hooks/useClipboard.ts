@@ -113,7 +113,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     const {
       format = 'diff',
       includeHeader = true,
-      filename = '差分結果',
+      filename = 'Diff Result',
       ...formatOptions
     } = copyOptions
 
@@ -142,7 +142,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     const addedLines = DiffFormatter.getAddedLines(lines)
 
     if (addedLines.length === 0) {
-      const error = new Error('コピーする追加行がありません')
+      const error = new Error('No added lines to copy')
       handleError(error)
       throw error
     }
@@ -150,7 +150,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     const options = {
       ...copyOptions,
       selectedTypes: ['added' as const],
-      filename: copyOptions.filename ? `${copyOptions.filename} (追加行のみ)` : '追加行'
+      filename: copyOptions.filename ? `${copyOptions.filename} (Added Only)` : 'Added Lines'
     }
 
     await copyDiff(addedLines, options)
@@ -164,7 +164,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     const removedLines = DiffFormatter.getRemovedLines(lines)
 
     if (removedLines.length === 0) {
-      const error = new Error('コピーする削除行がありません')
+      const error = new Error('No removed lines to copy')
       handleError(error)
       throw error
     }
@@ -172,7 +172,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     const options = {
       ...copyOptions,
       selectedTypes: ['removed' as const],
-      filename: copyOptions.filename ? `${copyOptions.filename} (削除行のみ)` : '削除行'
+      filename: copyOptions.filename ? `${copyOptions.filename} (Removed Only)` : 'Removed Lines'
     }
 
     await copyDiff(removedLines, options)
@@ -186,7 +186,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     const changedLines = DiffFormatter.getChangedLines(lines)
 
     if (changedLines.length === 0) {
-      const error = new Error('コピーする変更行がありません')
+      const error = new Error('No changed lines to copy')
       handleError(error)
       throw error
     }
@@ -194,7 +194,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     const options = {
       ...copyOptions,
       selectedTypes: ['added' as const, 'removed' as const, 'modified' as const],
-      filename: copyOptions.filename ? `${copyOptions.filename} (変更行のみ)` : '変更行'
+      filename: copyOptions.filename ? `${copyOptions.filename} (Changed Only)` : 'Changed Lines'
     }
 
     await copyDiff(changedLines, options)

@@ -37,13 +37,4 @@ export class DiffStyler {
         return 'diff-unchanged'
     }
   }
-
-  /**
-   * Escape HTML content safely
-   */
-  static escapeHtml(text: string): string {
-    const div = document.createElement('div')
-    div.textContent = text
-    return div.innerHTML
-  }
 }

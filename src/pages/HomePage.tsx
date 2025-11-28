@@ -38,8 +38,8 @@ export const HomePage: React.FC = () => {
     copyDiff,
     isLoading: isCopying
   } = useClipboard({
-    onSuccess: () => showSuccessToast('コピー完了', '差分をクリップボードにコピーしました'),
-    onError: (error) => showErrorToast('コピー失敗', error)
+    onSuccess: () => showSuccessToast('Copy Complete', 'Diff copied to clipboard'),
+    onError: (error) => showErrorToast('Copy Failed', error)
   });
   
   // Drag and drop states
@@ -309,8 +309,8 @@ export const HomePage: React.FC = () => {
               similarityPercentage={similarityPercentage}
               originalFile={originalFile}
               modifiedFile={modifiedFile}
-              onExportSuccess={(filename) => showSuccessToast('エクスポート完了', `${filename} をダウンロードしました`)}
-              onExportError={(error) => showErrorToast('エクスポート失敗', error)}
+              onExportSuccess={(filename) => showSuccessToast('Export Complete', `Downloaded ${filename}`)}
+              onExportError={(error) => showErrorToast('Export Failed', error)}
             />
           </div>
         )}

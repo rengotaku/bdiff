@@ -71,9 +71,9 @@ export interface CopyButtonProps extends Omit<ButtonProps, 'leftIcon' | 'childre
 }
 
 export const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>(
-  ({ 
+  ({
     copied = false,
-    label = 'コピー',
+    label = 'Copy',
     iconOnly = false,
     copyIcon = <CopyIcon />,
     successIcon = <CheckIcon />,
@@ -83,17 +83,17 @@ export const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>(
     className,
     disabled,
     loading,
-    ...props 
+    ...props
   }, ref) => {
     const buttonContent = () => {
       if (loading) {
-        return iconOnly ? null : 'コピー中...'
+        return iconOnly ? null : 'Copying...'
       }
-      
+
       if (copied) {
-        return iconOnly ? null : 'コピー済み'
+        return iconOnly ? null : 'Copied'
       }
-      
+
       return iconOnly ? null : label
     }
 
@@ -129,7 +129,7 @@ export const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>(
         disabled={disabled || copied}
         loading={loading}
         title={tooltip}
-        aria-label={iconOnly ? (copied ? 'コピー済み' : label) : undefined}
+        aria-label={iconOnly ? (copied ? 'Copied' : label) : undefined}
         {...props}
       >
         {buttonContent()}
@@ -143,11 +143,11 @@ CopyButton.displayName = 'CopyButton'
 // Variants for different copy types
 export const CopyAllButton = React.forwardRef<HTMLButtonElement, Omit<CopyButtonProps, 'label'>>(
   (props, ref) => (
-    <CopyButton 
-      ref={ref} 
-      label="全てコピー" 
-      tooltip="差分全体をクリップボードにコピー"
-      {...props} 
+    <CopyButton
+      ref={ref}
+      label="Copy All"
+      tooltip="Copy entire diff to clipboard"
+      {...props}
     />
   )
 )
@@ -155,11 +155,11 @@ CopyAllButton.displayName = 'CopyAllButton'
 
 export const CopyAddedButton = React.forwardRef<HTMLButtonElement, Omit<CopyButtonProps, 'label'>>(
   (props, ref) => (
-    <CopyButton 
-      ref={ref} 
-      label="追加のみ" 
-      tooltip="追加行のみをクリップボードにコピー"
-      {...props} 
+    <CopyButton
+      ref={ref}
+      label="Added Only"
+      tooltip="Copy added lines only to clipboard"
+      {...props}
     />
   )
 )
@@ -167,11 +167,11 @@ CopyAddedButton.displayName = 'CopyAddedButton'
 
 export const CopyRemovedButton = React.forwardRef<HTMLButtonElement, Omit<CopyButtonProps, 'label'>>(
   (props, ref) => (
-    <CopyButton 
-      ref={ref} 
-      label="削除のみ" 
-      tooltip="削除行のみをクリップボードにコピー"
-      {...props} 
+    <CopyButton
+      ref={ref}
+      label="Removed Only"
+      tooltip="Copy removed lines only to clipboard"
+      {...props}
     />
   )
 )
@@ -179,11 +179,11 @@ CopyRemovedButton.displayName = 'CopyRemovedButton'
 
 export const CopyChangedButton = React.forwardRef<HTMLButtonElement, Omit<CopyButtonProps, 'label'>>(
   (props, ref) => (
-    <CopyButton 
-      ref={ref} 
-      label="変更のみ" 
-      tooltip="変更行のみをクリップボードにコピー"
-      {...props} 
+    <CopyButton
+      ref={ref}
+      label="Changed Only"
+      tooltip="Copy changed lines only to clipboard"
+      {...props}
     />
   )
 )
@@ -191,14 +191,14 @@ CopyChangedButton.displayName = 'CopyChangedButton'
 
 export const CopyLineButton = React.forwardRef<HTMLButtonElement, Omit<CopyButtonProps, 'label' | 'iconOnly'>>(
   (props, ref) => (
-    <CopyButton 
-      ref={ref} 
-      label="行をコピー" 
+    <CopyButton
+      ref={ref}
+      label="Copy Line"
       iconOnly={true}
-      tooltip="この行をクリップボードにコピー"
+      tooltip="Copy this line to clipboard"
       size="icon"
       className="opacity-0 group-hover:opacity-100 transition-opacity"
-      {...props} 
+      {...props}
     />
   )
 )
