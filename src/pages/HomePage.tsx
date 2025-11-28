@@ -263,23 +263,23 @@ export const HomePage: React.FC = () => {
           </Accordion>
 
           {/* Compare Files Button with Clear Link */}
-          <div className="flex justify-center items-center gap-4">
-            <DiffSettingsPanel
-              canCalculateDiff={canCalculateDiff}
-              isProcessing={isProcessing}
-              isReading={isReading}
-              onStartComparison={handleStartComparison}
-            />
-            {(originalFile || modifiedFile) && (
+          <div className="flex justify-center">
+            <div className="relative inline-flex items-center">
+              <DiffSettingsPanel
+                canCalculateDiff={canCalculateDiff}
+                isProcessing={isProcessing}
+                isReading={isReading}
+                onStartComparison={handleStartComparison}
+              />
               <button
                 onClick={handleClearAll}
-                disabled={isReading || isProcessing}
-                className="text-sm text-gray-600 hover:text-gray-900 underline disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={(!originalFile && !modifiedFile) || isReading || isProcessing}
+                className="absolute left-full ml-4 text-sm text-gray-600 hover:text-gray-900 underline disabled:opacity-30 disabled:cursor-not-allowed transition-opacity whitespace-nowrap"
                 aria-label="Clear all files"
               >
                 Clear All
               </button>
-            )}
+            </div>
           </div>
         </div>
 
