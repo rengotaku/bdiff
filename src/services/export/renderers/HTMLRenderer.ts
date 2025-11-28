@@ -7,7 +7,6 @@ import type { DiffLine } from '../../../types/types';
 import type { HtmlExportOptions } from '../types';
 import { BaseRenderer } from './BaseRenderer';
 import { TAILWIND_CSS } from '../../tailwindEmbedded';
-import { SvgDiffRenderer } from '../../svgDiffRenderer';
 
 /**
  * Default HTML export options
@@ -175,7 +174,7 @@ ${this.getEmbeddedCSS(opts.theme)}
   }
 
   /**
-   * Generate unified view using SVG
+   * Generate unified view using HTML
    */
   private generateUnifiedView(
     lines: DiffLine[],
@@ -185,30 +184,20 @@ ${this.getEmbeddedCSS(opts.theme)}
       return '<div class="text-center text-gray-500 p-8">No differences to display</div>';
     }
 
-    const svgOptions = {
-      width: 1200,
-      lineHeight: 20,
-      fontFamily: "'SF Mono', Monaco, 'Cascadia Code', monospace",
-      fontSize: 13,
-      includeLineNumbers: options.includeLineNumbers,
-      theme: options.theme,
-    };
-
-    const unifiedSvg = SvgDiffRenderer.generateSideBySideSvg(lines, [], svgOptions);
+    const lineElements = lines.map(line => this.renderDiffLine(line, options)).join('\n');
 
     return `
-      <div class="border rounded-md overflow-hidden">
-        <img
-          src="${unifiedSvg}"
-          alt="Unified diff view"
-          class="w-full"
-          style="display: block; max-width: 100%; height: auto;"
-        />
+      <div class="diff-table-container">
+        <table class="diff-table unified-view">
+          <tbody>
+            ${lineElements}
+          </tbody>
+        </table>
       </div>`;
   }
 
   /**
-   * Generate side-by-side view using SVG
+   * Generate side-by-side view using HTML
    */
   private generateSideBySideView(
     lines: DiffLine[],
@@ -221,56 +210,72 @@ ${this.getEmbeddedCSS(opts.theme)}
       return '<div class="grid grid-cols-2 gap-4"><div class="text-center text-gray-500 p-8">No differences to display</div></div>';
     }
 
-    const svgOptions = {
-      width: 600,
-      lineHeight: 20,
-      fontFamily: "'SF Mono', Monaco, 'Cascadia Code', monospace",
-      fontSize: 13,
-      includeLineNumbers: options.includeLineNumbers,
-      theme: options.theme,
-    };
-
-    const originalSvg = SvgDiffRenderer.generateSideBySideSvg(
-      originalPanelLines,
-      [],
-      svgOptions
-    );
-
-    const modifiedSvg = SvgDiffRenderer.generateSideBySideSvg(
-      modifiedPanelLines,
-      [],
-      svgOptions
-    );
+    const originalElements = originalPanelLines.map(line => this.renderDiffLine(line, options)).join('\n');
+    const modifiedElements = modifiedPanelLines.map(line => this.renderDiffLine(line, options)).join('\n');
 
     return `
-      <div class="grid grid-cols-2 gap-4" role="main" aria-label="Side-by-side diff view">
-        <div class="space-y-1">
-          <div class="flex items-center justify-between mb-2 px-4">
-            <div class="font-medium text-sm text-gray-700">Original</div>
+      <div class="side-by-side-container" role="main" aria-label="Side-by-side diff view">
+        <div class="side-by-side-panel">
+          <div class="panel-header">
+            <div class="panel-title">Original</div>
           </div>
-          <div class="border rounded-md overflow-hidden">
-            <img
-              src="${originalSvg}"
-              alt="Original file diff"
-              class="w-full"
-              style="display: block; max-width: 100%; height: auto;"
-            />
+          <div class="diff-table-container">
+            <table class="diff-table">
+              <tbody>
+                ${originalElements}
+              </tbody>
+            </table>
           </div>
         </div>
-        <div class="space-y-1">
-          <div class="flex items-center justify-between mb-2 px-4">
-            <div class="font-medium text-sm text-gray-700">Modified</div>
+        <div class="side-by-side-panel">
+          <div class="panel-header">
+            <div class="panel-title">Modified</div>
           </div>
-          <div class="border rounded-md overflow-hidden">
-            <img
-              src="${modifiedSvg}"
-              alt="Modified file diff"
-              class="w-full"
-              style="display: block; max-width: 100%; height: auto;"
-            />
+          <div class="diff-table-container">
+            <table class="diff-table">
+              <tbody>
+                ${modifiedElements}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>`;
+  }
+
+  /**
+   * Render a single diff line as HTML table row
+   */
+  private renderDiffLine(line: DiffLine, options: Required<HtmlExportOptions>): string {
+    const typeClass = `diff-line-${line.type}`;
+    const symbol = this.getDiffSymbol(line.type);
+    const lineNumberCell = options.includeLineNumbers
+      ? `<td class="line-number">${line.lineNumber}</td>`
+      : '';
+
+    const escapedContent = this.escapeHtml(line.content || '');
+
+    return `
+            <tr class="diff-line ${typeClass}">
+              ${lineNumberCell}
+              <td class="line-symbol">${symbol}</td>
+              <td class="line-content"><pre>${escapedContent}</pre></td>
+            </tr>`;
+  }
+
+  /**
+   * Get symbol for diff line type
+   */
+  private getDiffSymbol(type: string): string {
+    switch (type) {
+      case 'added':
+        return '+';
+      case 'removed':
+        return '-';
+      case 'modified':
+        return '~';
+      default:
+        return ' ';
+    }
   }
 
   /**
@@ -490,6 +495,136 @@ ${this.getEmbeddedCSS(opts.theme)}
       text-decoration: underline;
     }
 
+    /* ========================================
+       DIFF TABLE STYLES
+       ======================================== */
+
+    .diff-table-container {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow-x: auto;
+      background: var(--bg-color);
+    }
+
+    .diff-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .diff-line {
+      border-left: 4px solid transparent;
+    }
+
+    .diff-line td {
+      padding: 2px 8px;
+      vertical-align: top;
+    }
+
+    .line-number {
+      width: 60px;
+      text-align: right;
+      color: var(--unchanged-text);
+      user-select: none;
+      padding-right: 12px;
+      font-size: 12px;
+    }
+
+    .line-symbol {
+      width: 20px;
+      text-align: center;
+      opacity: 0.5;
+      user-select: none;
+    }
+
+    .line-content {
+      width: 100%;
+    }
+
+    .line-content pre {
+      margin: 0;
+      padding: 0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
+    }
+
+    /* Diff line type styles */
+    .diff-line-added {
+      background: var(--added-bg);
+      border-left-color: var(--added-border);
+    }
+
+    .diff-line-added .line-symbol,
+    .diff-line-added .line-content {
+      color: var(--added-text);
+    }
+
+    .diff-line-removed {
+      background: var(--removed-bg);
+      border-left-color: var(--removed-border);
+    }
+
+    .diff-line-removed .line-symbol,
+    .diff-line-removed .line-content {
+      color: var(--removed-text);
+    }
+
+    .diff-line-modified {
+      background: var(--modified-bg);
+      border-left-color: var(--modified-border);
+    }
+
+    .diff-line-modified .line-symbol,
+    .diff-line-modified .line-content {
+      color: var(--modified-text);
+    }
+
+    .diff-line-unchanged {
+      background: var(--unchanged-bg);
+      border-left-color: var(--unchanged-border);
+    }
+
+    .diff-line-unchanged .line-symbol,
+    .diff-line-unchanged .line-content {
+      color: var(--unchanged-text);
+    }
+
+    /* Side-by-side layout */
+    .side-by-side-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .side-by-side-panel {
+      min-width: 0;
+    }
+
+    .panel-header {
+      padding: 8px 16px;
+      background: var(--header-bg);
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .panel-title {
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--text-color);
+    }
+
+    .side-by-side-panel .diff-table-container {
+      border-radius: 0 0 8px 8px;
+    }
+
     @media print {
       .container {
         max-width: none;
@@ -538,6 +673,11 @@ ${this.getEmbeddedCSS(opts.theme)}
 
       .comparison-arrow {
         transform: rotate(90deg);
+      }
+
+      .side-by-side-container {
+        grid-template-columns: 1fr;
+        gap: 8px;
       }
     }`;
   }
