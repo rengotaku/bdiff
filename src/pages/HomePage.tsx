@@ -4,7 +4,8 @@ import { ContentLayout } from '../components/layout/PageLayout';
 import { FileUploadArea } from '../components/diff/FileUploadArea';
 import { FileComparisonPanel } from '../components/diff/FileComparisonPanel';
 import { DiffSettingsPanel } from '../components/diff/DiffSettingsPanel';
-import { ComparisonOptionsSidebar } from '../components/diff/ComparisonOptionsSidebar';
+import { Accordion } from '../components/ui/Accordion';
+import { ComparisonOptionsHorizontal } from '../components/diff/ComparisonOptionsHorizontal';
 import { useToastHelpers } from '../components/common/Toast';
 import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
@@ -166,6 +167,12 @@ export const HomePage: React.FC = () => {
     setModifiedFile(null);
   }, [setModifiedFile]);
 
+  const handleClearAll = useCallback(() => {
+    setOriginalFile(null);
+    setModifiedFile(null);
+    clearError();
+  }, [setOriginalFile, setModifiedFile, clearError]);
+
 
   // Simplified copy handler - only copy all
   const handleCopy = useCallback(async () => {
@@ -257,14 +264,33 @@ export const HomePage: React.FC = () => {
             />
           </div>
 
-          {/* Compare Files Button */}
-          <div className="flex justify-center">
+          {/* Comparison Options Accordion */}
+          <Accordion title="Comparison Options" defaultOpen={false}>
+            <ComparisonOptionsHorizontal
+              options={comparisonOptions}
+              onChange={setComparisonOptions}
+              disabled={isReading || isProcessing}
+            />
+          </Accordion>
+
+          {/* Compare Files Button with Clear Link */}
+          <div className="flex justify-center items-center gap-4">
             <DiffSettingsPanel
               canCalculateDiff={canCalculateDiff}
               isProcessing={isProcessing}
               isReading={isReading}
               onStartComparison={handleStartComparison}
             />
+            {(originalFile || modifiedFile) && (
+              <button
+                onClick={handleClearAll}
+                disabled={isReading || isProcessing}
+                className="text-sm text-gray-600 hover:text-gray-900 underline disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Clear all files"
+              >
+                Clear All
+              </button>
+            )}
           </div>
         </div>
 
@@ -315,12 +341,6 @@ export const HomePage: React.FC = () => {
           </div>
         )}
 
-        {/* Comparison Options Sidebar */}
-        <ComparisonOptionsSidebar
-          options={comparisonOptions}
-          onChange={setComparisonOptions}
-          disabled={isReading || isProcessing}
-        />
       </div>
     </ContentLayout>
   );
