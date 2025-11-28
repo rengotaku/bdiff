@@ -16,6 +16,8 @@ export type ExportFormat = 'html' | 'svg' | 'markdown' | 'plaintext';
 export interface BaseExportOptions {
   /** Custom title for the export */
   title?: string;
+  /** Custom filename for the export */
+  filename?: string;
   /** Include line numbers */
   includeLineNumbers?: boolean;
   /** Include statistics summary */

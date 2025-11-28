@@ -48,7 +48,7 @@ export class ExportService {
 
     const content = renderer.render(lines, options);
     const mimeType = renderer.getMimeType();
-    const filename = renderer.generateFilename(
+    const filename = options.filename || renderer.generateFilename(
       options.originalFile,
       options.modifiedFile
     );

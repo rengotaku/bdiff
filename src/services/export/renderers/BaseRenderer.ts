@@ -5,6 +5,7 @@
 
 import type { DiffLine, DiffType, FileInfo } from '../../../types/types';
 import type { IRenderer, ExportOptions } from '../types';
+import { escapeHtml, escapeMarkdown } from '../../../utils/htmlEscape';
 
 /**
  * Abstract base renderer providing common functionality
@@ -74,51 +75,15 @@ export abstract class BaseRenderer implements IRenderer {
 
   /**
    * Escape HTML special characters
+   * Uses shared utility from htmlEscape module
    */
-  protected escapeHtml(text: string): string {
-    if (!text) {
-      return '';
-    }
-
-    const htmlEscapes: Record<string, string> = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
-    };
-
-    return text.replace(/[&<>"']/g, char => htmlEscapes[char] || char);
-  }
+  protected escapeHtml = escapeHtml;
 
   /**
    * Escape markdown special characters
+   * Uses shared utility from htmlEscape module
    */
-  protected escapeMarkdown(text: string): string {
-    if (!text) {
-      return '';
-    }
-
-    const mdEscapes: Record<string, string> = {
-      '\\': '\\\\',
-      '`': '\\`',
-      '*': '\\*',
-      '_': '\\_',
-      '{': '\\{',
-      '}': '\\}',
-      '[': '\\[',
-      ']': '\\]',
-      '(': '\\(',
-      ')': '\\)',
-      '#': '\\#',
-      '+': '\\+',
-      '-': '\\-',
-      '.': '\\.',
-      '!': '\\!'
-    };
-
-    return text.replace(/[\\`*_{}[\]()#+\-.!]/g, char => mdEscapes[char] || char);
-  }
+  protected escapeMarkdown = escapeMarkdown;
 
   /**
    * Strip file extension from filename

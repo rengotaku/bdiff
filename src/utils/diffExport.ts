@@ -2,6 +2,7 @@ import type { DiffLine, DiffType } from '../types/types'
 import { DiffParser } from './diffParsing'
 import { DiffStyler } from './diffStyling'
 import { getLineClassName, getPrefixSymbol } from './diffRendering'
+import { escapeHtml } from './htmlEscape'
 
 /**
  * Configuration options for diff formatting
@@ -181,8 +182,8 @@ export class DiffExporter {
 
       filteredLines.forEach((line, index) => {
         const className = getLineClassName(line.type);
-        const symbol = this.escapeHtml(getPrefixSymbol(line.type));
-        const content = this.escapeHtml(line.content || '\n');
+        const symbol = escapeHtml(getPrefixSymbol(line.type));
+        const content = escapeHtml(line.content || '\n');
         const lineId = `line-${index + 1}`;
 
         // Matching actual application Unified view structure with Tailwind classes
@@ -267,8 +268,8 @@ export class DiffExporter {
         case 'html':
           return [
             '<div class="diff-header">',
-            `<h3>${this.escapeHtml(filename)}</h3>`,
-            `<p><strong>Changes:</strong> ${this.escapeHtml(summary)}</p>`,
+            `<h3>${escapeHtml(filename)}</h3>`,
+            `<p><strong>Changes:</strong> ${escapeHtml(summary)}</p>`,
             `<p><strong>Generated:</strong> ${timestamp}</p>`,
             '</div>',
             content
@@ -295,17 +296,6 @@ export class DiffExporter {
       console.error('Error formatting with header:', error);
       return this.format(lines, options);
     }
-  }
-
-  /**
-   * Escape HTML special characters for safe HTML output
-   * @param text - Text to escape
-   * @returns HTML-escaped text
-   */
-  private static escapeHtml(text: string): string {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
   }
 
   /**

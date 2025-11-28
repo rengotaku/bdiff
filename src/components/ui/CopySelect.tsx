@@ -21,23 +21,23 @@ export interface CopySelectProps {
 const DEFAULT_OPTIONS: CopyOption[] = [
   {
     value: 'all',
-    label: '全てコピー',
-    description: '差分全体をコピー'
+    label: 'Copy All',
+    description: 'Copy entire diff'
   },
   {
     value: 'changed',
-    label: '変更のみ',
-    description: '変更行のみコピー'
+    label: 'Changed Only',
+    description: 'Copy changed lines only'
   },
   {
     value: 'added',
-    label: '追加のみ',
-    description: '追加行のみコピー'
+    label: 'Added Only',
+    description: 'Copy added lines only'
   },
   {
     value: 'removed',
-    label: '削除のみ',
-    description: '削除行のみコピー'
+    label: 'Removed Only',
+    description: 'Copy removed lines only'
   }
 ];
 

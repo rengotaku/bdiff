@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import type { HtmlExportOptions } from '../../services/export';
@@ -45,7 +45,16 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
   suggestedFilename = ''
 }) => {
   const [options, setOptions] = useState<HtmlExportOptions>(DEFAULT_HTML_EXPORT_OPTIONS);
-  const [customTitle, setCustomTitle] = useState('');
+  const [editableFilename, setEditableFilename] = useState('');
+
+  // Extract filename without extension and extension separately
+  const fileExtension = suggestedFilename.match(/\.[^.]+$/)?.[0] || '.html';
+  const filenameWithoutExt = suggestedFilename.replace(/\.[^.]+$/, '');
+
+  // Initialize editable filename when suggestedFilename changes
+  useEffect(() => {
+    setEditableFilename(filenameWithoutExt);
+  }, [filenameWithoutExt]);
 
   /**
    * Update a specific export option
@@ -63,10 +72,10 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
   const handleExport = useCallback(() => {
     const exportOptions = {
       ...options,
-      title: customTitle || undefined
+      filename: editableFilename ? `${editableFilename}${fileExtension}` : undefined
     };
     onExport(exportOptions);
-  }, [options, customTitle, onExport]);
+  }, [options, editableFilename, fileExtension, onExport]);
 
   /**
    * Handle preview
@@ -76,18 +85,18 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
 
     const previewOptions = {
       ...options,
-      title: customTitle || undefined
+      filename: editableFilename ? `${editableFilename}${fileExtension}` : undefined
     };
     onPreview(previewOptions);
-  }, [options, customTitle, onPreview]);
+  }, [options, editableFilename, fileExtension, onPreview]);
 
   /**
    * Reset to default options
    */
   const handleReset = useCallback(() => {
     setOptions(DEFAULT_HTML_EXPORT_OPTIONS);
-    setCustomTitle('');
-  }, []);
+    setEditableFilename(filenameWithoutExt);
+  }, [filenameWithoutExt]);
 
   return (
     <Modal
@@ -97,45 +106,29 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
       size="lg"
     >
       <div className="space-y-6">
-        {/* Section 1: Basic Settings */}
-        <div className="space-y-4">
-          {/* Filename */}
-          {suggestedFilename && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Output Filename
-              </label>
+        {/* Section 1: Filename */}
+        {suggestedFilename && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Output Filename
+            </label>
+            <div className="flex items-center gap-2">
               <input
                 type="text"
-                value={suggestedFilename}
-                disabled
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600 font-mono text-sm"
+                value={editableFilename}
+                onChange={(e) => setEditableFilename(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
+              <span className="px-2 py-2 text-sm font-mono text-gray-600">
+                {fileExtension}
+              </span>
             </div>
-          )}
-
-          {/* Custom Title */}
-          <div>
-            <label htmlFor="custom-title" className="block text-sm font-medium text-gray-700 mb-2">
-              Custom Title (Optional)
-            </label>
-            <input
-              id="custom-title"
-              type="text"
-              value={customTitle}
-              onChange={(e) => setCustomTitle(e.target.value)}
-              placeholder="Use default title"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              If left blank, an auto-generated title will be used
-            </p>
           </div>
-        </div>
+        )}
 
         {/* Section 2: View Mode Selection */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">表示形式 (View Mode)</h3>
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">View Mode</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <label className="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
               <input
@@ -148,7 +141,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
               />
               <div className="ml-3 flex-1">
                 <div className="text-sm font-medium text-gray-900">Unified</div>
-                <div className="text-xs text-gray-500">1カラムの行単位表示</div>
+                <div className="text-xs text-gray-500">Single column line-by-line view</div>
               </div>
             </label>
 
@@ -163,94 +156,45 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
               />
               <div className="ml-3 flex-1">
                 <div className="text-sm font-medium text-gray-900">Side by Side</div>
-                <div className="text-xs text-gray-500">2カラムの並列表示</div>
+                <div className="text-xs text-gray-500">Two column side-by-side view</div>
               </div>
             </label>
           </div>
         </div>
 
-        {/* Section 3: Options (2-column grid) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Display Options */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">Display Options</h3>
-            <div className="space-y-3">
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={options.includeLineNumbers}
-                  onChange={(e) => updateOption('includeLineNumbers', e.target.checked)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">行番号を表示</span>
-              </label>
+        {/* Section 3: Display Options */}
+        <div>
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">Display Options</h3>
+          <div className="space-y-3">
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={options.includeHeader}
+                onChange={(e) => updateOption('includeHeader', e.target.checked)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="ml-2 text-sm text-gray-700">Include file information header</span>
+            </label>
 
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={options.includeHeader}
-                  onChange={(e) => updateOption('includeHeader', e.target.checked)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">ファイル情報のヘッダーを含める</span>
-              </label>
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={options.includeStats}
+                onChange={(e) => updateOption('includeStats', e.target.checked)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="ml-2 text-sm text-gray-700">Include statistics</span>
+            </label>
 
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={options.includeStats}
-                  onChange={(e) => updateOption('includeStats', e.target.checked)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">統計情報を含める</span>
-              </label>
-
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={options.differencesOnly}
-                  onChange={(e) => updateOption('differencesOnly', e.target.checked)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">差分のみ表示</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Theme Selection */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">Theme</h3>
-            <div className="space-y-3">
-              <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                <input
-                  type="radio"
-                  name="theme"
-                  value="light"
-                  checked={options.theme === 'light'}
-                  onChange={(e) => updateOption('theme', e.target.value as 'light' | 'dark')}
-                  className="text-blue-600 focus:ring-blue-500"
-                />
-                <div className="ml-3">
-                  <div className="text-sm font-medium text-gray-900">Light</div>
-                  <div className="text-xs text-gray-500">印刷に最適</div>
-                </div>
-              </label>
-
-              <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                <input
-                  type="radio"
-                  name="theme"
-                  value="dark"
-                  checked={options.theme === 'dark'}
-                  onChange={(e) => updateOption('theme', e.target.value as 'light' | 'dark')}
-                  className="text-blue-600 focus:ring-blue-500"
-                />
-                <div className="ml-3">
-                  <div className="text-sm font-medium text-gray-900">Dark</div>
-                  <div className="text-xs text-gray-500">画面閲覧に最適</div>
-                </div>
-              </label>
-            </div>
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={options.differencesOnly}
+                onChange={(e) => updateOption('differencesOnly', e.target.checked)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="ml-2 text-sm text-gray-700">Show differences only</span>
+            </label>
           </div>
         </div>
 

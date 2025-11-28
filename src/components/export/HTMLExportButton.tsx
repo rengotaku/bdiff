@@ -47,7 +47,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
    */
   const handleOpenDialog = useCallback(() => {
     if (!canExport) {
-      onError?.('比較結果がありません。ファイルを比較してからエクスポートしてください。');
+      onError?.('No comparison results available. Please compare files before exporting.');
       return;
     }
     setIsDialogOpen(true);
@@ -65,7 +65,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
    */
   const handleExport = useCallback(async (options: HtmlExportOptions) => {
     if (!diffResult || !originalFile || !modifiedFile) {
-      onError?.('エクスポートに必要なデータが不足しています');
+      onError?.('Missing required data for export');
       return;
     }
 
@@ -83,7 +83,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
       ExportService.exportAndDownload(diffResult.lines, 'html', exportOptions);
 
       // Generate filename for success callback
-      const filename = ExportService.generateFilename(originalFile, modifiedFile, 'html');
+      const filename = options.filename || ExportService.generateFilename(originalFile, modifiedFile, 'html');
 
       // Success callback
       onSuccess?.(filename);
@@ -92,7 +92,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
       setIsDialogOpen(false);
     } catch (error) {
       console.error('Export error:', error);
-      onError?.(error instanceof Error ? error.message : 'エクスポートに失敗しました');
+      onError?.(error instanceof Error ? error.message : 'Export failed');
     } finally {
       setIsExporting(false);
     }
@@ -103,7 +103,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
    */
   const handlePreview = useCallback(async (options: HtmlExportOptions) => {
     if (!diffResult || !originalFile || !modifiedFile) {
-      onError?.('プレビューに必要なデータが不足しています');
+      onError?.('Missing required data for preview');
       return;
     }
 
@@ -119,7 +119,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
       ExportService.exportHtmlAndPreview(diffResult.lines, exportOptions);
     } catch (error) {
       console.error('Preview error:', error);
-      onError?.(error instanceof Error ? error.message : 'プレビューの表示に失敗しました');
+      onError?.(error instanceof Error ? error.message : 'Failed to display preview');
     }
   }, [diffResult, originalFile, modifiedFile, onError]);
 
@@ -136,7 +136,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
         onClick={handleOpenDialog}
         disabled={!canExport}
         className={className}
-        title={!canExport ? '比較結果がありません' : 'HTMLファイルとしてエクスポート'}
+        title={!canExport ? 'No comparison results' : 'Export as HTML file'}
       >
         HTML Export
       </Button>

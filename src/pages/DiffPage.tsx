@@ -43,8 +43,8 @@ export const DiffPage: React.FC = () => {
     copyDiff,
     isLoading: isCopying
   } = useClipboard({
-    onSuccess: () => showSuccessToast('コピー完了', '差分をクリップボードにコピーしました'),
-    onError: (error) => showErrorToast('コピー失敗', error)
+    onSuccess: () => showSuccessToast('Copy Complete', 'Diff copied to clipboard'),
+    onError: (error) => showErrorToast('Copy Failed', error)
   });
 
   const handleGoBack = useCallback(() => {
@@ -77,7 +77,7 @@ export const DiffPage: React.FC = () => {
 
     const filename = originalFile?.name && modifiedFile?.name
       ? `${originalFile.name} vs ${modifiedFile.name}`
-      : '差分比較結果';
+      : 'Diff Comparison Result';
 
     try {
       await copyDiff(diffResult.lines, {
@@ -287,7 +287,7 @@ export const DiffPage: React.FC = () => {
                     onClick={handleCopy}
                     loading={isCopying}
                     size="sm"
-                    label="全てコピー"
+                    label="Copy All"
                     className="w-full h-10"
                   />
                   <HTMLExportButton
@@ -297,8 +297,8 @@ export const DiffPage: React.FC = () => {
                     variant="ghost"
                     size="sm"
                     className="w-full h-10"
-                    onSuccess={(filename) => showSuccessToast('エクスポート完了', `${filename} をダウンロードしました`)}
-                    onError={(error) => showErrorToast('エクスポート失敗', error)}
+                    onSuccess={(filename) => showSuccessToast('Export Complete', `Downloaded ${filename}`)}
+                    onError={(error) => showErrorToast('Export Failed', error)}
                   />
                   <Button
                     variant="primary"
