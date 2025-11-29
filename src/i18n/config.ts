@@ -7,23 +7,35 @@ import ja from './locales/ja.json';
 import zhCN from './locales/zh-CN.json';
 import zhTW from './locales/zh-TW.json';
 import ko from './locales/ko.json';
+import id from './locales/id.json';
+import fr from './locales/fr.json';
+import de from './locales/de.json';
 
 export const defaultNS = 'translation';
 export const resources = {
-  en: {
-    translation: en,
-  },
   ja: {
     translation: ja,
   },
-  'zh-CN': {
-    translation: zhCN,
+  en: {
+    translation: en,
+  },
+  ko: {
+    translation: ko,
   },
   'zh-TW': {
     translation: zhTW,
   },
-  ko: {
-    translation: ko,
+  'zh-CN': {
+    translation: zhCN,
+  },
+  id: {
+    translation: id,
+  },
+  fr: {
+    translation: fr,
+  },
+  de: {
+    translation: de,
   },
 } as const;
 
@@ -34,7 +46,7 @@ i18n
     resources,
     defaultNS,
     fallbackLng: 'en',
-    supportedLngs: ['en', 'ja', 'zh-CN', 'zh-TW', 'ko'],
+    supportedLngs: ['ja', 'en', 'ko', 'zh-TW', 'zh-CN', 'id', 'fr', 'de'],
     interpolation: {
       escapeValue: false,
     },

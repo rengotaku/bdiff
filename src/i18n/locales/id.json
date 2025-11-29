@@ -1,0 +1,131 @@
+{
+  "app": {
+    "title": "BDiff",
+    "subtitle": "Memvisualisasikan Perubahan dengan Indah"
+  },
+  "header": {
+    "languageSelector": "Bahasa"
+  },
+  "fileUpload": {
+    "originalTitle": "Teks Asli",
+    "modifiedTitle": "Teks yang Dimodifikasi",
+    "originalPlaceholder": "Tempel, ketik teks asli Anda di sini, atau jatuhkan file...",
+    "modifiedPlaceholder": "Tempel, ketik teks yang dimodifikasi di sini, atau jatuhkan file...",
+    "dropzonePlaceholder": "Jatuhkan file Anda di sini",
+    "selectFile": "Pilih File",
+    "fileInfo": "{{name}} ({{size}})"
+  },
+  "comparison": {
+    "compareButton": "Bandingkan File",
+    "comparing": "Membandingkan...",
+    "clearAll": "Hapus Semua",
+    "statusReady": "Siap membandingkan - Klik tombol \"Bandingkan File\"",
+    "statusSelecting": "Pilih atau masukkan konten untuk versi asli dan yang dimodifikasi",
+    "statusProcessing": "Membandingkan file secara otomatis..."
+  },
+  "comparisonOptions": {
+    "title": "Opsi Perbandingan",
+    "ignoreCase": "Abaikan huruf besar/kecil",
+    "ignoreCaseLabel": "Abaikan huruf besar/kecil",
+    "ignoreCaseTooltip": "Huruf besar dan kecil dianggap sama",
+    "ignoreWhitespace": "Abaikan spasi",
+    "ignoreWhitespaceLabel": "Abaikan spasi",
+    "ignoreWhitespaceTooltip": "Abaikan spasi di awal/akhir",
+    "sortLines": "Urutkan baris",
+    "sortLinesLabel": "Urutkan baris",
+    "sortLinesTooltip": "Bandingkan tanpa memperhatikan urutan baris",
+    "ignoreTrailingNewlines": "Abaikan baris baru di akhir",
+    "ignoreTrailingNewlinesLabel": "Abaikan baris baru di akhir",
+    "ignoreTrailingNewlinesTooltip": "Abaikan baris kosong terakhir"
+  },
+  "diffViewer": {
+    "viewMode": {
+      "label": "Mode Tampilan",
+      "sideBySide": "Berdampingan",
+      "unified": "Terpadu",
+      "split": "Terpisah"
+    },
+    "statistics": {
+      "similarity": "Persentase kesamaan antara dua file",
+      "additions": "Jumlah baris yang ditambahkan",
+      "deletions": "Jumlah baris yang dihapus",
+      "changes": "Jumlah baris yang diubah"
+    },
+    "actions": {
+      "copy": "Salin",
+      "copying": "Menyalin...",
+      "export": "Ekspor"
+    },
+    "noDifferences": {
+      "title": "Tidak Ada Perbedaan",
+      "message": "File-file identik",
+      "similarity": "{{percentage}}% Kesamaan"
+    }
+  },
+  "export": {
+    "title": "Ekspor Perbedaan",
+    "format": {
+      "label": "Format",
+      "html": "HTML",
+      "markdown": "Markdown",
+      "plainText": "Teks Biasa"
+    },
+    "options": {
+      "includeStats": "Sertakan Statistik",
+      "includeLineNumbers": "Sertakan Nomor Baris",
+      "includeTimestamp": "Sertakan Waktu"
+    },
+    "button": {
+      "export": "Ekspor",
+      "cancel": "Batal"
+    },
+    "success": "Ekspor Selesai",
+    "successMessage": "{{filename}} telah diunduh",
+    "error": "Ekspor Gagal",
+    "html": {
+      "dialogTitle": "Pengaturan Ekspor HTML",
+      "outputFilename": "Nama File Output",
+      "viewMode": {
+        "title": "Mode Tampilan",
+        "unified": "Terpadu",
+        "unifiedDesc": "Tampilan baris per baris satu kolom",
+        "sideBySide": "Berdampingan",
+        "sideBySideDesc": "Tampilan dua kolom berdampingan"
+      },
+      "displayOptions": {
+        "title": "Opsi Tampilan",
+        "includeHeader": "Sertakan header informasi file",
+        "includeStats": "Sertakan statistik",
+        "differencesOnly": "Tampilkan perbedaan saja"
+      },
+      "buttons": {
+        "reset": "Reset",
+        "cancel": "Batal",
+        "preview": "Pratinjau",
+        "export": "Ekspor",
+        "exporting": "Mengekspor..."
+      },
+      "buttonLabel": "Ekspor HTML",
+      "buttonTooltip": "Ekspor sebagai file HTML",
+      "noResults": "Tidak ada hasil perbandingan",
+      "noResultsMessage": "Tidak ada hasil perbandingan. Silakan bandingkan file sebelum mengekspor."
+    }
+  },
+  "errors": {
+    "title": "Kesalahan",
+    "copyFailed": "Penyalinan Gagal",
+    "exportFailed": "Ekspor Gagal",
+    "fileReadError": "Gagal membaca file"
+  },
+  "toast": {
+    "copyComplete": "Penyalinan Selesai",
+    "copyMessage": "Perbedaan disalin ke clipboard"
+  },
+  "keyboard": {
+    "title": "Pintasan Keyboard",
+    "compare": "Bandingkan File",
+    "copy": "Salin Perbedaan",
+    "export": "Ekspor",
+    "help": "Tampilkan Bantuan"
+  }
+}
