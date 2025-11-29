@@ -44,6 +44,18 @@ BDiffアプリケーションに日本語および多言語サポートを実装
 4. **Header** (`src/components/layout/Header.tsx`)
    - 言語スイッチャーの追加
 
+5. **HTMLExportDialog** (`src/components/export/HTMLExportDialog.tsx`)
+   - ダイアログタイトル
+   - 出力ファイル名ラベル
+   - 表示モード選択（統合/横並び）
+   - 表示オプション（ヘッダー/統計情報/差分のみ）
+   - 全アクションボタン（リセット/キャンセル/プレビュー/エクスポート）
+
+6. **HTMLExportButton** (`src/components/export/HTMLExportButton.tsx`)
+   - ボタンラベル
+   - ツールチップ
+   - エラーメッセージ
+
 ### 4. 翻訳ファイル構造
 
 #### src/i18n/locales/en.json
@@ -55,7 +67,16 @@ BDiffアプリケーションに日本語および多言語サポートを実装
   "comparison": { "compareButton", "clearAll", ... },
   "comparisonOptions": { "ignoreCase", "sortLines", ... },
   "diffViewer": { "viewMode", "statistics", ... },
-  "export": { "title", "format", ... },
+  "export": {
+    "title", "format", ...,
+    "html": {
+      "dialogTitle", "outputFilename",
+      "viewMode": { "title", "unified", "sideBySide", ... },
+      "displayOptions": { "title", "includeHeader", "includeStats", ... },
+      "buttons": { "reset", "cancel", "preview", "export", "exporting" },
+      "buttonLabel", "buttonTooltip", "noResults", "noResultsMessage"
+    }
+  },
   "errors": { "title", "copyFailed", ... },
   "toast": { "copyComplete", "copyMessage" },
   "keyboard": { "title", "compare", ... }
@@ -64,6 +85,7 @@ BDiffアプリケーションに日本語および多言語サポートを実装
 
 #### src/i18n/locales/ja.json
 - 上記と同じ構造で日本語訳を提供
+- HTMLエクスポート設定の全項目を日本語化
 
 ### 5. 言語検出と永続化
 
@@ -110,12 +132,14 @@ src/
 ✓ 126 modules transformed.
 dist/index.html            0.81 kB │ gzip:   0.44 kB
 dist/index.Df8gIXpC.css   34.69 kB │ gzip:   6.21 kB
-dist/index.C3ZS2gvt.js   435.58 kB │ gzip: 131.37 kB
-✓ built in 849ms
+dist/index.GYeXYyJf.js   437.39 kB │ gzip: 131.83 kB
+✓ built in 843ms
 ```
 
 ### バンドルサイズへの影響
-- i18n関連ライブラリ追加による若干のサイズ増加
+- i18n関連ライブラリ追加: 約1.8KB増加
+- HTMLエクスポート翻訳追加: 約0.5KB増加
+- 合計増加: 約2.3KB (gzipped)
 - 最適化により、実際の影響は最小限
 
 ## ユーザー体験
@@ -240,6 +264,7 @@ Issue #9「国際化対応 - 日本語およびマルチ言語サポート」は
 - ✅ 日本語と英語の完全サポート
 - ✅ 言語スイッチャーの実装
 - ✅ 全UIコンポーネントの翻訳対応
+- ✅ HTMLエクスポート設定ダイアログの翻訳対応
 - ✅ 言語設定の永続化
 - ✅ 自動言語検出
 - ✅ ビルドの成功
