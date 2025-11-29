@@ -81,7 +81,35 @@
     },
     "success": "Export Complete",
     "successMessage": "Downloaded {{filename}}",
-    "error": "Export Failed"
+    "error": "Export Failed",
+    "html": {
+      "dialogTitle": "HTML Export Settings",
+      "outputFilename": "Output Filename",
+      "viewMode": {
+        "title": "View Mode",
+        "unified": "Unified",
+        "unifiedDesc": "Single column line-by-line view",
+        "sideBySide": "Side by Side",
+        "sideBySideDesc": "Two column side-by-side view"
+      },
+      "displayOptions": {
+        "title": "Display Options",
+        "includeHeader": "Include file information header",
+        "includeStats": "Include statistics",
+        "differencesOnly": "Show differences only"
+      },
+      "buttons": {
+        "reset": "Reset",
+        "cancel": "Cancel",
+        "preview": "Preview",
+        "export": "Export",
+        "exporting": "Exporting..."
+      },
+      "buttonLabel": "HTML Export",
+      "buttonTooltip": "Export as HTML file",
+      "noResults": "No comparison results",
+      "noResultsMessage": "No comparison results available. Please compare files before exporting."
+    }
   },
   "errors": {
     "title": "Error",

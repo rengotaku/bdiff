@@ -81,7 +81,35 @@
     },
     "success": "エクスポート完了",
     "successMessage": "{{filename}} をダウンロードしました",
-    "error": "エクスポート失敗"
+    "error": "エクスポート失敗",
+    "html": {
+      "dialogTitle": "HTMLエクスポート設定",
+      "outputFilename": "出力ファイル名",
+      "viewMode": {
+        "title": "表示モード",
+        "unified": "統合",
+        "unifiedDesc": "単一列の行ごと表示",
+        "sideBySide": "横並び",
+        "sideBySideDesc": "2列の並列表示"
+      },
+      "displayOptions": {
+        "title": "表示オプション",
+        "includeHeader": "ファイル情報ヘッダーを含む",
+        "includeStats": "統計情報を含む",
+        "differencesOnly": "差分のみ表示"
+      },
+      "buttons": {
+        "reset": "リセット",
+        "cancel": "キャンセル",
+        "preview": "プレビュー",
+        "export": "エクスポート",
+        "exporting": "エクスポート中..."
+      },
+      "buttonLabel": "HTMLエクスポート",
+      "buttonTooltip": "HTMLファイルとしてエクスポート",
+      "noResults": "比較結果がありません",
+      "noResultsMessage": "比較結果がありません。エクスポート前にファイルを比較してください。"
+    }
   },
   "errors": {
     "title": "エラー",
