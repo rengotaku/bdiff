@@ -4,7 +4,6 @@ import { ContentLayout } from '../components/layout/PageLayout';
 import { FileUploadArea } from '../components/diff/FileUploadArea';
 import { FileComparisonPanel } from '../components/diff/FileComparisonPanel';
 import { DiffSettingsPanel } from '../components/diff/DiffSettingsPanel';
-import { Accordion } from '../components/ui/Accordion';
 import { ComparisonOptionsHorizontal } from '../components/diff/ComparisonOptionsHorizontal';
 import { useToastHelpers } from '../components/common/Toast';
 import { useDiffContext } from '../contexts/DiffContext';
@@ -253,14 +252,14 @@ export const HomePage: React.FC = () => {
             />
           </div>
 
-          {/* Comparison Options Accordion */}
-          <Accordion title="Comparison Options" defaultOpen={false}>
+          {/* Comparison Options Block */}
+          <div className="border border-gray-200 rounded-lg px-4 py-3 bg-gray-50">
             <ComparisonOptionsHorizontal
               options={comparisonOptions}
               onChange={setComparisonOptions}
               disabled={isReading || isProcessing}
             />
-          </Accordion>
+          </div>
 
           {/* Compare Files Button with Clear Link */}
           <div className="flex justify-center">
