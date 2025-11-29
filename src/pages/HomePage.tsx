@@ -4,7 +4,7 @@ import { ContentLayout } from '../components/layout/PageLayout';
 import { FileUploadArea } from '../components/diff/FileUploadArea';
 import { FileComparisonPanel } from '../components/diff/FileComparisonPanel';
 import { DiffSettingsPanel } from '../components/diff/DiffSettingsPanel';
-import { ComparisonOptionsSidebar } from '../components/diff/ComparisonOptionsSidebar';
+import { ComparisonOptionsHorizontal } from '../components/diff/ComparisonOptionsHorizontal';
 import { useToastHelpers } from '../components/common/Toast';
 import { useDiffContext } from '../contexts/DiffContext';
 import { useFileReader } from '../hooks/useFileReader';
@@ -156,15 +156,12 @@ export const HomePage: React.FC = () => {
     await calculateDiff();
   }, [calculateDiff]);
 
-  // Clear original text
-  const handleClearOriginal = useCallback(() => {
+  // Clear all files
+  const handleClearAll = useCallback(() => {
     setOriginalFile(null);
-  }, [setOriginalFile]);
-
-  // Clear modified text
-  const handleClearModified = useCallback(() => {
     setModifiedFile(null);
-  }, [setModifiedFile]);
+    clearError();
+  }, [setOriginalFile, setModifiedFile, clearError]);
 
 
   // Simplified copy handler - only copy all
@@ -230,7 +227,6 @@ export const HomePage: React.FC = () => {
               value={originalFile?.content || ''}
               onChange={(value) => handleTextChange(value, 'original')}
               onFileSelect={(file) => handleFileSelect(file, 'original')}
-              onClear={handleClearOriginal}
               fileInfo={originalFile || undefined}
               isDragging={isDragging && dragTarget === 'original'}
               onDragEnter={(e) => handleDragEnter(e, 'original')}
@@ -246,7 +242,6 @@ export const HomePage: React.FC = () => {
               value={modifiedFile?.content || ''}
               onChange={(value) => handleTextChange(value, 'modified')}
               onFileSelect={(file) => handleFileSelect(file, 'modified')}
-              onClear={handleClearModified}
               fileInfo={modifiedFile || undefined}
               isDragging={isDragging && dragTarget === 'modified'}
               onDragEnter={(e) => handleDragEnter(e, 'modified')}
@@ -257,14 +252,33 @@ export const HomePage: React.FC = () => {
             />
           </div>
 
-          {/* Compare Files Button */}
-          <div className="flex justify-center">
-            <DiffSettingsPanel
-              canCalculateDiff={canCalculateDiff}
-              isProcessing={isProcessing}
-              isReading={isReading}
-              onStartComparison={handleStartComparison}
+          {/* Comparison Options Block */}
+          <div className="border border-gray-200 rounded-lg px-4 py-3 bg-gray-50">
+            <ComparisonOptionsHorizontal
+              options={comparisonOptions}
+              onChange={setComparisonOptions}
+              disabled={isReading || isProcessing}
             />
+          </div>
+
+          {/* Compare Files Button with Clear Link */}
+          <div className="flex justify-center">
+            <div className="relative inline-flex items-center">
+              <DiffSettingsPanel
+                canCalculateDiff={canCalculateDiff}
+                isProcessing={isProcessing}
+                isReading={isReading}
+                onStartComparison={handleStartComparison}
+              />
+              <button
+                onClick={handleClearAll}
+                disabled={(!originalFile && !modifiedFile) || isReading || isProcessing}
+                className="absolute left-full ml-4 text-sm text-gray-600 hover:text-gray-900 underline disabled:opacity-30 disabled:cursor-not-allowed transition-opacity whitespace-nowrap"
+                aria-label="Clear all files"
+              >
+                Clear All
+              </button>
+            </div>
           </div>
         </div>
 
@@ -315,12 +329,6 @@ export const HomePage: React.FC = () => {
           </div>
         )}
 
-        {/* Comparison Options Sidebar */}
-        <ComparisonOptionsSidebar
-          options={comparisonOptions}
-          onChange={setComparisonOptions}
-          disabled={isReading || isProcessing}
-        />
       </div>
     </ContentLayout>
   );
