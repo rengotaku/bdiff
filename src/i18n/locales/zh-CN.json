@@ -1,0 +1,131 @@
+{
+  "app": {
+    "title": "BDiff",
+    "subtitle": "美观地可视化变更"
+  },
+  "header": {
+    "languageSelector": "语言"
+  },
+  "fileUpload": {
+    "originalTitle": "原始文本",
+    "modifiedTitle": "修改后的文本",
+    "originalPlaceholder": "粘贴、输入原始文本或拖放文件...",
+    "modifiedPlaceholder": "粘贴、输入修改后的文本或拖放文件...",
+    "dropzonePlaceholder": "将文件拖放到此处",
+    "selectFile": "选择文件",
+    "fileInfo": "{{name}} ({{size}})"
+  },
+  "comparison": {
+    "compareButton": "比较文件",
+    "comparing": "比较中...",
+    "clearAll": "全部清除",
+    "statusReady": "准备就绪 - 点击\"比较文件\"按钮",
+    "statusSelecting": "请选择或输入原始文本和修改后的文本",
+    "statusProcessing": "自动比较中..."
+  },
+  "comparisonOptions": {
+    "title": "比较选项",
+    "ignoreCase": "忽略大小写",
+    "ignoreCaseLabel": "忽略大小写",
+    "ignoreCaseTooltip": "大小写视为相同",
+    "ignoreWhitespace": "忽略空白",
+    "ignoreWhitespaceLabel": "忽略空白",
+    "ignoreWhitespaceTooltip": "忽略前后空白",
+    "sortLines": "排序行",
+    "sortLinesLabel": "排序行",
+    "sortLinesTooltip": "无论行顺序如何进行比较",
+    "ignoreTrailingNewlines": "忽略尾部换行",
+    "ignoreTrailingNewlinesLabel": "忽略尾部换行",
+    "ignoreTrailingNewlinesTooltip": "忽略最后的空行"
+  },
+  "diffViewer": {
+    "viewMode": {
+      "label": "查看模式",
+      "sideBySide": "并排",
+      "unified": "统一",
+      "split": "分割"
+    },
+    "statistics": {
+      "similarity": "两个文件之间的相似度",
+      "additions": "添加的行数",
+      "deletions": "删除的行数",
+      "changes": "更改的行数"
+    },
+    "actions": {
+      "copy": "复制",
+      "copying": "复制中...",
+      "export": "导出"
+    },
+    "noDifferences": {
+      "title": "未找到差异",
+      "message": "文件完全相同",
+      "similarity": "相似度 {{percentage}}%"
+    }
+  },
+  "export": {
+    "title": "导出差异",
+    "format": {
+      "label": "格式",
+      "html": "HTML",
+      "markdown": "Markdown",
+      "plainText": "纯文本"
+    },
+    "options": {
+      "includeStats": "包含统计信息",
+      "includeLineNumbers": "包含行号",
+      "includeTimestamp": "包含时间戳"
+    },
+    "button": {
+      "export": "导出",
+      "cancel": "取消"
+    },
+    "success": "导出完成",
+    "successMessage": "已下载 {{filename}}",
+    "error": "导出失败",
+    "html": {
+      "dialogTitle": "HTML导出设置",
+      "outputFilename": "输出文件名",
+      "viewMode": {
+        "title": "查看模式",
+        "unified": "统一",
+        "unifiedDesc": "单列逐行视图",
+        "sideBySide": "并排",
+        "sideBySideDesc": "双列并排视图"
+      },
+      "displayOptions": {
+        "title": "显示选项",
+        "includeHeader": "包含文件信息标题",
+        "includeStats": "包含统计信息",
+        "differencesOnly": "仅显示差异"
+      },
+      "buttons": {
+        "reset": "重置",
+        "cancel": "取消",
+        "preview": "预览",
+        "export": "导出",
+        "exporting": "导出中..."
+      },
+      "buttonLabel": "HTML导出",
+      "buttonTooltip": "导出为HTML文件",
+      "noResults": "无比较结果",
+      "noResultsMessage": "无可用的比较结果。请在导出前比较文件。"
+    }
+  },
+  "errors": {
+    "title": "错误",
+    "copyFailed": "复制失败",
+    "exportFailed": "导出失败",
+    "fileReadError": "读取文件失败"
+  },
+  "toast": {
+    "copyComplete": "复制完成",
+    "copyMessage": "差异已复制到剪贴板"
+  },
+  "keyboard": {
+    "title": "键盘快捷键",
+    "compare": "比较文件",
+    "copy": "复制差异",
+    "export": "导出",
+    "help": "显示帮助"
+  }
+}

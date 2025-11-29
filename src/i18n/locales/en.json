@@ -1,0 +1,131 @@
+{
+  "app": {
+    "title": "BDiff",
+    "subtitle": "Visualizing Changes, Beautifully"
+  },
+  "header": {
+    "languageSelector": "Language"
+  },
+  "fileUpload": {
+    "originalTitle": "Original Text",
+    "modifiedTitle": "Modified Text",
+    "originalPlaceholder": "Paste, type your original text here, or drop a file...",
+    "modifiedPlaceholder": "Paste, type your modified text here, or drop a file...",
+    "dropzonePlaceholder": "Drop your file here",
+    "selectFile": "Select File",
+    "fileInfo": "{{name}} ({{size}})"
+  },
+  "comparison": {
+    "compareButton": "Compare Files",
+    "comparing": "Comparing...",
+    "clearAll": "Clear All",
+    "statusReady": "Ready to compare - Click \"Compare Files\" button",
+    "statusSelecting": "Select or enter content for both original and modified versions",
+    "statusProcessing": "Auto-comparing files..."
+  },
+  "comparisonOptions": {
+    "title": "Comparison Options",
+    "ignoreCase": "Ignore case",
+    "ignoreCaseLabel": "Ignore case",
+    "ignoreCaseTooltip": "Uppercase and lowercase identical",
+    "ignoreWhitespace": "Ignore whitespace",
+    "ignoreWhitespaceLabel": "Ignore whitespace",
+    "ignoreWhitespaceTooltip": "Ignore leading/trailing spaces",
+    "sortLines": "Sort lines",
+    "sortLinesLabel": "Sort lines",
+    "sortLinesTooltip": "Compare regardless of line order",
+    "ignoreTrailingNewlines": "Ignore trailing newlines",
+    "ignoreTrailingNewlinesLabel": "Ignore trailing newlines",
+    "ignoreTrailingNewlinesTooltip": "Ignore final empty lines"
+  },
+  "diffViewer": {
+    "viewMode": {
+      "label": "View Mode",
+      "sideBySide": "Side by Side",
+      "unified": "Unified",
+      "split": "Split"
+    },
+    "statistics": {
+      "similarity": "Similarity percentage between the two files",
+      "additions": "Number of added lines",
+      "deletions": "Number of deleted lines",
+      "changes": "Number of changed lines"
+    },
+    "actions": {
+      "copy": "Copy",
+      "copying": "Copying...",
+      "export": "Export"
+    },
+    "noDifferences": {
+      "title": "No Differences Found",
+      "message": "The files are identical",
+      "similarity": "{{percentage}}% Similarity"
+    }
+  },
+  "export": {
+    "title": "Export Diff",
+    "format": {
+      "label": "Format",
+      "html": "HTML",
+      "markdown": "Markdown",
+      "plainText": "Plain Text"
+    },
+    "options": {
+      "includeStats": "Include Statistics",
+      "includeLineNumbers": "Include Line Numbers",
+      "includeTimestamp": "Include Timestamp"
+    },
+    "button": {
+      "export": "Export",
+      "cancel": "Cancel"
+    },
+    "success": "Export Complete",
+    "successMessage": "Downloaded {{filename}}",
+    "error": "Export Failed",
+    "html": {
+      "dialogTitle": "HTML Export Settings",
+      "outputFilename": "Output Filename",
+      "viewMode": {
+        "title": "View Mode",
+        "unified": "Unified",
+        "unifiedDesc": "Single column line-by-line view",
+        "sideBySide": "Side by Side",
+        "sideBySideDesc": "Two column side-by-side view"
+      },
+      "displayOptions": {
+        "title": "Display Options",
+        "includeHeader": "Include file information header",
+        "includeStats": "Include statistics",
+        "differencesOnly": "Show differences only"
+      },
+      "buttons": {
+        "reset": "Reset",
+        "cancel": "Cancel",
+        "preview": "Preview",
+        "export": "Export",
+        "exporting": "Exporting..."
+      },
+      "buttonLabel": "HTML Export",
+      "buttonTooltip": "Export as HTML file",
+      "noResults": "No comparison results",
+      "noResultsMessage": "No comparison results available. Please compare files before exporting."
+    }
+  },
+  "errors": {
+    "title": "Error",
+    "copyFailed": "Copy Failed",
+    "exportFailed": "Export Failed",
+    "fileReadError": "Failed to read file"
+  },
+  "toast": {
+    "copyComplete": "Copy Complete",
+    "copyMessage": "Diff copied to clipboard"
+  },
+  "keyboard": {
+    "title": "Keyboard Shortcuts",
+    "compare": "Compare Files",
+    "copy": "Copy Diff",
+    "export": "Export",
+    "help": "Show Help"
+  }
+}

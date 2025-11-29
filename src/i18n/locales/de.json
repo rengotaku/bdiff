@@ -1,0 +1,131 @@
+{
+  "app": {
+    "title": "BDiff",
+    "subtitle": "Änderungen schön visualisieren"
+  },
+  "header": {
+    "languageSelector": "Sprache"
+  },
+  "fileUpload": {
+    "originalTitle": "Originaltext",
+    "modifiedTitle": "Geänderter Text",
+    "originalPlaceholder": "Originaltext hier einfügen, eingeben oder Datei ablegen...",
+    "modifiedPlaceholder": "Geänderten Text hier einfügen, eingeben oder Datei ablegen...",
+    "dropzonePlaceholder": "Datei hier ablegen",
+    "selectFile": "Datei auswählen",
+    "fileInfo": "{{name}} ({{size}})"
+  },
+  "comparison": {
+    "compareButton": "Dateien vergleichen",
+    "comparing": "Vergleiche...",
+    "clearAll": "Alles löschen",
+    "statusReady": "Bereit zum Vergleichen - Klicken Sie auf \"Dateien vergleichen\"",
+    "statusSelecting": "Wählen Sie Inhalte für Original und geänderte Version aus oder geben Sie diese ein",
+    "statusProcessing": "Dateien werden automatisch verglichen..."
+  },
+  "comparisonOptions": {
+    "title": "Vergleichsoptionen",
+    "ignoreCase": "Groß-/Kleinschreibung ignorieren",
+    "ignoreCaseLabel": "Groß-/Kleinschreibung ignorieren",
+    "ignoreCaseTooltip": "Groß- und Kleinbuchstaben als identisch behandeln",
+    "ignoreWhitespace": "Leerzeichen ignorieren",
+    "ignoreWhitespaceLabel": "Leerzeichen ignorieren",
+    "ignoreWhitespaceTooltip": "Führende/nachfolgende Leerzeichen ignorieren",
+    "sortLines": "Zeilen sortieren",
+    "sortLinesLabel": "Zeilen sortieren",
+    "sortLinesTooltip": "Unabhängig von der Zeilenreihenfolge vergleichen",
+    "ignoreTrailingNewlines": "Nachfolgende Zeilenumbrüche ignorieren",
+    "ignoreTrailingNewlinesLabel": "Nachfolgende Zeilenumbrüche ignorieren",
+    "ignoreTrailingNewlinesTooltip": "Abschließende Leerzeilen ignorieren"
+  },
+  "diffViewer": {
+    "viewMode": {
+      "label": "Anzeigemodus",
+      "sideBySide": "Nebeneinander",
+      "unified": "Vereinheitlicht",
+      "split": "Geteilt"
+    },
+    "statistics": {
+      "similarity": "Ähnlichkeitsprozentsatz zwischen den beiden Dateien",
+      "additions": "Anzahl hinzugefügter Zeilen",
+      "deletions": "Anzahl gelöschter Zeilen",
+      "changes": "Anzahl geänderter Zeilen"
+    },
+    "actions": {
+      "copy": "Kopieren",
+      "copying": "Kopiere...",
+      "export": "Exportieren"
+    },
+    "noDifferences": {
+      "title": "Keine Unterschiede gefunden",
+      "message": "Die Dateien sind identisch",
+      "similarity": "{{percentage}}% Ähnlichkeit"
+    }
+  },
+  "export": {
+    "title": "Unterschiede exportieren",
+    "format": {
+      "label": "Format",
+      "html": "HTML",
+      "markdown": "Markdown",
+      "plainText": "Einfacher Text"
+    },
+    "options": {
+      "includeStats": "Statistiken einbeziehen",
+      "includeLineNumbers": "Zeilennummern einbeziehen",
+      "includeTimestamp": "Zeitstempel einbeziehen"
+    },
+    "button": {
+      "export": "Exportieren",
+      "cancel": "Abbrechen"
+    },
+    "success": "Export abgeschlossen",
+    "successMessage": "{{filename}} heruntergeladen",
+    "error": "Export fehlgeschlagen",
+    "html": {
+      "dialogTitle": "HTML-Exporteinstellungen",
+      "outputFilename": "Name der Ausgabedatei",
+      "viewMode": {
+        "title": "Anzeigemodus",
+        "unified": "Vereinheitlicht",
+        "unifiedDesc": "Einspaltiger zeilenweiser Ansicht",
+        "sideBySide": "Nebeneinander",
+        "sideBySideDesc": "Zweispaltige nebeneinander Ansicht"
+      },
+      "displayOptions": {
+        "title": "Anzeigeoptionen",
+        "includeHeader": "Dateiinformations-Header einbeziehen",
+        "includeStats": "Statistiken einbeziehen",
+        "differencesOnly": "Nur Unterschiede anzeigen"
+      },
+      "buttons": {
+        "reset": "Zurücksetzen",
+        "cancel": "Abbrechen",
+        "preview": "Vorschau",
+        "export": "Exportieren",
+        "exporting": "Exportiere..."
+      },
+      "buttonLabel": "HTML-Export",
+      "buttonTooltip": "Als HTML-Datei exportieren",
+      "noResults": "Keine Vergleichsergebnisse",
+      "noResultsMessage": "Keine Vergleichsergebnisse verfügbar. Bitte vergleichen Sie Dateien vor dem Export."
+    }
+  },
+  "errors": {
+    "title": "Fehler",
+    "copyFailed": "Kopieren fehlgeschlagen",
+    "exportFailed": "Export fehlgeschlagen",
+    "fileReadError": "Datei konnte nicht gelesen werden"
+  },
+  "toast": {
+    "copyComplete": "Kopieren abgeschlossen",
+    "copyMessage": "Unterschiede in Zwischenablage kopiert"
+  },
+  "keyboard": {
+    "title": "Tastaturkürzel",
+    "compare": "Dateien vergleichen",
+    "copy": "Unterschiede kopieren",
+    "export": "Exportieren",
+    "help": "Hilfe anzeigen"
+  }
+}

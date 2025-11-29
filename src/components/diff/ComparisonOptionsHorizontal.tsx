@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ComparisonOptions } from '../../types/types';
 
 interface ComparisonOptionsHorizontalProps {
@@ -15,6 +16,8 @@ export const ComparisonOptionsHorizontal: React.FC<ComparisonOptionsHorizontalPr
   onChange,
   disabled = false
 }) => {
+  const { t } = useTranslation();
+
   const handleOptionChange = (key: keyof ComparisonOptions) => {
     onChange({
       ...options,
@@ -25,23 +28,23 @@ export const ComparisonOptionsHorizontal: React.FC<ComparisonOptionsHorizontalPr
   const optionsList = [
     {
       key: 'sortLines' as const,
-      label: 'Sort lines',
-      description: 'Compare regardless of line order'
+      label: t('comparisonOptions.sortLinesLabel'),
+      description: t('comparisonOptions.sortLinesTooltip')
     },
     {
       key: 'ignoreCase' as const,
-      label: 'Ignore case',
-      description: 'Uppercase and lowercase identical'
+      label: t('comparisonOptions.ignoreCaseLabel'),
+      description: t('comparisonOptions.ignoreCaseTooltip')
     },
     {
       key: 'ignoreWhitespace' as const,
-      label: 'Ignore whitespace',
-      description: 'Ignore leading/trailing spaces'
+      label: t('comparisonOptions.ignoreWhitespaceLabel'),
+      description: t('comparisonOptions.ignoreWhitespaceTooltip')
     },
     {
       key: 'ignoreTrailingNewlines' as const,
-      label: 'Ignore trailing newlines',
-      description: 'Ignore final empty lines'
+      label: t('comparisonOptions.ignoreTrailingNewlinesLabel'),
+      description: t('comparisonOptions.ignoreTrailingNewlinesTooltip')
     }
   ];
 

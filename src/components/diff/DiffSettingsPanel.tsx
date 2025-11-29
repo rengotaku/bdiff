@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 
@@ -15,6 +16,8 @@ export const DiffSettingsPanel: React.FC<DiffSettingsPanelProps> = ({
   isReading,
   onStartComparison
 }) => {
+  const { t } = useTranslation();
+
   return (
     <Button
       variant="primary"
@@ -26,10 +29,10 @@ export const DiffSettingsPanel: React.FC<DiffSettingsPanelProps> = ({
       {isProcessing ? (
         <>
           <LoadingSpinner size="sm" />
-          Comparing...
+          {t('comparison.comparing')}
         </>
       ) : (
-        'Compare Files'
+        t('comparison.compareButton')
       )}
     </Button>
   );

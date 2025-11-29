@@ -1,0 +1,131 @@
+{
+  "app": {
+    "title": "BDiff",
+    "subtitle": "변경 사항을 아름답게 시각화"
+  },
+  "header": {
+    "languageSelector": "언어"
+  },
+  "fileUpload": {
+    "originalTitle": "원본 텍스트",
+    "modifiedTitle": "수정된 텍스트",
+    "originalPlaceholder": "원본 텍스트를 붙여넣거나 입력하거나 파일을 드롭하세요...",
+    "modifiedPlaceholder": "수정된 텍스트를 붙여넣거나 입력하거나 파일을 드롭하세요...",
+    "dropzonePlaceholder": "파일을 여기에 드롭하세요",
+    "selectFile": "파일 선택",
+    "fileInfo": "{{name}} ({{size}})"
+  },
+  "comparison": {
+    "compareButton": "파일 비교",
+    "comparing": "비교 중...",
+    "clearAll": "전체 지우기",
+    "statusReady": "준비 완료 - \"파일 비교\" 버튼을 클릭하세요",
+    "statusSelecting": "원본 텍스트와 수정된 텍스트를 모두 선택하거나 입력하세요",
+    "statusProcessing": "자동 비교 중..."
+  },
+  "comparisonOptions": {
+    "title": "비교 옵션",
+    "ignoreCase": "대소문자 무시",
+    "ignoreCaseLabel": "대소문자 무시",
+    "ignoreCaseTooltip": "대소문자를 동일하게 취급",
+    "ignoreWhitespace": "공백 무시",
+    "ignoreWhitespaceLabel": "공백 무시",
+    "ignoreWhitespaceTooltip": "앞뒤 공백 무시",
+    "sortLines": "행 정렬",
+    "sortLinesLabel": "행 정렬",
+    "sortLinesTooltip": "행 순서와 관계없이 비교",
+    "ignoreTrailingNewlines": "후행 줄바꿈 무시",
+    "ignoreTrailingNewlinesLabel": "후행 줄바꿈 무시",
+    "ignoreTrailingNewlinesTooltip": "마지막 빈 줄 무시"
+  },
+  "diffViewer": {
+    "viewMode": {
+      "label": "보기 모드",
+      "sideBySide": "나란히",
+      "unified": "통합",
+      "split": "분할"
+    },
+    "statistics": {
+      "similarity": "두 파일 간의 유사도",
+      "additions": "추가된 줄 수",
+      "deletions": "삭제된 줄 수",
+      "changes": "변경된 줄 수"
+    },
+    "actions": {
+      "copy": "복사",
+      "copying": "복사 중...",
+      "export": "내보내기"
+    },
+    "noDifferences": {
+      "title": "차이점을 찾을 수 없음",
+      "message": "파일이 동일합니다",
+      "similarity": "유사도 {{percentage}}%"
+    }
+  },
+  "export": {
+    "title": "차이점 내보내기",
+    "format": {
+      "label": "형식",
+      "html": "HTML",
+      "markdown": "Markdown",
+      "plainText": "일반 텍스트"
+    },
+    "options": {
+      "includeStats": "통계 정보 포함",
+      "includeLineNumbers": "줄 번호 포함",
+      "includeTimestamp": "타임스탬프 포함"
+    },
+    "button": {
+      "export": "내보내기",
+      "cancel": "취소"
+    },
+    "success": "내보내기 완료",
+    "successMessage": "{{filename}}을(를) 다운로드했습니다",
+    "error": "내보내기 실패",
+    "html": {
+      "dialogTitle": "HTML 내보내기 설정",
+      "outputFilename": "출력 파일 이름",
+      "viewMode": {
+        "title": "보기 모드",
+        "unified": "통합",
+        "unifiedDesc": "단일 열 줄별 보기",
+        "sideBySide": "나란히",
+        "sideBySideDesc": "두 열 나란히 보기"
+      },
+      "displayOptions": {
+        "title": "표시 옵션",
+        "includeHeader": "파일 정보 헤더 포함",
+        "includeStats": "통계 정보 포함",
+        "differencesOnly": "차이점만 표시"
+      },
+      "buttons": {
+        "reset": "재설정",
+        "cancel": "취소",
+        "preview": "미리보기",
+        "export": "내보내기",
+        "exporting": "내보내는 중..."
+      },
+      "buttonLabel": "HTML 내보내기",
+      "buttonTooltip": "HTML 파일로 내보내기",
+      "noResults": "비교 결과 없음",
+      "noResultsMessage": "사용 가능한 비교 결과가 없습니다. 내보내기 전에 파일을 비교하세요."
+    }
+  },
+  "errors": {
+    "title": "오류",
+    "copyFailed": "복사 실패",
+    "exportFailed": "내보내기 실패",
+    "fileReadError": "파일 읽기 실패"
+  },
+  "toast": {
+    "copyComplete": "복사 완료",
+    "copyMessage": "차이점이 클립보드에 복사되었습니다"
+  },
+  "keyboard": {
+    "title": "키보드 단축키",
+    "compare": "파일 비교",
+    "copy": "차이점 복사",
+    "export": "내보내기",
+    "help": "도움말 표시"
+  }
+}

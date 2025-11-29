@@ -1,0 +1,131 @@
+{
+  "app": {
+    "title": "BDiff",
+    "subtitle": "変更を美しく可視化"
+  },
+  "header": {
+    "languageSelector": "言語"
+  },
+  "fileUpload": {
+    "originalTitle": "元のテキスト",
+    "modifiedTitle": "変更後のテキスト",
+    "originalPlaceholder": "元のテキストを貼り付けるか、ファイルをドロップしてください...",
+    "modifiedPlaceholder": "変更後のテキストを貼り付けるか、ファイルをドロップしてください...",
+    "dropzonePlaceholder": "ファイルをここにドロップ",
+    "selectFile": "ファイルを選択",
+    "fileInfo": "{{name}} ({{size}})"
+  },
+  "comparison": {
+    "compareButton": "ファイルを比較",
+    "comparing": "比較中...",
+    "clearAll": "すべてクリア",
+    "statusReady": "準備完了 - 「ファイルを比較」ボタンをクリックしてください",
+    "statusSelecting": "元のテキストと変更後のテキストの両方を選択または入力してください",
+    "statusProcessing": "自動比較中..."
+  },
+  "comparisonOptions": {
+    "title": "比較オプション",
+    "ignoreCase": "大文字小文字を無視",
+    "ignoreCaseLabel": "大文字小文字を無視",
+    "ignoreCaseTooltip": "大文字と小文字を同一視",
+    "ignoreWhitespace": "空白を無視",
+    "ignoreWhitespaceLabel": "空白を無視",
+    "ignoreWhitespaceTooltip": "前後の空白を無視",
+    "sortLines": "行をソート",
+    "sortLinesLabel": "行をソート",
+    "sortLinesTooltip": "行の順序に関係なく比較",
+    "ignoreTrailingNewlines": "末尾の改行を無視",
+    "ignoreTrailingNewlinesLabel": "末尾の改行を無視",
+    "ignoreTrailingNewlinesTooltip": "最後の空行を無視"
+  },
+  "diffViewer": {
+    "viewMode": {
+      "label": "表示モード",
+      "sideBySide": "横並び",
+      "unified": "統合",
+      "split": "分割"
+    },
+    "statistics": {
+      "similarity": "2つのファイル間の類似度",
+      "additions": "追加された行数",
+      "deletions": "削除された行数",
+      "changes": "変更された行数"
+    },
+    "actions": {
+      "copy": "コピー",
+      "copying": "コピー中...",
+      "export": "エクスポート"
+    },
+    "noDifferences": {
+      "title": "差分が見つかりません",
+      "message": "ファイルは同一です",
+      "similarity": "類似度 {{percentage}}%"
+    }
+  },
+  "export": {
+    "title": "差分をエクスポート",
+    "format": {
+      "label": "形式",
+      "html": "HTML",
+      "markdown": "Markdown",
+      "plainText": "プレーンテキスト"
+    },
+    "options": {
+      "includeStats": "統計情報を含む",
+      "includeLineNumbers": "行番号を含む",
+      "includeTimestamp": "タイムスタンプを含む"
+    },
+    "button": {
+      "export": "エクスポート",
+      "cancel": "キャンセル"
+    },
+    "success": "エクスポート完了",
+    "successMessage": "{{filename}} をダウンロードしました",
+    "error": "エクスポート失敗",
+    "html": {
+      "dialogTitle": "HTMLエクスポート設定",
+      "outputFilename": "出力ファイル名",
+      "viewMode": {
+        "title": "表示モード",
+        "unified": "統合",
+        "unifiedDesc": "単一列の行ごと表示",
+        "sideBySide": "横並び",
+        "sideBySideDesc": "2列の並列表示"
+      },
+      "displayOptions": {
+        "title": "表示オプション",
+        "includeHeader": "ファイル情報ヘッダーを含む",
+        "includeStats": "統計情報を含む",
+        "differencesOnly": "差分のみ表示"
+      },
+      "buttons": {
+        "reset": "リセット",
+        "cancel": "キャンセル",
+        "preview": "プレビュー",
+        "export": "エクスポート",
+        "exporting": "エクスポート中..."
+      },
+      "buttonLabel": "HTMLエクスポート",
+      "buttonTooltip": "HTMLファイルとしてエクスポート",
+      "noResults": "比較結果がありません",
+      "noResultsMessage": "比較結果がありません。エクスポート前にファイルを比較してください。"
+    }
+  },
+  "errors": {
+    "title": "エラー",
+    "copyFailed": "コピー失敗",
+    "exportFailed": "エクスポート失敗",
+    "fileReadError": "ファイルの読み込みに失敗しました"
+  },
+  "toast": {
+    "copyComplete": "コピー完了",
+    "copyMessage": "差分をクリップボードにコピーしました"
+  },
+  "keyboard": {
+    "title": "キーボードショートカット",
+    "compare": "ファイルを比較",
+    "copy": "差分をコピー",
+    "export": "エクスポート",
+    "help": "ヘルプを表示"
+  }
+}

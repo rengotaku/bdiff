@@ -1,0 +1,131 @@
+{
+  "app": {
+    "title": "BDiff",
+    "subtitle": "Visualiser les changements magnifiquement"
+  },
+  "header": {
+    "languageSelector": "Langue"
+  },
+  "fileUpload": {
+    "originalTitle": "Texte original",
+    "modifiedTitle": "Texte modifié",
+    "originalPlaceholder": "Collez, tapez votre texte original ici, ou déposez un fichier...",
+    "modifiedPlaceholder": "Collez, tapez votre texte modifié ici, ou déposez un fichier...",
+    "dropzonePlaceholder": "Déposez votre fichier ici",
+    "selectFile": "Sélectionner un fichier",
+    "fileInfo": "{{name}} ({{size}})"
+  },
+  "comparison": {
+    "compareButton": "Comparer les fichiers",
+    "comparing": "Comparaison en cours...",
+    "clearAll": "Tout effacer",
+    "statusReady": "Prêt à comparer - Cliquez sur le bouton \"Comparer les fichiers\"",
+    "statusSelecting": "Sélectionnez ou saisissez le contenu pour les versions originale et modifiée",
+    "statusProcessing": "Comparaison automatique des fichiers..."
+  },
+  "comparisonOptions": {
+    "title": "Options de comparaison",
+    "ignoreCase": "Ignorer la casse",
+    "ignoreCaseLabel": "Ignorer la casse",
+    "ignoreCaseTooltip": "Majuscules et minuscules identiques",
+    "ignoreWhitespace": "Ignorer les espaces",
+    "ignoreWhitespaceLabel": "Ignorer les espaces",
+    "ignoreWhitespaceTooltip": "Ignorer les espaces de début/fin",
+    "sortLines": "Trier les lignes",
+    "sortLinesLabel": "Trier les lignes",
+    "sortLinesTooltip": "Comparer sans tenir compte de l'ordre des lignes",
+    "ignoreTrailingNewlines": "Ignorer les sauts de ligne finaux",
+    "ignoreTrailingNewlinesLabel": "Ignorer les sauts de ligne finaux",
+    "ignoreTrailingNewlinesTooltip": "Ignorer les lignes vides finales"
+  },
+  "diffViewer": {
+    "viewMode": {
+      "label": "Mode d'affichage",
+      "sideBySide": "Côte à côte",
+      "unified": "Unifié",
+      "split": "Divisé"
+    },
+    "statistics": {
+      "similarity": "Pourcentage de similarité entre les deux fichiers",
+      "additions": "Nombre de lignes ajoutées",
+      "deletions": "Nombre de lignes supprimées",
+      "changes": "Nombre de lignes modifiées"
+    },
+    "actions": {
+      "copy": "Copier",
+      "copying": "Copie en cours...",
+      "export": "Exporter"
+    },
+    "noDifferences": {
+      "title": "Aucune différence trouvée",
+      "message": "Les fichiers sont identiques",
+      "similarity": "{{percentage}}% de similarité"
+    }
+  },
+  "export": {
+    "title": "Exporter les différences",
+    "format": {
+      "label": "Format",
+      "html": "HTML",
+      "markdown": "Markdown",
+      "plainText": "Texte brut"
+    },
+    "options": {
+      "includeStats": "Inclure les statistiques",
+      "includeLineNumbers": "Inclure les numéros de ligne",
+      "includeTimestamp": "Inclure l'horodatage"
+    },
+    "button": {
+      "export": "Exporter",
+      "cancel": "Annuler"
+    },
+    "success": "Exportation terminée",
+    "successMessage": "{{filename}} téléchargé",
+    "error": "Échec de l'exportation",
+    "html": {
+      "dialogTitle": "Paramètres d'exportation HTML",
+      "outputFilename": "Nom du fichier de sortie",
+      "viewMode": {
+        "title": "Mode d'affichage",
+        "unified": "Unifié",
+        "unifiedDesc": "Vue ligne par ligne sur une seule colonne",
+        "sideBySide": "Côte à côte",
+        "sideBySideDesc": "Vue sur deux colonnes côte à côte"
+      },
+      "displayOptions": {
+        "title": "Options d'affichage",
+        "includeHeader": "Inclure l'en-tête d'informations du fichier",
+        "includeStats": "Inclure les statistiques",
+        "differencesOnly": "Afficher uniquement les différences"
+      },
+      "buttons": {
+        "reset": "Réinitialiser",
+        "cancel": "Annuler",
+        "preview": "Aperçu",
+        "export": "Exporter",
+        "exporting": "Exportation en cours..."
+      },
+      "buttonLabel": "Exporter en HTML",
+      "buttonTooltip": "Exporter en fichier HTML",
+      "noResults": "Aucun résultat de comparaison",
+      "noResultsMessage": "Aucun résultat de comparaison disponible. Veuillez comparer les fichiers avant d'exporter."
+    }
+  },
+  "errors": {
+    "title": "Erreur",
+    "copyFailed": "Échec de la copie",
+    "exportFailed": "Échec de l'exportation",
+    "fileReadError": "Échec de la lecture du fichier"
+  },
+  "toast": {
+    "copyComplete": "Copie terminée",
+    "copyMessage": "Différences copiées dans le presse-papiers"
+  },
+  "keyboard": {
+    "title": "Raccourcis clavier",
+    "compare": "Comparer les fichiers",
+    "copy": "Copier les différences",
+    "export": "Exporter",
+    "help": "Afficher l'aide"
+  }
+}

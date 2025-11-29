@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import type { HtmlExportOptions } from '../../services/export';
@@ -45,6 +46,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
   isExporting = false,
   suggestedFilename = ''
 }) => {
+  const { t } = useTranslation();
   const [options, setOptions] = useState<HtmlExportOptions>(DEFAULT_HTML_EXPORT_OPTIONS);
   const [editableFilename, setEditableFilename] = useState('');
 
@@ -103,7 +105,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="HTML Export Settings"
+      title={t('export.html.dialogTitle')}
       size="lg"
     >
       <div className="space-y-6">
@@ -111,7 +113,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
         {suggestedFilename && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Output Filename
+              {t('export.html.outputFilename')}
             </label>
             <div className="flex items-center gap-2">
               <input
@@ -129,7 +131,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
 
         {/* Section 2: View Mode Selection */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">View Mode</h3>
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('export.html.viewMode.title')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <label className="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
               <input
@@ -141,8 +143,8 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
                 className="text-blue-600 focus:ring-blue-500"
               />
               <div className="ml-3 flex-1">
-                <div className="text-sm font-medium text-gray-900">Unified</div>
-                <div className="text-xs text-gray-500">Single column line-by-line view</div>
+                <div className="text-sm font-medium text-gray-900">{t('export.html.viewMode.unified')}</div>
+                <div className="text-xs text-gray-500">{t('export.html.viewMode.unifiedDesc')}</div>
               </div>
             </label>
 
@@ -156,8 +158,8 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
                 className="text-blue-600 focus:ring-blue-500"
               />
               <div className="ml-3 flex-1">
-                <div className="text-sm font-medium text-gray-900">Side by Side</div>
-                <div className="text-xs text-gray-500">Two column side-by-side view</div>
+                <div className="text-sm font-medium text-gray-900">{t('export.html.viewMode.sideBySide')}</div>
+                <div className="text-xs text-gray-500">{t('export.html.viewMode.sideBySideDesc')}</div>
               </div>
             </label>
           </div>
@@ -165,7 +167,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
 
         {/* Section 3: Display Options */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">Display Options</h3>
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('export.html.displayOptions.title')}</h3>
           <div className="space-y-3">
             <label className="flex items-center cursor-pointer">
               <input
@@ -174,7 +176,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
                 onChange={(e) => updateOption('includeHeader', e.target.checked)}
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700">Include file information header</span>
+              <span className="ml-2 text-sm text-gray-700">{t('export.html.displayOptions.includeHeader')}</span>
             </label>
 
             <label className="flex items-center cursor-pointer">
@@ -184,7 +186,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
                 onChange={(e) => updateOption('includeStats', e.target.checked)}
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700">Include statistics</span>
+              <span className="ml-2 text-sm text-gray-700">{t('export.html.displayOptions.includeStats')}</span>
             </label>
 
             <label className="flex items-center cursor-pointer">
@@ -194,7 +196,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
                 onChange={(e) => updateOption('differencesOnly', e.target.checked)}
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700">Show differences only</span>
+              <span className="ml-2 text-sm text-gray-700">{t('export.html.displayOptions.differencesOnly')}</span>
             </label>
           </div>
         </div>
@@ -206,7 +208,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
             onClick={handleReset}
             disabled={isExporting}
           >
-            Reset
+            {t('export.html.buttons.reset')}
           </Button>
 
           <div className="flex gap-2">
@@ -215,7 +217,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
               onClick={onClose}
               disabled={isExporting}
             >
-              Cancel
+              {t('export.html.buttons.cancel')}
             </Button>
 
             {onPreview && (
@@ -224,7 +226,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
                 onClick={handlePreview}
                 disabled={isExporting}
               >
-                Preview
+                {t('export.html.buttons.preview')}
               </Button>
             )}
 
@@ -233,7 +235,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
               onClick={handleExport}
               disabled={isExporting}
             >
-              {isExporting ? 'Exporting...' : 'Export'}
+              {isExporting ? t('export.html.buttons.exporting') : t('export.html.buttons.export')}
             </Button>
           </div>
         </div>

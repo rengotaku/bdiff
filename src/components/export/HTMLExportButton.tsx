@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { HTMLExportDialog } from './HTMLExportDialog';
 import { ExportService, type HtmlExportOptions } from '../../services/export';
@@ -36,6 +37,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
   onSuccess,
   onError
 }) => {
+  const { t } = useTranslation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -47,11 +49,11 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
    */
   const handleOpenDialog = useCallback(() => {
     if (!canExport) {
-      onError?.('No comparison results available. Please compare files before exporting.');
+      onError?.(t('export.html.noResultsMessage'));
       return;
     }
     setIsDialogOpen(true);
-  }, [canExport, onError]);
+  }, [canExport, onError, t]);
 
   /**
    * Handle closing the export dialog
@@ -136,9 +138,9 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
         onClick={handleOpenDialog}
         disabled={!canExport}
         className={className}
-        title={!canExport ? 'No comparison results' : 'Export as HTML file'}
+        title={!canExport ? t('export.html.noResults') : t('export.html.buttonTooltip')}
       >
-        HTML Export
+        {t('export.html.buttonLabel')}
       </Button>
 
       <HTMLExportDialog

@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '../../utils/cn';
 import { Button } from '../ui/Button';
+import { LanguageSwitcher } from '../ui/LanguageSwitcher';
 
 export interface HeaderProps {
   title?: string;
@@ -48,11 +49,10 @@ const Header: React.FC<HeaderProps> = ({
           )}
 
           {/* Right side - Actions */}
-          {actions && (
-            <div className="flex items-center space-x-2">
-              {actions}
-            </div>
-          )}
+          <div className="flex items-center space-x-2">
+            {actions}
+            <LanguageSwitcher />
+          </div>
         </div>
 
         {/* Mobile navigation (if provided) */}

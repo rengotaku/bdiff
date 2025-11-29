@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '../components/ui/Card';
 import { ContentLayout } from '../components/layout/PageLayout';
 import { FileUploadArea } from '../components/diff/FileUploadArea';
@@ -13,6 +14,7 @@ import { DiffService } from '../services/diffService';
 import type { FileInfo } from '../types/types';
 
 export const HomePage: React.FC = () => {
+  const { t } = useTranslation();
   const {
     setOriginalFile,
     setModifiedFile,
@@ -29,7 +31,7 @@ export const HomePage: React.FC = () => {
     comparisonOptions,
     setComparisonOptions
   } = useDiffContext();
-  
+
   const { readFile, isReading, error: fileError } = useFileReader();
   const { success: showSuccessToast, error: showErrorToast } = useToastHelpers();
 
@@ -38,8 +40,8 @@ export const HomePage: React.FC = () => {
     copyDiff,
     isLoading: isCopying
   } = useClipboard({
-    onSuccess: () => showSuccessToast('Copy Complete', 'Diff copied to clipboard'),
-    onError: (error) => showErrorToast('Copy Failed', error)
+    onSuccess: () => showSuccessToast(t('toast.copyComplete'), t('toast.copyMessage')),
+    onError: (error) => showErrorToast(t('errors.copyFailed'), error)
   });
   
   // Drag and drop states
@@ -52,7 +54,7 @@ export const HomePage: React.FC = () => {
   // Handle text input changes (typing in textarea)
   const handleTextChange = useCallback((text: string, target: 'original' | 'modified') => {
     const fileInfo: FileInfo = {
-      name: target === 'original' ? 'Original Text' : 'Modified Text',
+      name: target === 'original' ? t('fileUpload.originalTitle') : t('fileUpload.modifiedTitle'),
       content: text,
       size: new Blob([text]).size,
       lastModified: new Date()
@@ -64,7 +66,7 @@ export const HomePage: React.FC = () => {
       setModifiedFile(fileInfo, false); // false = text input, not file
     }
     clearError();
-  }, [setOriginalFile, setModifiedFile, clearError]);
+  }, [setOriginalFile, setModifiedFile, clearError, t]);
 
   // Handle file content changes (from file upload/drop)
   const handleFileContent = useCallback((text: string, target: 'original' | 'modified', fileName: string) => {
@@ -214,16 +216,16 @@ export const HomePage: React.FC = () => {
 
   return (
     <ContentLayout
-      title="BDiff"
-      subtitle="Visualizing Changes, Beautifully"
+      title={t('app.title')}
+      subtitle={t('app.subtitle')}
     >
       <div className="space-y-8">
         {/* File Upload Areas */}
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <FileUploadArea
-              title="Original Text"
-              placeholder="Paste, type your original text here, or drop a file..."
+              title={t('fileUpload.originalTitle')}
+              placeholder={t('fileUpload.originalPlaceholder')}
               value={originalFile?.content || ''}
               onChange={(value) => handleTextChange(value, 'original')}
               onFileSelect={(file) => handleFileSelect(file, 'original')}
@@ -237,8 +239,8 @@ export const HomePage: React.FC = () => {
             />
 
             <FileUploadArea
-              title="Modified Text"
-              placeholder="Paste, type your modified text here, or drop a file..."
+              title={t('fileUpload.modifiedTitle')}
+              placeholder={t('fileUpload.modifiedPlaceholder')}
               value={modifiedFile?.content || ''}
               onChange={(value) => handleTextChange(value, 'modified')}
               onFileSelect={(file) => handleFileSelect(file, 'modified')}
@@ -274,9 +276,9 @@ export const HomePage: React.FC = () => {
                 onClick={handleClearAll}
                 disabled={(!originalFile && !modifiedFile) || isReading || isProcessing}
                 className="absolute left-full ml-4 text-sm text-gray-600 hover:text-gray-900 underline disabled:opacity-30 disabled:cursor-not-allowed transition-opacity whitespace-nowrap"
-                aria-label="Clear all files"
+                aria-label={t('comparison.clearAll')}
               >
-                Clear All
+                {t('comparison.clearAll')}
               </button>
             </div>
           </div>
@@ -287,7 +289,7 @@ export const HomePage: React.FC = () => {
           <Card>
             <CardContent>
               <div className="bg-red-50 border border-danger rounded-md p-4">
-                <div className="text-danger-dark font-medium">Error</div>
+                <div className="text-danger-dark font-medium">{t('errors.title')}</div>
                 <div className="text-danger mt-1">{displayError}</div>
               </div>
             </CardContent>
@@ -300,10 +302,10 @@ export const HomePage: React.FC = () => {
             <CardContent className="py-3">
               <div className="text-sm text-gray-600 text-center">
                 {isProcessing
-                  ? 'Auto-comparing files...'
+                  ? t('comparison.statusProcessing')
                   : !canCalculateDiff
-                  ? 'Select or enter content for both original and modified versions'
-                  : 'Ready to compare - Click "Compare Files" button'
+                  ? t('comparison.statusSelecting')
+                  : t('comparison.statusReady')
                 }
               </div>
             </CardContent>
@@ -323,8 +325,8 @@ export const HomePage: React.FC = () => {
               similarityPercentage={similarityPercentage}
               originalFile={originalFile}
               modifiedFile={modifiedFile}
-              onExportSuccess={(filename) => showSuccessToast('Export Complete', `Downloaded ${filename}`)}
-              onExportError={(error) => showErrorToast('Export Failed', error)}
+              onExportSuccess={(filename) => showSuccessToast(t('export.success'), t('export.successMessage', { filename }))}
+              onExportError={(error) => showErrorToast(t('export.error'), error)}
             />
           </div>
         )}
