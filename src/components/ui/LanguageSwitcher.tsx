@@ -14,7 +14,7 @@ const languages = [
   { code: 'ko', label: '한국어', flag: '🇰🇷' },
   { code: 'zh-TW', label: '繁體中文', flag: '🇹🇼' },
   { code: 'zh-CN', label: '简体中文', flag: '🇨🇳' },
-  { code: 'id', label: 'Bahasa Indonesia', flag: '🇮🇩' },
+  { code: 'id', label: 'Indonesia', flag: '🇮🇩' },
   { code: 'fr', label: 'Français', flag: '🇫🇷' },
   { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
 ] as const;

@@ -160,7 +160,7 @@ BDiffは8つの言語に完全対応しています。すべてのUI要素とエ
 | 韓国語 | ko | 한국어 | 100% (70+ keys) |
 | 中国語繁体字 | zh-TW | 繁體中文 | 100% (70+ keys) |
 | 中国語簡体字 | zh-CN | 简体中文 | 100% (70+ keys) |
-| インドネシア語 | id | Bahasa Indonesia | 100% (70+ keys) |
+| インドネシア語 | id | Indonesia | 100% (70+ keys) |
 | フランス語 | fr | Français | 100% (70+ keys) |
 | ドイツ語 | de | Deutsch | 100% (70+ keys) |
 

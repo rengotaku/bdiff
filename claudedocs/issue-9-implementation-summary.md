@@ -177,7 +177,7 @@ dist/index.Bu0JoHo3.js   457.69 kB │ gzip: 138.16 kB
    - 韓国語ブラウザ → 한국어 UI
    - 中国語（繁体字）ブラウザ → 繁體中文 UI
    - 中国語（簡体字）ブラウザ → 简体中文 UI
-   - インドネシア語ブラウザ → Bahasa Indonesia UI
+   - インドネシア語ブラウザ → Indonesia UI
    - フランス語ブラウザ → Français UI
    - ドイツ語ブラウザ → Deutsch UI
 3. その他 → 英語UI（デフォルトフォールバック）
