@@ -101,14 +101,30 @@ BDiffアプリケーションに日本語および多言語サポートを実装
 
 ### 5. 言語検出と永続化
 
-#### 検出順序
-1. **LocalStorage** - ユーザーが以前選択した言語
+#### 検出順序（優先順位順）
+1. **URLパラメータ** (`?lang=xx`) - 最優先
+   - 例: `?lang=en`, `?lang=ja`, `?lang=ko`
+   - パラメータ名: `lang`
+2. **LocalStorage** - ユーザーが以前選択した言語
    - キー: `bdiff-language`
-2. **Browser Settings** - ブラウザの言語設定
+3. **Browser Settings** - `navigator.language` によるブラウザの言語設定
+4. **フォールバック** - 日本語 (ja)
+   - サポート対象外の言語の場合は日本語で表示
 
 #### 永続化
 - 選択された言語は自動的にLocalStorageに保存
 - ページリロード後も言語設定が維持される
+
+#### URLパラメータによる言語指定
+日本語以外の言語でアクセスする場合、URLに `?lang=xx` パラメータを付与することで、その言語が指定された状態で開くことができます：
+
+- 英語: `https://bdiff.example.com?lang=en`
+- 韓国語: `https://bdiff.example.com?lang=ko`
+- 中国語繁体字: `https://bdiff.example.com?lang=zh-TW`
+- 中国語簡体字: `https://bdiff.example.com?lang=zh-CN`
+- インドネシア語: `https://bdiff.example.com?lang=id`
+- フランス語: `https://bdiff.example.com?lang=fr`
+- ドイツ語: `https://bdiff.example.com?lang=de`
 
 ## 技術仕様
 
@@ -170,17 +186,21 @@ dist/index.Bu0JoHo3.js   457.69 kB │ gzip: 138.16 kB
 4. 選択はLocalStorageに自動保存
 
 ### 初回訪問時の挙動
-1. ブラウザの言語設定を検出
-2. サポート言語に一致 → その言語でUI表示
-   - 日本語ブラウザ → 日本語UI
-   - 英語ブラウザ → English UI
-   - 韓国語ブラウザ → 한국어 UI
-   - 中国語（繁体字）ブラウザ → 繁體中文 UI
-   - 中国語（簡体字）ブラウザ → 简体中文 UI
-   - インドネシア語ブラウザ → Indonesia UI
-   - フランス語ブラウザ → Français UI
-   - ドイツ語ブラウザ → Deutsch UI
-3. その他 → 英語UI（デフォルトフォールバック）
+1. URLパラメータをチェック（`?lang=xx`）
+   - パラメータがある → その言語でUI表示
+2. LocalStorageをチェック
+   - 保存された言語設定がある → その言語でUI表示
+3. ブラウザの言語設定を検出（`navigator.language`）
+   - サポート言語に一致 → その言語でUI表示
+     - 日本語ブラウザ → 日本語UI
+     - 英語ブラウザ → English UI
+     - 韓国語ブラウザ → 한국어 UI
+     - 中国語（繁体字）ブラウザ → 繁體中文 UI
+     - 中国語（簡体字）ブラウザ → 简体中文 UI
+     - インドネシア語ブラウザ → Indonesia UI
+     - フランス語ブラウザ → Français UI
+     - ドイツ語ブラウザ → Deutsch UI
+4. その他 → 日本語UI（デフォルトフォールバック）
 
 ## テスト項目
 
@@ -234,6 +254,7 @@ ed69e7b feat: Add i18n support for HTML export dialog and settings
 3. **追加言語対応（第1弾）**: 中国語（簡体字・繁体字）・韓国語の追加（合計5言語）
 4. **ドキュメント更新**: 5言語対応を反映
 5. **追加言語対応（第2弾）**: インドネシア語・フランス語・ドイツ語の追加、言語順序の変更（合計8言語）
+6. **言語検出強化**: URLパラメータサポート追加、デフォルト言語を日本語に変更
 
 ## 今後の拡張提案
 
@@ -304,8 +325,10 @@ Issue #9「国際化対応 - 日本語およびマルチ言語サポート」は
 - ✅ 全UIコンポーネントの翻訳対応（70+ keys × 8言語 = 560+ 翻訳エントリ）
 - ✅ HTMLエクスポート設定ダイアログの翻訳対応
 - ✅ 言語設定の永続化（LocalStorage）
-- ✅ 自動言語検出（ブラウザ設定ベース）
-- ✅ ビルドの成功（138.16 kB gzipped）
+- ✅ 自動言語検出（`navigator.language` ベース）
+- ✅ URLパラメータによる言語指定（`?lang=xx`）
+- ✅ デフォルト言語を日本語に設定
+- ✅ ビルドの成功（138.15 kB gzipped）
 - ✅ ドキュメントの作成
 
 ### 次のステップ

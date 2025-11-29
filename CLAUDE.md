@@ -201,10 +201,25 @@ const { t } = useTranslation();
 
 ### 言語切り替え
 
-- **自動検出**: 初回訪問時にブラウザの言語設定を自動検出
+- **URLパラメータ**: `?lang=en`、`?lang=ja` などのURLパラメータで言語を指定可能（最優先）
+- **自動検出**: `navigator.language` を利用してブラウザの言語設定を自動検出
+- **デフォルト言語**: サポート対象外の言語の場合は日本語で表示
 - **永続化**: 選択された言語はLocalStorageに保存（キー: `bdiff-language`）
 - **UI**: ヘッダー右上の言語スイッチャーから即座に切り替え可能
 - **国旗アイコン**: 視覚的に分かりやすい国旗アイコン付きドロップダウン
+
+#### 言語検出の優先順位
+
+1. **URLパラメータ** (`?lang=xx`) - 最優先
+2. **LocalStorage** (`bdiff-language`) - 保存された言語設定
+3. **ブラウザ設定** (`navigator.language`) - 自動検出
+4. **フォールバック** - 日本語 (ja)
+
+#### URL例
+
+- 英語で開く: `https://bdiff.example.com?lang=en`
+- 韓国語で開く: `https://bdiff.example.com?lang=ko`
+- 中国語簡体字で開く: `https://bdiff.example.com?lang=zh-CN`
 
 ### 新しい言語の追加方法
 

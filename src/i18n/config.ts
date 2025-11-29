@@ -45,14 +45,15 @@ i18n
   .init({
     resources,
     defaultNS,
-    fallbackLng: 'en',
+    fallbackLng: 'ja',
     supportedLngs: ['ja', 'en', 'ko', 'zh-TW', 'zh-CN', 'id', 'fr', 'de'],
     interpolation: {
       escapeValue: false,
     },
     detection: {
-      order: ['localStorage', 'navigator'],
+      order: ['querystring', 'localStorage', 'navigator'],
       caches: ['localStorage'],
+      lookupQuerystring: 'lang',
       lookupLocalStorage: 'bdiff-language',
     },
   });
