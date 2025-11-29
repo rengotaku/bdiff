@@ -1,0 +1,131 @@
+{
+  "app": {
+    "title": "BDiff",
+    "subtitle": "美觀地視覺化變更"
+  },
+  "header": {
+    "languageSelector": "語言"
+  },
+  "fileUpload": {
+    "originalTitle": "原始文字",
+    "modifiedTitle": "修改後的文字",
+    "originalPlaceholder": "貼上、輸入原始文字或拖放檔案...",
+    "modifiedPlaceholder": "貼上、輸入修改後的文字或拖放檔案...",
+    "dropzonePlaceholder": "將檔案拖放到此處",
+    "selectFile": "選擇檔案",
+    "fileInfo": "{{name}} ({{size}})"
+  },
+  "comparison": {
+    "compareButton": "比較檔案",
+    "comparing": "比較中...",
+    "clearAll": "全部清除",
+    "statusReady": "準備就緒 - 點擊「比較檔案」按鈕",
+    "statusSelecting": "請選擇或輸入原始文字和修改後的文字",
+    "statusProcessing": "自動比較中..."
+  },
+  "comparisonOptions": {
+    "title": "比較選項",
+    "ignoreCase": "忽略大小寫",
+    "ignoreCaseLabel": "忽略大小寫",
+    "ignoreCaseTooltip": "大小寫視為相同",
+    "ignoreWhitespace": "忽略空白",
+    "ignoreWhitespaceLabel": "忽略空白",
+    "ignoreWhitespaceTooltip": "忽略前後空白",
+    "sortLines": "排序行",
+    "sortLinesLabel": "排序行",
+    "sortLinesTooltip": "無論行順序如何進行比較",
+    "ignoreTrailingNewlines": "忽略尾部換行",
+    "ignoreTrailingNewlinesLabel": "忽略尾部換行",
+    "ignoreTrailingNewlinesTooltip": "忽略最後的空行"
+  },
+  "diffViewer": {
+    "viewMode": {
+      "label": "檢視模式",
+      "sideBySide": "並排",
+      "unified": "統一",
+      "split": "分割"
+    },
+    "statistics": {
+      "similarity": "兩個檔案之間的相似度",
+      "additions": "新增的行數",
+      "deletions": "刪除的行數",
+      "changes": "更改的行數"
+    },
+    "actions": {
+      "copy": "複製",
+      "copying": "複製中...",
+      "export": "匯出"
+    },
+    "noDifferences": {
+      "title": "未找到差異",
+      "message": "檔案完全相同",
+      "similarity": "相似度 {{percentage}}%"
+    }
+  },
+  "export": {
+    "title": "匯出差異",
+    "format": {
+      "label": "格式",
+      "html": "HTML",
+      "markdown": "Markdown",
+      "plainText": "純文字"
+    },
+    "options": {
+      "includeStats": "包含統計資訊",
+      "includeLineNumbers": "包含行號",
+      "includeTimestamp": "包含時間戳記"
+    },
+    "button": {
+      "export": "匯出",
+      "cancel": "取消"
+    },
+    "success": "匯出完成",
+    "successMessage": "已下載 {{filename}}",
+    "error": "匯出失敗",
+    "html": {
+      "dialogTitle": "HTML匯出設定",
+      "outputFilename": "輸出檔案名稱",
+      "viewMode": {
+        "title": "檢視模式",
+        "unified": "統一",
+        "unifiedDesc": "單欄逐行檢視",
+        "sideBySide": "並排",
+        "sideBySideDesc": "雙欄並排檢視"
+      },
+      "displayOptions": {
+        "title": "顯示選項",
+        "includeHeader": "包含檔案資訊標題",
+        "includeStats": "包含統計資訊",
+        "differencesOnly": "僅顯示差異"
+      },
+      "buttons": {
+        "reset": "重設",
+        "cancel": "取消",
+        "preview": "預覽",
+        "export": "匯出",
+        "exporting": "匯出中..."
+      },
+      "buttonLabel": "HTML匯出",
+      "buttonTooltip": "匯出為HTML檔案",
+      "noResults": "無比較結果",
+      "noResultsMessage": "無可用的比較結果。請在匯出前比較檔案。"
+    }
+  },
+  "errors": {
+    "title": "錯誤",
+    "copyFailed": "複製失敗",
+    "exportFailed": "匯出失敗",
+    "fileReadError": "讀取檔案失敗"
+  },
+  "toast": {
+    "copyComplete": "複製完成",
+    "copyMessage": "差異已複製到剪貼簿"
+  },
+  "keyboard": {
+    "title": "鍵盤快速鍵",
+    "compare": "比較檔案",
+    "copy": "複製差異",
+    "export": "匯出",
+    "help": "顯示說明"
+  }
+}

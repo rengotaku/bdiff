@@ -4,6 +4,9 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 import en from './locales/en.json';
 import ja from './locales/ja.json';
+import zhCN from './locales/zh-CN.json';
+import zhTW from './locales/zh-TW.json';
+import ko from './locales/ko.json';
 
 export const defaultNS = 'translation';
 export const resources = {
@@ -12,6 +15,15 @@ export const resources = {
   },
   ja: {
     translation: ja,
+  },
+  'zh-CN': {
+    translation: zhCN,
+  },
+  'zh-TW': {
+    translation: zhTW,
+  },
+  ko: {
+    translation: ko,
   },
 } as const;
 
@@ -22,7 +34,7 @@ i18n
     resources,
     defaultNS,
     fallbackLng: 'en',
-    supportedLngs: ['en', 'ja'],
+    supportedLngs: ['en', 'ja', 'zh-CN', 'zh-TW', 'ko'],
     interpolation: {
       escapeValue: false,
     },
