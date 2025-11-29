@@ -11,12 +11,15 @@ BDiffアプリケーションに日本語および多言語サポートを実装
 - **react-i18next**: React統合
 - **i18next-browser-languagedetector**: 自動言語検出
 
-### 2. サポート言語
-- ✅ 英語 (en) - デフォルト言語
+### 2. サポート言語（表示順）
 - ✅ 日本語 (ja) - 完全サポート
-- ✅ 中国語簡体字 (zh-CN) - 完全サポート
-- ✅ 中国語繁体字 (zh-TW) - 完全サポート
+- ✅ 英語 (en) - デフォルトフォールバック言語
 - ✅ 韓国語 (ko) - 完全サポート
+- ✅ 中国語繁体字 (zh-TW) - 完全サポート
+- ✅ 中国語簡体字 (zh-CN) - 完全サポート
+- ✅ インドネシア語 (id) - 完全サポート
+- ✅ フランス語 (fr) - 完全サポート
+- ✅ ドイツ語 (de) - 完全サポート
 
 ### 3. 実装されたコンポーネント
 
@@ -91,7 +94,10 @@ BDiffアプリケーションに日本語および多言語サポートを実装
 - **zh-CN.json**: 中国語簡体字の翻訳
 - **zh-TW.json**: 中国語繁体字の翻訳
 - **ko.json**: 韓国語の翻訳
-- 全言語でHTMLエクスポート設定の全項目を翻訳済み
+- **id.json**: インドネシア語の翻訳
+- **fr.json**: フランス語の翻訳
+- **de.json**: ドイツ語の翻訳
+- 全8言語でHTMLエクスポート設定の全項目を翻訳済み（70+ keys × 8言語 = 560+翻訳エントリ）
 
 ### 5. 言語検出と永続化
 
@@ -123,34 +129,37 @@ src/
 ├── i18n/
 │   ├── config.ts              # i18n設定
 │   └── locales/
-│       ├── en.json           # 英語翻訳
 │       ├── ja.json           # 日本語翻訳
-│       ├── zh-CN.json        # 中国語簡体字翻訳
+│       ├── en.json           # 英語翻訳
+│       ├── ko.json           # 韓国語翻訳
 │       ├── zh-TW.json        # 中国語繁体字翻訳
-│       └── ko.json           # 韓国語翻訳
+│       ├── zh-CN.json        # 中国語簡体字翻訳
+│       ├── id.json           # インドネシア語翻訳
+│       ├── fr.json           # フランス語翻訳
+│       └── de.json           # ドイツ語翻訳
 ├── components/
 │   └── ui/
-│       └── LanguageSwitcher.tsx  # 言語切り替え
+│       └── LanguageSwitcher.tsx  # 言語切り替え（8言語対応）
 └── main.tsx                  # i18n初期化
 ```
 
 ## ビルド結果
 
-### 成功したビルド
+### 成功したビルド（8言語対応後）
 ```bash
-✓ 129 modules transformed.
+✓ 132 modules transformed.
 dist/index.html            0.81 kB │ gzip:   0.44 kB
 dist/index.Df8gIXpC.css   34.69 kB │ gzip:   6.21 kB
-dist/index.De6QyJYq.js   446.87 kB │ gzip: 134.91 kB
-✓ built in 888ms
+dist/index.Bu0JoHo3.js   457.69 kB │ gzip: 138.16 kB
+✓ built in 854ms
 ```
 
 ### バンドルサイズへの影響
-- i18n関連ライブラリ追加: 約1.8KB増加
-- HTMLエクスポート翻訳追加: 約0.5KB増加
-- 追加言語翻訳（中国語・韓国語）: 約3.0KB増加
-- 合計増加: 約5.3KB (gzipped)
-- 最適化により、実際の影響は最小限
+- **初期実装（英語・日本語）**: ベースライン
+- **追加言語（中国語・韓国語）**: +3.0KB (gzipped)
+- **追加言語（インドネシア・フランス・ドイツ）**: +3.25KB (gzipped)
+- **合計増加**: 約8.5KB (gzipped) - 8言語 × 70+ keys = 560+ 翻訳エントリ
+- 最適化により、言語あたりの増加は約1KB (gzipped)と最小限
 
 ## ユーザー体験
 
@@ -164,10 +173,14 @@ dist/index.De6QyJYq.js   446.87 kB │ gzip: 134.91 kB
 1. ブラウザの言語設定を検出
 2. サポート言語に一致 → その言語でUI表示
    - 日本語ブラウザ → 日本語UI
-   - 中国語（簡体字）ブラウザ → 简体中文UI
-   - 中国語（繁体字）ブラウザ → 繁體中文UI
-   - 韓国語ブラウザ → 한국어UI
-3. その他 → 英語UI（デフォルト）
+   - 英語ブラウザ → English UI
+   - 韓国語ブラウザ → 한국어 UI
+   - 中国語（繁体字）ブラウザ → 繁體中文 UI
+   - 中国語（簡体字）ブラウザ → 简体中文 UI
+   - インドネシア語ブラウザ → Bahasa Indonesia UI
+   - フランス語ブラウザ → Français UI
+   - ドイツ語ブラウザ → Deutsch UI
+3. その他 → 英語UI（デフォルトフォールバック）
 
 ## テスト項目
 
@@ -202,6 +215,8 @@ dist/index.De6QyJYq.js   446.87 kB │ gzip: 134.91 kB
 
 ### コミット
 ```
+9616003 feat: Add Indonesian, French, and German language support with reordered languages
+5ecd0e5 docs: Update implementation summary to reflect 5-language support
 bfcb161 feat: Add Chinese (Simplified/Traditional) and Korean language support
 c5ef3b7 docs: Update implementation summary with HTML export i18n details
 ed69e7b feat: Add i18n support for HTML export dialog and settings
@@ -214,9 +229,11 @@ ed69e7b feat: Add i18n support for HTML export dialog and settings
 - Draft PR #38 作成済み
 
 ### コミット詳細
-1. **初期i18n実装**: 日本語・英語の基本サポート
+1. **初期i18n実装**: 日本語・英語の基本サポート（2言語）
 2. **HTMLエクスポート対応**: エクスポート機能の翻訳追加
-3. **追加言語対応**: 中国語（簡体字・繁体字）・韓国語の追加
+3. **追加言語対応（第1弾）**: 中国語（簡体字・繁体字）・韓国語の追加（合計5言語）
+4. **ドキュメント更新**: 5言語対応を反映
+5. **追加言語対応（第2弾）**: インドネシア語・フランス語・ドイツ語の追加、言語順序の変更（合計8言語）
 
 ## 今後の拡張提案
 
@@ -234,10 +251,12 @@ ed69e7b feat: Add i18n support for HTML export dialog and settings
 1. **新しい言語のサポート**
    - ✅ 中国語（簡体字/繁体字）- 実装完了
    - ✅ 韓国語 - 実装完了
+   - ✅ インドネシア語 - 実装完了
+   - ✅ フランス語 - 実装完了
+   - ✅ ドイツ語 - 実装完了
    - スペイン語
-   - フランス語
-   - ドイツ語
    - ポルトガル語
+   - イタリア語
 
 2. **翻訳管理の改善**
    - 翻訳ファイルの分割（機能別）
@@ -280,13 +299,13 @@ Issue #9「国際化対応 - 日本語およびマルチ言語サポート」は
 
 ### 達成項目
 - ✅ i18n インフラストラクチャの構築
-- ✅ 5言語の完全サポート（英語、日本語、中国語簡体字、中国語繁体字、韓国語）
-- ✅ 言語スイッチャーの実装
-- ✅ 全UIコンポーネントの翻訳対応
+- ✅ 8言語の完全サポート（日本語、英語、韓国語、中国語繁体字、中国語簡体字、インドネシア語、フランス語、ドイツ語）
+- ✅ 言語スイッチャーの実装（国旗アイコン付き8言語対応）
+- ✅ 全UIコンポーネントの翻訳対応（70+ keys × 8言語 = 560+ 翻訳エントリ）
 - ✅ HTMLエクスポート設定ダイアログの翻訳対応
-- ✅ 言語設定の永続化
-- ✅ 自動言語検出
-- ✅ ビルドの成功
+- ✅ 言語設定の永続化（LocalStorage）
+- ✅ 自動言語検出（ブラウザ設定ベース）
+- ✅ ビルドの成功（138.16 kB gzipped）
 - ✅ ドキュメントの作成
 
 ### 次のステップ
