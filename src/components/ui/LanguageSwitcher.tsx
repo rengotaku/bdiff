@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from './Button';
 import { cn } from '../../utils/cn';
 
@@ -24,12 +25,21 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   variant = 'dropdown',
 }) => {
   const { i18n, t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = React.useState(false);
 
   const currentLanguage = languages.find((lang) => lang.code === i18n.language) || languages[0];
 
   const handleLanguageChange = (langCode: string) => {
-    i18n.changeLanguage(langCode);
+    // Extract the path without the language prefix
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    const currentPath = pathParts.length > 1 ? pathParts.slice(1).join('/') : '';
+
+    // Navigate to the new language path
+    const newPath = currentPath ? `/${langCode}/${currentPath}` : `/${langCode}/`;
+    navigate(newPath);
+
     setIsOpen(false);
   };
 

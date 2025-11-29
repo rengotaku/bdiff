@@ -51,10 +51,8 @@ i18n
       escapeValue: false,
     },
     detection: {
-      order: ['querystring', 'localStorage', 'navigator'],
-      caches: ['localStorage'],
-      lookupQuerystring: 'lang',
-      lookupLocalStorage: 'bdiff-language',
+      order: ['navigator'],
+      caches: [],
     },
   });
 

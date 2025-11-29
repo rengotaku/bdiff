@@ -201,25 +201,51 @@ const { t } = useTranslation();
 
 ### 言語切り替え
 
-- **URLパラメータ**: `?lang=en`、`?lang=ja` などのURLパラメータで言語を指定可能（最優先）
+- **パスプレフィックス**: URLパスに言語コードを含める（`/en/`、`/ja/` など）
 - **自動検出**: `navigator.language` を利用してブラウザの言語設定を自動検出
-- **デフォルト言語**: サポート対象外の言語の場合は日本語で表示
-- **永続化**: 選択された言語はLocalStorageに保存（キー: `bdiff-language`）
-- **UI**: ヘッダー右上の言語スイッチャーから即座に切り替え可能
+- **デフォルト言語**: ルートパス (`/`) は日本語 (`/ja/`) にリダイレクト
+- **UI**: ヘッダー右上の言語スイッチャーから即座に切り替え可能（URLも変更）
 - **国旗アイコン**: 視覚的に分かりやすい国旗アイコン付きドロップダウン
+- **hreflang対応**: SEO最適化のため、全言語バージョンへのhreflangタグを自動生成
 
 #### 言語検出の優先順位
 
-1. **URLパラメータ** (`?lang=xx`) - 最優先
-2. **LocalStorage** (`bdiff-language`) - 保存された言語設定
-3. **ブラウザ設定** (`navigator.language`) - 自動検出
-4. **フォールバック** - 日本語 (ja)
+1. **URLパスプレフィックス** (`/ja/`、`/en/` など) - 最優先
+2. **ブラウザ設定** (`navigator.language`) - 初回訪問時の自動検出
+3. **フォールバック** - 日本語 (ja)
 
-#### URL例
+#### URL構造
 
-- 英語で開く: `https://bdiff.example.com?lang=en`
-- 韓国語で開く: `https://bdiff.example.com?lang=ko`
-- 中国語簡体字で開く: `https://bdiff.example.com?lang=zh-CN`
+すべてのページは言語プレフィックスを含みます：
+
+- 日本語: `https://bdiff.example.com/ja/`
+- 英語: `https://bdiff.example.com/en/`
+- 韓国語: `https://bdiff.example.com/ko/`
+- 中国語繁体字: `https://bdiff.example.com/zh-TW/`
+- 中国語簡体字: `https://bdiff.example.com/zh-CN/`
+- インドネシア語: `https://bdiff.example.com/id/`
+- フランス語: `https://bdiff.example.com/fr/`
+- ドイツ語: `https://bdiff.example.com/de/`
+
+サブページも言語プレフィックスを維持：
+- `https://bdiff.example.com/en/diff`
+- `https://bdiff.example.com/ja/diff`
+
+#### hreflang タグ
+
+各ページには、SEO最適化のため自動的にhreflangタグが生成されます：
+
+```html
+<link rel="alternate" hreflang="ja" href="https://bdiff.example.com/ja/" />
+<link rel="alternate" hreflang="en" href="https://bdiff.example.com/en/" />
+<link rel="alternate" hreflang="ko" href="https://bdiff.example.com/ko/" />
+<link rel="alternate" hreflang="zh-Hant" href="https://bdiff.example.com/zh-TW/" />
+<link rel="alternate" hreflang="zh-Hans" href="https://bdiff.example.com/zh-CN/" />
+<link rel="alternate" hreflang="id" href="https://bdiff.example.com/id/" />
+<link rel="alternate" hreflang="fr" href="https://bdiff.example.com/fr/" />
+<link rel="alternate" hreflang="de" href="https://bdiff.example.com/de/" />
+<link rel="alternate" hreflang="x-default" href="https://bdiff.example.com/ja/" />
+```
 
 ### 新しい言語の追加方法
 
