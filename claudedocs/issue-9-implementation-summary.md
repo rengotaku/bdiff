@@ -14,6 +14,9 @@ BDiffアプリケーションに日本語および多言語サポートを実装
 ### 2. サポート言語
 - ✅ 英語 (en) - デフォルト言語
 - ✅ 日本語 (ja) - 完全サポート
+- ✅ 中国語簡体字 (zh-CN) - 完全サポート
+- ✅ 中国語繁体字 (zh-TW) - 完全サポート
+- ✅ 韓国語 (ko) - 完全サポート
 
 ### 3. 実装されたコンポーネント
 
@@ -83,9 +86,12 @@ BDiffアプリケーションに日本語および多言語サポートを実装
 }
 ```
 
-#### src/i18n/locales/ja.json
-- 上記と同じ構造で日本語訳を提供
-- HTMLエクスポート設定の全項目を日本語化
+#### その他の言語翻訳ファイル
+- **ja.json**: 上記と同じ構造で日本語訳を提供
+- **zh-CN.json**: 中国語簡体字の翻訳
+- **zh-TW.json**: 中国語繁体字の翻訳
+- **ko.json**: 韓国語の翻訳
+- 全言語でHTMLエクスポート設定の全項目を翻訳済み
 
 ### 5. 言語検出と永続化
 
@@ -118,7 +124,10 @@ src/
 │   ├── config.ts              # i18n設定
 │   └── locales/
 │       ├── en.json           # 英語翻訳
-│       └── ja.json           # 日本語翻訳
+│       ├── ja.json           # 日本語翻訳
+│       ├── zh-CN.json        # 中国語簡体字翻訳
+│       ├── zh-TW.json        # 中国語繁体字翻訳
+│       └── ko.json           # 韓国語翻訳
 ├── components/
 │   └── ui/
 │       └── LanguageSwitcher.tsx  # 言語切り替え
@@ -129,17 +138,18 @@ src/
 
 ### 成功したビルド
 ```bash
-✓ 126 modules transformed.
+✓ 129 modules transformed.
 dist/index.html            0.81 kB │ gzip:   0.44 kB
 dist/index.Df8gIXpC.css   34.69 kB │ gzip:   6.21 kB
-dist/index.GYeXYyJf.js   437.39 kB │ gzip: 131.83 kB
-✓ built in 843ms
+dist/index.De6QyJYq.js   446.87 kB │ gzip: 134.91 kB
+✓ built in 888ms
 ```
 
 ### バンドルサイズへの影響
 - i18n関連ライブラリ追加: 約1.8KB増加
 - HTMLエクスポート翻訳追加: 約0.5KB増加
-- 合計増加: 約2.3KB (gzipped)
+- 追加言語翻訳（中国語・韓国語）: 約3.0KB増加
+- 合計増加: 約5.3KB (gzipped)
 - 最適化により、実際の影響は最小限
 
 ## ユーザー体験
@@ -152,7 +162,11 @@ dist/index.GYeXYyJf.js   437.39 kB │ gzip: 131.83 kB
 
 ### 初回訪問時の挙動
 1. ブラウザの言語設定を検出
-2. 日本語ブラウザ → 日本語UI
+2. サポート言語に一致 → その言語でUI表示
+   - 日本語ブラウザ → 日本語UI
+   - 中国語（簡体字）ブラウザ → 简体中文UI
+   - 中国語（繁体字）ブラウザ → 繁體中文UI
+   - 韓国語ブラウザ → 한국어UI
 3. その他 → 英語UI（デフォルト）
 
 ## テスト項目
@@ -188,18 +202,21 @@ dist/index.GYeXYyJf.js   437.39 kB │ gzip: 131.83 kB
 
 ### コミット
 ```
-feat: Add internationalization support with Japanese and English
-
-Implemented comprehensive i18n infrastructure for BDiff application
-- Added i18next, react-i18next, and browser language detector
-- Created translation files for Japanese and English
-- Implemented LanguageSwitcher component
-- Updated all user-facing components with translation support
+bfcb161 feat: Add Chinese (Simplified/Traditional) and Korean language support
+c5ef3b7 docs: Update implementation summary with HTML export i18n details
+ed69e7b feat: Add i18n support for HTML export dialog and settings
+2a96d33 feat: Add internationalization support with Japanese and English
+13f1fa4 chore: Initialize work on Issue #9
 ```
 
 ### ブランチ
 - `Issue-9-kokusai-ka-taiou-nihongo-oyobi`
 - Draft PR #38 作成済み
+
+### コミット詳細
+1. **初期i18n実装**: 日本語・英語の基本サポート
+2. **HTMLエクスポート対応**: エクスポート機能の翻訳追加
+3. **追加言語対応**: 中国語（簡体字・繁体字）・韓国語の追加
 
 ## 今後の拡張提案
 
@@ -215,10 +232,12 @@ Implemented comprehensive i18n infrastructure for BDiff application
 
 ### 長期的な拡張
 1. **新しい言語のサポート**
-   - 中国語（簡体字/繁体字）
-   - 韓国語
+   - ✅ 中国語（簡体字/繁体字）- 実装完了
+   - ✅ 韓国語 - 実装完了
    - スペイン語
    - フランス語
+   - ドイツ語
+   - ポルトガル語
 
 2. **翻訳管理の改善**
    - 翻訳ファイルの分割（機能別）
@@ -261,7 +280,7 @@ Issue #9「国際化対応 - 日本語およびマルチ言語サポート」は
 
 ### 達成項目
 - ✅ i18n インフラストラクチャの構築
-- ✅ 日本語と英語の完全サポート
+- ✅ 5言語の完全サポート（英語、日本語、中国語簡体字、中国語繁体字、韓国語）
 - ✅ 言語スイッチャーの実装
 - ✅ 全UIコンポーネントの翻訳対応
 - ✅ HTMLエクスポート設定ダイアログの翻訳対応
