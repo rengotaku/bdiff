@@ -49,7 +49,7 @@ export interface ComparisonOptions {
   sortLines: boolean;
   /** Ignore case differences when comparing */
   ignoreCase: boolean;
-  /** Ignore leading and trailing whitespace */
+  /** Ignore leading and trailing whitespace and remove empty lines */
   ignoreWhitespace: boolean;
   /** Ignore trailing newlines (final empty lines) */
   ignoreTrailingNewlines: boolean;

@@ -21,8 +21,9 @@ export class TextPreprocessor {
     }
     
     // Apply whitespace trimming if enabled
+    // Also remove empty lines (including lines with only whitespace)
     if (options.ignoreWhitespace) {
-      lines = lines.map(line => line.trim());
+      lines = lines.map(line => line.trim()).filter(line => line !== '');
     }
     
     // Apply case normalization if enabled
