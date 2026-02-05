@@ -2,15 +2,22 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [ '**' ]  # All branches - build check only
+    branches: [ 'main', 'develop' ]  # 必要なブランチのみに制限
   pull_request:
-    branches: [ '**' ]   # All PRs - preview deployment for non-main branches
+    branches: [ '**' ]
+
+# ワークフロー全体のデフォルト権限を最小に
+permissions:
+  contents: read
 
 jobs:
   build:
     name: Build Check
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
+    
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout repository
@@ -149,7 +156,11 @@ jobs:
   deploy-preview:
     name: Deploy to Preview
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.base_ref != 'main'
+    # フォークからのPRを除外 + mainブランチ以外のPRのみ
+    if: >-
+      github.event_name == 'pull_request'
+      && github.base_ref != 'main'
+      && github.event.pull_request.head.repo.full_name == github.repository
     
     permissions:
       contents: read
