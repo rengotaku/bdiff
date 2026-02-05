@@ -98,3 +98,6 @@ tsconfig.tsbuildinfo
 # Development server logs
 dev-server.log
 .dev-server.pid
+
+.claude/
+.serena/

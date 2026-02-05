@@ -93,18 +93,5 @@
     "ask": [
       "Bash(npm uninstall:*)"
     ]
-  },
-  "hooks": {
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/home/devuser/Workspace/web-todo/scripts/notify-claude-completion.sh"
-          }
-        ]
-      }
-    ]
   }
 }

@@ -25,10 +25,8 @@ help: ## Display this help message
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(COLOR_GREEN)%-20s$(COLOR_RESET) %s\n", $$1, $$2}'
 	@echo ""
-	@echo "$(COLOR_YELLOW)Development URLs:$(COLOR_RESET)"
-	@echo "  Local:     http://localhost:$(PORT)/"
-	@echo "  GPU Server: http://gpuserver.lan:$(PORT)/"
-	@echo "  Network:   http://192.168.2.40:$(PORT)/"
+	@echo "$(COLOR_YELLOW)Development URL:$(COLOR_RESET)"
+	@echo "  Local: http://localhost:$(PORT)/"
 
 # Installation and setup
 install: ## Install dependencies
@@ -140,8 +138,6 @@ network-check: ## Check network accessibility
 	@echo "$(COLOR_CYAN)Network Accessibility Check:$(COLOR_RESET)"
 	@echo "Testing localhost..."
 	@curl -s -o /dev/null -w "localhost:$(PORT) - Status: %{http_code}\n" http://localhost:$(PORT)/ || echo "localhost:$(PORT) - Not accessible"
-	@echo "Testing gpuserver.lan..."
-	@curl -s -o /dev/null -w "gpuserver.lan:$(PORT) - Status: %{http_code}\n" http://gpuserver.lan:$(PORT)/ || echo "gpuserver.lan:$(PORT) - Not accessible"
 
 # Production deployment helpers
 prod-check: typecheck build ## Full production readiness check
