@@ -33,16 +33,16 @@
 
 **Purpose**: テスト環境構築と既存実装の確認
 
-- [ ] T001 Install Vitest and dependencies: `npm install -D vitest jsdom @testing-library/react`
-- [ ] T002 [P] Create vitest.config.ts at project root
-- [ ] T003 [P] Update package.json test scripts
-- [ ] T004 [P] Read current implementation in src/components/diff/DiffViewer.tsx
-- [ ] T005 [P] Read current implementation in src/services/export/renderers/HTMLRenderer.ts
-- [ ] T006 [P] Read current implementation in src/services/charDiffService.ts
-- [ ] T007 [P] Read current implementation in src/utils/diffRendering.ts
-- [ ] T008 [P] Read current implementation in src/utils/htmlEscape.ts
-- [ ] T009 Verify `npm run build` passes (baseline check)
-- [ ] T010 Generate phase output: specs/001-refactor-diff-common/tasks/ph1-output.md
+- [X] T001 Install Vitest and dependencies: `npm install -D vitest jsdom @testing-library/react`
+- [X] T002 [P] Create vitest.config.ts at project root
+- [X] T003 [P] Update package.json test scripts
+- [X] T004 [P] Read current implementation in src/components/diff/DiffViewer.tsx
+- [X] T005 [P] Read current implementation in src/services/export/renderers/HTMLRenderer.ts
+- [X] T006 [P] Read current implementation in src/services/charDiffService.ts
+- [X] T007 [P] Read current implementation in src/utils/diffRendering.ts
+- [X] T008 [P] Read current implementation in src/utils/htmlEscape.ts
+- [X] T009 Verify `npm run build` passes (baseline check)
+- [X] T010 Generate phase output: specs/001-refactor-diff-common/tasks/ph1-output.md
 
 ---
 
