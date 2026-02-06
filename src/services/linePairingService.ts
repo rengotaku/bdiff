@@ -1,4 +1,4 @@
-import type { DiffLine, LineWithSegments, LinePair } from '../types/types';
+import type { DiffLine, LineWithSegments, LinePair, SideBySideRow, CollapsedBlock, UnifiedRow, UnifiedCollapsedBlock } from '../types/types';
 import { CharDiffService } from './charDiffService';
 
 /**
@@ -251,5 +251,192 @@ export class LinePairingService {
     }
 
     return pairs;
+  }
+
+  /**
+   * Apply context line filtering to collapse unchanged lines
+   * Similar to GitHub's diff view that shows only N lines around changes
+   *
+   * @param pairs - Line pairs from pairLinesForSideBySide
+   * @param contextLines - Number of context lines to show around changes (default: 3)
+   * @returns Array of SideBySideRow (LinePair or CollapsedBlock)
+   */
+  static applyContextFilter(
+    pairs: LinePair[],
+    contextLines: number = 3
+  ): SideBySideRow[] {
+    if (pairs.length === 0 || contextLines < 0) {
+      return pairs;
+    }
+
+    // Find indices of changed lines (non-unchanged)
+    const changedIndices: number[] = [];
+    pairs.forEach((pair, index) => {
+      const isChanged =
+        (pair.original && pair.original.line.type !== 'unchanged') ||
+        (pair.modified && pair.modified.line.type !== 'unchanged') ||
+        (pair.original === null || pair.modified === null);
+      if (isChanged) {
+        changedIndices.push(index);
+      }
+    });
+
+    // If no changes, collapse everything except first and last few lines
+    if (changedIndices.length === 0) {
+      if (pairs.length <= contextLines * 2) {
+        return pairs;
+      }
+      const result: SideBySideRow[] = [];
+      // Show first contextLines
+      for (let i = 0; i < contextLines; i++) {
+        result.push(pairs[i]);
+      }
+      // Collapse middle
+      const collapsedPairs = pairs.slice(contextLines, pairs.length - contextLines);
+      if (collapsedPairs.length > 0) {
+        const firstCollapsed = collapsedPairs[0];
+        result.push({
+          type: 'collapsed',
+          count: collapsedPairs.length,
+          originalStartLine: firstCollapsed.original?.line.lineNumber ?? 0,
+          modifiedStartLine: firstCollapsed.modified?.line.lineNumber ?? 0,
+          lines: collapsedPairs
+        } as CollapsedBlock);
+      }
+      // Show last contextLines
+      for (let i = pairs.length - contextLines; i < pairs.length; i++) {
+        result.push(pairs[i]);
+      }
+      return result;
+    }
+
+    // Mark which lines should be visible (within contextLines of a change)
+    const visible = new Set<number>();
+    for (const changedIndex of changedIndices) {
+      for (let i = Math.max(0, changedIndex - contextLines);
+           i <= Math.min(pairs.length - 1, changedIndex + contextLines);
+           i++) {
+        visible.add(i);
+      }
+    }
+
+    // Build result with collapsed blocks
+    const result: SideBySideRow[] = [];
+    let i = 0;
+
+    while (i < pairs.length) {
+      if (visible.has(i)) {
+        result.push(pairs[i]);
+        i++;
+      } else {
+        // Start of collapsed block
+        const collapsedPairs: LinePair[] = [];
+        while (i < pairs.length && !visible.has(i)) {
+          collapsedPairs.push(pairs[i]);
+          i++;
+        }
+        if (collapsedPairs.length > 0) {
+          const firstCollapsed = collapsedPairs[0];
+          result.push({
+            type: 'collapsed',
+            count: collapsedPairs.length,
+            originalStartLine: firstCollapsed.original?.line.lineNumber ?? 0,
+            modifiedStartLine: firstCollapsed.modified?.line.lineNumber ?? 0,
+            lines: collapsedPairs
+          } as CollapsedBlock);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Apply context line filtering for unified view
+   *
+   * @param lines - Lines from pairForUnifiedView
+   * @param contextLines - Number of context lines to show around changes (default: 3)
+   * @returns Array of UnifiedRow (LineWithSegments or UnifiedCollapsedBlock)
+   */
+  static applyContextFilterUnified(
+    lines: LineWithSegments[],
+    contextLines: number = 3
+  ): UnifiedRow[] {
+    if (lines.length === 0 || contextLines < 0) {
+      return lines;
+    }
+
+    // Find indices of changed lines (non-unchanged)
+    const changedIndices: number[] = [];
+    lines.forEach((item, index) => {
+      if (item.line.type !== 'unchanged') {
+        changedIndices.push(index);
+      }
+    });
+
+    // If no changes, collapse everything except first and last few lines
+    if (changedIndices.length === 0) {
+      if (lines.length <= contextLines * 2) {
+        return lines;
+      }
+      const result: UnifiedRow[] = [];
+      // Show first contextLines
+      for (let i = 0; i < contextLines; i++) {
+        result.push(lines[i]);
+      }
+      // Collapse middle
+      const collapsedLines = lines.slice(contextLines, lines.length - contextLines);
+      if (collapsedLines.length > 0) {
+        result.push({
+          type: 'collapsed',
+          count: collapsedLines.length,
+          startLine: collapsedLines[0].line.lineNumber,
+          lines: collapsedLines
+        } as UnifiedCollapsedBlock);
+      }
+      // Show last contextLines
+      for (let i = lines.length - contextLines; i < lines.length; i++) {
+        result.push(lines[i]);
+      }
+      return result;
+    }
+
+    // Mark which lines should be visible (within contextLines of a change)
+    const visible = new Set<number>();
+    for (const changedIndex of changedIndices) {
+      for (let i = Math.max(0, changedIndex - contextLines);
+           i <= Math.min(lines.length - 1, changedIndex + contextLines);
+           i++) {
+        visible.add(i);
+      }
+    }
+
+    // Build result with collapsed blocks
+    const result: UnifiedRow[] = [];
+    let i = 0;
+
+    while (i < lines.length) {
+      if (visible.has(i)) {
+        result.push(lines[i]);
+        i++;
+      } else {
+        // Start of collapsed block
+        const collapsedLines: LineWithSegments[] = [];
+        while (i < lines.length && !visible.has(i)) {
+          collapsedLines.push(lines[i]);
+          i++;
+        }
+        if (collapsedLines.length > 0) {
+          result.push({
+            type: 'collapsed',
+            count: collapsedLines.length,
+            startLine: collapsedLines[0].line.lineNumber,
+            lines: collapsedLines
+          } as UnifiedCollapsedBlock);
+        }
+      }
+    }
+
+    return result;
   }
 }

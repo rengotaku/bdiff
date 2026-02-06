@@ -1,6 +1,7 @@
-import React, { useMemo, memo } from 'react';
+import React, { useMemo, memo, useState, useCallback } from 'react';
 import { getLineClassName, getPrefixSymbol } from '../../utils/diffRendering';
-import type { DiffLine, ViewMode, CharSegment, LineWithSegments, LinePair } from '../../types/types';
+import type { DiffLine, ViewMode, CharSegment, LineWithSegments, LinePair, SideBySideRow, CollapsedBlock, UnifiedRow, UnifiedCollapsedBlock } from '../../types/types';
+import { isCollapsedBlock, isUnifiedCollapsedBlock } from '../../types/types';
 import { LinePairingService } from '../../services/linePairingService';
 
 export interface DiffViewerProps {
@@ -10,6 +11,8 @@ export interface DiffViewerProps {
   viewMode: ViewMode;
   /** Enable character-level inline diff highlighting */
   enableCharDiff?: boolean;
+  /** Number of context lines to show around changes (undefined = show all) */
+  contextLines?: number;
 }
 
 /**
@@ -144,11 +147,43 @@ const SideBySidePairRow = memo<{
 SideBySidePairRow.displayName = 'SideBySidePairRow';
 
 /**
+ * Collapsed lines row component (GitHub-style)
+ * Shows a clickable row that expands to reveal hidden lines
+ */
+const CollapsedLinesRow = memo<{
+  block: CollapsedBlock;
+  onExpand: () => void;
+}>(({ block, onExpand }) => (
+  <div
+    className="grid grid-cols-2 cursor-pointer hover:bg-blue-50 transition-colors"
+    onClick={onExpand}
+    role="button"
+    tabIndex={0}
+    onKeyDown={(e) => e.key === 'Enter' && onExpand()}
+    aria-label={`Expand ${block.count} hidden lines`}
+  >
+    <div className="border-r border-gray-200 bg-gray-100 py-1 px-4 text-center">
+      <span className="text-xs text-gray-500">
+        ⋯ {block.count} lines hidden ⋯
+      </span>
+    </div>
+    <div className="bg-gray-100 py-1 px-4 text-center">
+      <span className="text-xs text-gray-500">
+        ⋯ {block.count} lines hidden ⋯
+      </span>
+    </div>
+  </div>
+));
+
+CollapsedLinesRow.displayName = 'CollapsedLinesRow';
+
+/**
  * Side-by-side view with synchronized line heights
  */
 const SideBySideView = memo<{
-  pairs: LinePair[];
-}>(({ pairs }) => (
+  rows: SideBySideRow[];
+  onExpandBlock: (index: number) => void;
+}>(({ rows, onExpandBlock }) => (
   <div role="main" aria-label="Side-by-side diff view">
     {/* Header row */}
     <div className="grid grid-cols-2 mb-2">
@@ -161,13 +196,21 @@ const SideBySideView = memo<{
     </div>
     {/* Line pairs */}
     <div className="overflow-visible">
-      {pairs.map((pair, index) => (
-        <SideBySidePairRow
-          key={`pair-${index}`}
-          pair={pair}
-          index={index}
-        />
-      ))}
+      {rows.map((row, index) =>
+        isCollapsedBlock(row) ? (
+          <CollapsedLinesRow
+            key={`collapsed-${index}`}
+            block={row}
+            onExpand={() => onExpandBlock(index)}
+          />
+        ) : (
+          <SideBySidePairRow
+            key={`pair-${index}`}
+            pair={row}
+            index={index}
+          />
+        )
+      )}
     </div>
   </div>
 ));
@@ -175,21 +218,53 @@ const SideBySideView = memo<{
 SideBySideView.displayName = 'SideBySideView';
 
 /**
+ * Collapsed lines row for unified view
+ */
+const UnifiedCollapsedRow = memo<{
+  block: UnifiedCollapsedBlock;
+  onExpand: () => void;
+}>(({ block, onExpand }) => (
+  <div
+    className="cursor-pointer hover:bg-blue-50 transition-colors bg-gray-100 py-1 px-4 text-center"
+    onClick={onExpand}
+    role="button"
+    tabIndex={0}
+    onKeyDown={(e) => e.key === 'Enter' && onExpand()}
+    aria-label={`Expand ${block.count} hidden lines`}
+  >
+    <span className="text-xs text-gray-500">
+      ⋯ {block.count} lines hidden ⋯
+    </span>
+  </div>
+));
+
+UnifiedCollapsedRow.displayName = 'UnifiedCollapsedRow';
+
+/**
  * Unified diff display component
  */
 const UnifiedPanel = memo<{
-  lines: LineWithSegments[];
-}>(({ lines }) => (
+  rows: UnifiedRow[];
+  onExpandBlock: (index: number) => void;
+}>(({ rows, onExpandBlock }) => (
   <div className="space-y-2">
     <div className="border rounded-md overflow-visible" role="region" aria-label="Unified diff view">
-      {lines.map((item, index) => (
-        <DiffLineComponent
-          key={`${item.line.lineNumber}-${index}`}
-          line={item.line}
-          index={index}
-          segments={item.segments}
-        />
-      ))}
+      {rows.map((row, index) =>
+        isUnifiedCollapsedBlock(row) ? (
+          <UnifiedCollapsedRow
+            key={`collapsed-${index}`}
+            block={row}
+            onExpand={() => onExpandBlock(index)}
+          />
+        ) : (
+          <DiffLineComponent
+            key={`${row.line.lineNumber}-${index}`}
+            line={row.line}
+            index={index}
+            segments={row.segments}
+          />
+        )
+      )}
     </div>
   </div>
 ));
@@ -205,8 +280,13 @@ UnifiedPanel.displayName = 'UnifiedPanel';
 export const DiffViewer: React.FC<DiffViewerProps> = memo(({
   lines,
   viewMode,
-  enableCharDiff = true
+  enableCharDiff = true,
+  contextLines
 }) => {
+  // Track expanded blocks by their original index in filtered rows
+  const [expandedSideBySideBlocks, setExpandedSideBySideBlocks] = useState<Set<number>>(new Set());
+  const [expandedUnifiedBlocks, setExpandedUnifiedBlocks] = useState<Set<number>>(new Set());
+
   // Memoize line pairs for side-by-side view with synchronized heights
   const sideBySidePairs = useMemo(() => {
     if (viewMode !== 'side-by-side') {
@@ -215,6 +295,61 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
 
     return LinePairingService.pairLinesForSideBySide(lines, enableCharDiff);
   }, [lines, viewMode, enableCharDiff]);
+
+  // Apply context filtering if contextLines is specified
+  const sideBySideRows = useMemo((): SideBySideRow[] => {
+    if (viewMode !== 'side-by-side') {
+      return [];
+    }
+
+    if (contextLines === undefined) {
+      return sideBySidePairs;
+    }
+
+    const filtered = LinePairingService.applyContextFilter(sideBySidePairs, contextLines);
+
+    // Expand any blocks that were previously expanded
+    if (expandedSideBySideBlocks.size === 0) {
+      return filtered;
+    }
+
+    // Re-expand blocks (note: this is a simplified approach)
+    const result: SideBySideRow[] = [];
+    filtered.forEach((row, index) => {
+      if (isCollapsedBlock(row) && expandedSideBySideBlocks.has(index)) {
+        // Expand this block
+        result.push(...row.lines);
+      } else {
+        result.push(row);
+      }
+    });
+
+    return result;
+  }, [viewMode, sideBySidePairs, contextLines, expandedSideBySideBlocks]);
+
+  // Handle side-by-side block expansion
+  const handleExpandSideBySideBlock = useCallback((index: number) => {
+    setExpandedSideBySideBlocks(prev => {
+      const next = new Set(prev);
+      next.add(index);
+      return next;
+    });
+  }, []);
+
+  // Handle unified block expansion
+  const handleExpandUnifiedBlock = useCallback((index: number) => {
+    setExpandedUnifiedBlocks(prev => {
+      const next = new Set(prev);
+      next.add(index);
+      return next;
+    });
+  }, []);
+
+  // Reset expanded blocks when lines change
+  useMemo(() => {
+    setExpandedSideBySideBlocks(new Set());
+    setExpandedUnifiedBlocks(new Set());
+  }, [lines]);
 
   // Memoize unified view lines with character-level diff
   const unifiedLinesWithSegments = useMemo(() => {
@@ -225,15 +360,47 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
     return LinePairingService.pairForUnifiedView(lines, enableCharDiff);
   }, [lines, viewMode, enableCharDiff]);
 
+  // Apply context filtering for unified view
+  const unifiedRows = useMemo((): UnifiedRow[] => {
+    if (viewMode === 'side-by-side') {
+      return [];
+    }
+
+    if (contextLines === undefined) {
+      return unifiedLinesWithSegments;
+    }
+
+    const filtered = LinePairingService.applyContextFilterUnified(unifiedLinesWithSegments, contextLines);
+
+    // Expand any blocks that were previously expanded
+    if (expandedUnifiedBlocks.size === 0) {
+      return filtered;
+    }
+
+    // Re-expand blocks
+    const result: UnifiedRow[] = [];
+    filtered.forEach((row, index) => {
+      if (isUnifiedCollapsedBlock(row) && expandedUnifiedBlocks.has(index)) {
+        // Expand this block
+        result.push(...row.lines);
+      } else {
+        result.push(row);
+      }
+    });
+
+    return result;
+  }, [viewMode, unifiedLinesWithSegments, contextLines, expandedUnifiedBlocks]);
+
   // Render side-by-side view with synchronized row heights
   if (viewMode === 'side-by-side') {
-    return <SideBySideView pairs={sideBySidePairs} />;
+    return <SideBySideView rows={sideBySideRows} onExpandBlock={handleExpandSideBySideBlock} />;
   }
 
   // Render unified view with character diff
   return (
     <UnifiedPanel
-      lines={unifiedLinesWithSegments}
+      rows={unifiedRows}
+      onExpandBlock={handleExpandUnifiedBlock}
     />
   );
 });

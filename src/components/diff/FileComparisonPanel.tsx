@@ -22,6 +22,8 @@ export interface FileComparisonPanelProps {
   onExportError?: (error: string) => void;
   /** Enable character-level inline diff highlighting */
   enableCharDiff?: boolean;
+  /** Collapse unchanged lines (show only context around changes) */
+  collapseUnchanged?: boolean;
 }
 
 export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
@@ -36,7 +38,8 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
   modifiedFile,
   onExportSuccess,
   onExportError,
-  enableCharDiff = true
+  enableCharDiff = true,
+  collapseUnchanged = true
 }) => {
   return (
     <Card className="flex-1">
@@ -89,8 +92,8 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
               <button
                 onClick={() => onViewModeChange('split')}
                 className={`p-2 rounded transition-colors ${
-                  viewMode === 'split' 
-                    ? 'bg-white shadow-sm text-primary' 
+                  viewMode === 'split'
+                    ? 'bg-white shadow-sm text-primary'
                     : 'text-gray-light hover:text-gray'
                 }`}
                 title="Side by Side View"
@@ -103,8 +106,8 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
               <button
                 onClick={() => onViewModeChange('unified')}
                 className={`p-2 rounded transition-colors ${
-                  viewMode === 'unified' 
-                    ? 'bg-white shadow-sm text-primary' 
+                  viewMode === 'unified'
+                    ? 'bg-white shadow-sm text-primary'
                     : 'text-gray-light hover:text-gray'
                 }`}
                 title="Unified View"
@@ -129,6 +132,7 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
               lines={diffResult.lines}
               viewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
               enableCharDiff={enableCharDiff}
+              contextLines={collapseUnchanged ? 3 : undefined}
             />
           </div>
         )}

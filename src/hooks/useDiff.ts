@@ -14,6 +14,7 @@ interface UseDiffState {
   comparisonOptions: ComparisonOptions
   originalIsFromFile: boolean
   modifiedIsFromFile: boolean
+  collapseUnchanged: boolean
 }
 
 interface UseDiffActions {
@@ -22,6 +23,7 @@ interface UseDiffActions {
   setViewMode: (mode: ViewMode) => void
   setInputType: (type: InputType) => void
   setComparisonOptions: (options: ComparisonOptions) => void
+  setCollapseUnchanged: (collapse: boolean) => void
   calculateDiff: () => Promise<void>
   clearAll: () => void
   clearError: () => void
@@ -43,7 +45,8 @@ export function useDiff(): UseDiffReturn {
     inputType: 'file',
     comparisonOptions: TextPreprocessor.getDefaultOptions(),
     originalIsFromFile: false,
-    modifiedIsFromFile: false
+    modifiedIsFromFile: false,
+    collapseUnchanged: true
   })
 
   const setOriginalFile = useCallback((file: FileInfo | null, isFromFile: boolean = false) => {
@@ -78,6 +81,10 @@ export function useDiff(): UseDiffReturn {
 
   const setComparisonOptions = useCallback((options: ComparisonOptions) => {
     setState(prev => ({ ...prev, comparisonOptions: options }))
+  }, [])
+
+  const setCollapseUnchanged = useCallback((collapse: boolean) => {
+    setState(prev => ({ ...prev, collapseUnchanged: collapse }))
   }, [])
 
   const clearError = useCallback(() => {
@@ -130,7 +137,8 @@ export function useDiff(): UseDiffReturn {
       inputType: 'file',
       comparisonOptions: TextPreprocessor.getDefaultOptions(),
       originalIsFromFile: false,
-      modifiedIsFromFile: false
+      modifiedIsFromFile: false,
+      collapseUnchanged: true
     })
   }, [])
 
@@ -164,6 +172,7 @@ export function useDiff(): UseDiffReturn {
     setViewMode,
     setInputType,
     setComparisonOptions,
+    setCollapseUnchanged,
     calculateDiff,
     clearAll,
     clearError,
