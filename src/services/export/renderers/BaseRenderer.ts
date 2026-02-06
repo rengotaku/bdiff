@@ -3,9 +3,10 @@
  * Abstract base class for all export format renderers
  */
 
-import type { DiffLine, DiffType, FileInfo } from '../../../types/types';
+import type { DiffLine, FileInfo } from '../../../types/types';
 import type { IRenderer, ExportOptions } from '../types';
 import { escapeHtml, escapeMarkdown } from '../../../utils/htmlEscape';
+import { getPrefixSymbol } from '../../../utils/diffRendering';
 
 /**
  * Abstract base renderer providing common functionality
@@ -49,19 +50,9 @@ export abstract class BaseRenderer implements IRenderer {
 
   /**
    * Get prefix symbol for diff line type
+   * Delegates to shared utility function
    */
-  protected getPrefixSymbol(type: DiffType): string {
-    switch (type) {
-      case 'added':
-        return '+';
-      case 'removed':
-        return '-';
-      case 'modified':
-        return '~';
-      default:
-        return ' ';
-    }
-  }
+  protected getPrefixSymbol = getPrefixSymbol;
 
   /**
    * Filter lines based on options (e.g., differences-only mode)

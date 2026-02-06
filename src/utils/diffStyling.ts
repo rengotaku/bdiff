@@ -1,4 +1,5 @@
 import type { DiffType } from '../types/types'
+import { getPrefixSymbol } from './diffRendering'
 
 /**
  * Utility functions for styling diff lines and generating CSS classes
@@ -6,20 +7,10 @@ import type { DiffType } from '../types/types'
 export class DiffStyler {
   /**
    * Get diff symbol for line type
+   * @deprecated Use getPrefixSymbol from diffRendering.ts instead
    */
   static getDiffSymbol(type: DiffType): string {
-    switch (type) {
-      case 'added':
-        return '+'
-      case 'removed':
-        return '-'
-      case 'modified':
-        return '~'
-      case 'unchanged':
-        return ' '
-      default:
-        return ' '
-    }
+    return getPrefixSymbol(type as any)
   }
 
   /**

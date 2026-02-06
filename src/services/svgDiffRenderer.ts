@@ -11,6 +11,7 @@ import {
   svgToDataUri,
   buildSvgAttributes
 } from '../utils/svgUtils';
+import { getPrefixSymbol } from '../utils/diffRendering';
 
 /**
  * SVG generation options
@@ -251,7 +252,7 @@ export class SvgDiffRenderer {
     colorScheme: SvgColorScheme
   ): string {
     const colors = this.getLineColors(line.type, colorScheme);
-    const symbol = this.getPrefixSymbol(line.type);
+    const symbol = getPrefixSymbol(line.type as any);
 
     // Layout constants
     const borderWidth = 4;
@@ -342,24 +343,6 @@ export class SvgDiffRenderer {
         return colorScheme.modified;
       default:
         return colorScheme.unchanged;
-    }
-  }
-
-  /**
-   * Get prefix symbol for line type
-   * @param type - Line type
-   * @returns Prefix symbol
-   */
-  private static getPrefixSymbol(type: string): string {
-    switch (type) {
-      case 'added':
-        return '+';
-      case 'removed':
-        return '-';
-      case 'modified':
-        return '~';
-      default:
-        return ' ';
     }
   }
 

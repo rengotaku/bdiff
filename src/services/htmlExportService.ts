@@ -18,6 +18,7 @@
 import type { DiffResult, FileInfo, DiffStats, DiffLine } from '../types/types';
 import { TAILWIND_CSS } from './tailwindEmbedded';
 import { SvgDiffRenderer } from './svgDiffRenderer';
+import { escapeHtml } from '../utils/htmlEscape';
 
 /**
  * Configuration options for HTML export
@@ -129,7 +130,7 @@ ${this.getEmbeddedCSS(opts.theme)}
             <div class="file-info original-file">
               <h3>📄 Original File</h3>
               <div class="file-details">
-                <div><strong>Name:</strong> ${this.escapeHtml(originalFile.name)}</div>
+                <div><strong>Name:</strong> ${escapeHtml(originalFile.name)}</div>
                 <div><strong>Size:</strong> ${originalFile.size.toLocaleString()} bytes</div>
                 <div><strong>Lines:</strong> ${originalFile.content.split('\\n').length.toLocaleString()}</div>
                 ${originalFile.lastModified ? `<div><strong>Modified:</strong> ${originalFile.lastModified.toLocaleString('en-US')}</div>` : ''}
@@ -139,7 +140,7 @@ ${this.getEmbeddedCSS(opts.theme)}
             <div class="file-info modified-file">
               <h3>📄 Modified File</h3>
               <div class="file-details">
-                <div><strong>Name:</strong> ${this.escapeHtml(modifiedFile.name)}</div>
+                <div><strong>Name:</strong> ${escapeHtml(modifiedFile.name)}</div>
                 <div><strong>Size:</strong> ${modifiedFile.size.toLocaleString()} bytes</div>
                 <div><strong>Lines:</strong> ${modifiedFile.content.split('\\n').length.toLocaleString()}</div>
                 ${modifiedFile.lastModified ? `<div><strong>Modified:</strong> ${modifiedFile.lastModified.toLocaleString('en-US')}</div>` : ''}
@@ -641,14 +642,5 @@ ${this.getEmbeddedCSS(opts.theme)}
    */
   private static sanitizeFilename(filename: string): string {
     return filename.replace(/[^a-zA-Z0-9._-]/g, '_').replace(/_{2,}/g, '_');
-  }
-
-  /**
-   * Escape HTML special characters
-   */
-  private static escapeHtml(text: string): string {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
   }
 }
