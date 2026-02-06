@@ -166,19 +166,19 @@
 
 ### 入力
 
-- [ ] T055 Read previous phase output: specs/001-refactor-diff-common/tasks/ph4-output.md
+- [x] T055 Read previous phase output: specs/001-refactor-diff-common/tasks/ph4-output.md
 
 ### 実装
 
-- [ ] T056 [US3] Update src/components/diff/DiffViewer.tsx to use LinePairingService
-- [ ] T057 [US3] Remove inline pairing logic from DiffViewer.tsx
-- [ ] T058 Verify `npm test` PASS
-- [ ] T059 Verify `npm run build` passes
+- [x] T056 [US3] Update src/components/diff/DiffViewer.tsx to use LinePairingService
+- [x] T057 [US3] Remove inline pairing logic from DiffViewer.tsx
+- [x] T058 Verify `npm test` PASS
+- [x] T059 Verify `npm run build` passes
 
 ### 検証
 
-- [ ] T060 Manual verification: Compare screen display before/after
-- [ ] T061 Generate phase output: specs/001-refactor-diff-common/tasks/ph5-output.md
+- [x] T060 Manual verification: Compare screen display before/after
+- [x] T061 Generate phase output: specs/001-refactor-diff-common/tasks/ph5-output.md
 
 **Checkpoint**: Screen display unchanged, code simplified
 
