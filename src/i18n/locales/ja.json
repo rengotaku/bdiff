@@ -36,7 +36,10 @@
     "sortLinesTooltip": "行の順序に関係なく比較",
     "ignoreTrailingNewlines": "末尾の改行を無視",
     "ignoreTrailingNewlinesLabel": "末尾の改行を無視",
-    "ignoreTrailingNewlinesTooltip": "最後の空行を無視"
+    "ignoreTrailingNewlinesTooltip": "最後の空行を無視",
+    "enableCharDiff": "文字単位ハイライト",
+    "enableCharDiffLabel": "文字単位ハイライト",
+    "enableCharDiffTooltip": "変更された文字を行内でハイライト表示"
   },
   "diffViewer": {
     "viewMode": {

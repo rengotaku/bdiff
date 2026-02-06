@@ -1,13 +1,48 @@
 import React, { useMemo, memo } from 'react';
 import { getLineClassName, getPrefixSymbol } from '../../utils/diffRendering';
-import type { DiffLine, ViewMode } from '../../types/types';
+import type { DiffLine, ViewMode, CharSegment } from '../../types/types';
+import { CharDiffService } from '../../services/charDiffService';
 
 export interface DiffViewerProps {
   /** Array of diff lines to display */
   lines: DiffLine[];
   /** Display mode for the diff viewer */
   viewMode: ViewMode;
+  /** Enable character-level inline diff highlighting */
+  enableCharDiff?: boolean;
 }
+
+/**
+ * Render character segments with inline highlighting
+ */
+const CharSegmentRenderer = memo<{
+  segments: CharSegment[];
+}>(({ segments }) => {
+  return (
+    <>
+      {segments.map((segment, idx) => {
+        let className = 'font-mono text-sm whitespace-pre-wrap';
+
+        if (segment.type === 'removed') {
+          // Removed characters: dark red background with strikethrough
+          className += ' bg-red-300 text-red-900 line-through decoration-red-700';
+        } else if (segment.type === 'added') {
+          // Added characters: dark green background
+          className += ' bg-green-300 text-green-900';
+        }
+        // Unchanged characters: no special styling
+
+        return (
+          <span key={idx} className={className}>
+            {segment.text}
+          </span>
+        );
+      })}
+    </>
+  );
+});
+
+CharSegmentRenderer.displayName = 'CharSegmentRenderer';
 
 /**
  * Individual diff line component - memoized for performance
@@ -15,7 +50,10 @@ export interface DiffViewerProps {
 const DiffLineComponent = memo<{
   line: DiffLine;
   index: number;
-}>(({ line, index }) => {
+  segments?: CharSegment[];
+}>(({ line, index, segments }) => {
+  const hasSegments = segments && segments.length > 0;
+
   return (
     <div
       key={index}
@@ -29,9 +67,13 @@ const DiffLineComponent = memo<{
           <span className="text-gray-400 select-none mr-2" aria-hidden="true">
             {getPrefixSymbol(line.type)}
           </span>
-          <span className="font-mono text-sm whitespace-pre-wrap diff-line-text">
-            {line.content || '\n'}
-          </span>
+          {hasSegments ? (
+            <CharSegmentRenderer segments={segments} />
+          ) : (
+            <span className="font-mono text-sm whitespace-pre-wrap diff-line-text">
+              {line.content || '\n'}
+            </span>
+          )}
         </div>
       </div>
     </div>
@@ -41,10 +83,18 @@ const DiffLineComponent = memo<{
 DiffLineComponent.displayName = 'DiffLineComponent';
 
 /**
+ * Compute character segments for paired lines
+ */
+interface LineWithSegments {
+  line: DiffLine;
+  segments?: CharSegment[];
+}
+
+/**
  * Side-by-side diff panel component
  */
 const SideBySidePanel = memo<{
-  lines: DiffLine[];
+  lines: LineWithSegments[];
   title: string;
 }>(({ lines, title }) => (
   <div className="space-y-1">
@@ -52,11 +102,12 @@ const SideBySidePanel = memo<{
       <div className="font-medium text-sm text-gray-700">{title}</div>
     </div>
     <div className="border rounded-md overflow-visible" role="region" aria-label={title}>
-      {lines.map((line, index) => (
+      {lines.map((item, index) => (
         <DiffLineComponent
-          key={`${line.lineNumber}-${index}`}
-          line={line}
+          key={`${item.line.lineNumber}-${index}`}
+          line={item.line}
           index={index}
+          segments={item.segments}
         />
       ))}
     </div>
@@ -94,37 +145,79 @@ UnifiedPanel.displayName = 'UnifiedPanel';
  */
 export const DiffViewer: React.FC<DiffViewerProps> = memo(({
   lines,
-  viewMode
+  viewMode,
+  enableCharDiff = true
 }) => {
-  // Memoize filtered lines for side-by-side view to prevent unnecessary recalculations
-  const { originalLines, modifiedLines } = useMemo(() => {
+  // Memoize filtered lines for side-by-side view with character-level diff
+  const { originalLinesWithSegments, modifiedLinesWithSegments } = useMemo(() => {
     if (viewMode !== 'side-by-side') {
-      return { originalLines: [], modifiedLines: [] };
+      return { originalLinesWithSegments: [], modifiedLinesWithSegments: [] };
+    }
+
+    const originalLines = lines.filter(l => l.type !== 'added');
+    const modifiedLines = lines.filter(l => l.type !== 'removed');
+
+    if (!enableCharDiff) {
+      return {
+        originalLinesWithSegments: originalLines.map(line => ({ line })),
+        modifiedLinesWithSegments: modifiedLines.map(line => ({ line }))
+      };
+    }
+
+    // Compute character-level diffs for paired removed/added lines
+    const originalWithSegments: LineWithSegments[] = [];
+    const modifiedWithSegments: LineWithSegments[] = [];
+
+    const maxLen = Math.max(originalLines.length, modifiedLines.length);
+
+    for (let i = 0; i < maxLen; i++) {
+      const origLine = originalLines[i];
+      const modLine = modifiedLines[i];
+
+      if (origLine && modLine &&
+          origLine.type === 'removed' && modLine.type === 'added' &&
+          CharDiffService.shouldShowCharDiff(origLine.content, modLine.content)) {
+        // Compute character-level diff for this pair
+        const { originalSegments, modifiedSegments } = CharDiffService.calculateCharDiff(
+          origLine.content,
+          modLine.content
+        );
+        originalWithSegments.push({ line: origLine, segments: originalSegments });
+        modifiedWithSegments.push({ line: modLine, segments: modifiedSegments });
+      } else {
+        // No character diff - just pass the line
+        if (origLine) {
+          originalWithSegments.push({ line: origLine });
+        }
+        if (modLine) {
+          modifiedWithSegments.push({ line: modLine });
+        }
+      }
     }
 
     return {
-      originalLines: lines.filter(l => l.type !== 'added'),
-      modifiedLines: lines.filter(l => l.type !== 'removed')
+      originalLinesWithSegments: originalWithSegments,
+      modifiedLinesWithSegments: modifiedWithSegments
     };
-  }, [lines, viewMode]);
+  }, [lines, viewMode, enableCharDiff]);
 
   // Render side-by-side view
   if (viewMode === 'side-by-side') {
     return (
       <div className="grid grid-cols-2 gap-4" role="main" aria-label="Side-by-side diff view">
         <SideBySidePanel
-          lines={originalLines}
+          lines={originalLinesWithSegments}
           title="Original"
         />
         <SideBySidePanel
-          lines={modifiedLines}
+          lines={modifiedLinesWithSegments}
           title="Modified"
         />
       </div>
     );
   }
 
-  // Render unified view
+  // Render unified view (no character diff for now)
   return (
     <UnifiedPanel
       lines={lines}

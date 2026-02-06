@@ -36,7 +36,10 @@
     "sortLinesTooltip": "Unabhängig von der Zeilenreihenfolge vergleichen",
     "ignoreTrailingNewlines": "Nachfolgende Zeilenumbrüche ignorieren",
     "ignoreTrailingNewlinesLabel": "Nachfolgende Zeilenumbrüche ignorieren",
-    "ignoreTrailingNewlinesTooltip": "Abschließende Leerzeilen ignorieren"
+    "ignoreTrailingNewlinesTooltip": "Abschließende Leerzeilen ignorieren",
+    "enableCharDiff": "Zeichenhervorhebung",
+    "enableCharDiffLabel": "Zeichenhervorhebung",
+    "enableCharDiffTooltip": "Geänderte Zeichen in Zeilen hervorheben"
   },
   "diffViewer": {
     "viewMode": {

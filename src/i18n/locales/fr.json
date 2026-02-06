@@ -36,7 +36,10 @@
     "sortLinesTooltip": "Comparer sans tenir compte de l'ordre des lignes",
     "ignoreTrailingNewlines": "Ignorer les sauts de ligne finaux",
     "ignoreTrailingNewlinesLabel": "Ignorer les sauts de ligne finaux",
-    "ignoreTrailingNewlinesTooltip": "Ignorer les lignes vides finales"
+    "ignoreTrailingNewlinesTooltip": "Ignorer les lignes vides finales",
+    "enableCharDiff": "Surlignage des caractères",
+    "enableCharDiffLabel": "Surlignage des caractères",
+    "enableCharDiffTooltip": "Surligner les caractères modifiés dans les lignes"
   },
   "diffViewer": {
     "viewMode": {

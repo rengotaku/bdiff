@@ -8,6 +8,17 @@ export type ViewMode = 'side-by-side' | 'unified' | 'split';
 export type InputType = 'file' | 'text';
 
 /**
+ * Represents a character-level segment within a line
+ * Used for inline diff highlighting to show exactly which characters changed
+ */
+export interface CharSegment {
+  /** Text content of this segment */
+  text: string;
+  /** Type of change for this segment */
+  type: 'added' | 'removed' | 'unchanged';
+}
+
+/**
  * Represents a single line in a diff comparison
  */
 export interface DiffLine {
@@ -21,6 +32,8 @@ export interface DiffLine {
   originalLineNumber?: number;
   /** New line number after changes (for tracking purposes) */
   newLineNumber?: number;
+  /** Character-level segments for inline diff highlighting (optional) */
+  segments?: CharSegment[];
 }
 
 /**
@@ -53,6 +66,8 @@ export interface ComparisonOptions {
   ignoreWhitespace: boolean;
   /** Ignore trailing newlines (final empty lines) */
   ignoreTrailingNewlines: boolean;
+  /** Enable character-level inline diff highlighting */
+  enableCharDiff: boolean;
 }
 
 /**

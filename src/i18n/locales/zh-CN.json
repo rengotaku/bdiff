@@ -36,7 +36,10 @@
     "sortLinesTooltip": "无论行顺序如何进行比较",
     "ignoreTrailingNewlines": "忽略尾部换行",
     "ignoreTrailingNewlinesLabel": "忽略尾部换行",
-    "ignoreTrailingNewlinesTooltip": "忽略最后的空行"
+    "ignoreTrailingNewlinesTooltip": "忽略最后的空行",
+    "enableCharDiff": "字符级高亮",
+    "enableCharDiffLabel": "字符级高亮",
+    "enableCharDiffTooltip": "在行内高亮显示变更的字符"
   },
   "diffViewer": {
     "viewMode": {

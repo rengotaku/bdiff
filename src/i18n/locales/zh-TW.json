@@ -36,7 +36,10 @@
     "sortLinesTooltip": "無論行順序如何進行比較",
     "ignoreTrailingNewlines": "忽略尾部換行",
     "ignoreTrailingNewlinesLabel": "忽略尾部換行",
-    "ignoreTrailingNewlinesTooltip": "忽略最後的空行"
+    "ignoreTrailingNewlinesTooltip": "忽略最後的空行",
+    "enableCharDiff": "字元級標示",
+    "enableCharDiffLabel": "字元級標示",
+    "enableCharDiffTooltip": "在行內標示變更的字元"
   },
   "diffViewer": {
     "viewMode": {

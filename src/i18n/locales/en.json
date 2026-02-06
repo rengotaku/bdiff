@@ -36,7 +36,10 @@
     "sortLinesTooltip": "Compare regardless of line order",
     "ignoreTrailingNewlines": "Ignore trailing newlines",
     "ignoreTrailingNewlinesLabel": "Ignore trailing newlines",
-    "ignoreTrailingNewlinesTooltip": "Ignore final empty lines"
+    "ignoreTrailingNewlinesTooltip": "Ignore final empty lines",
+    "enableCharDiff": "Character highlighting",
+    "enableCharDiffLabel": "Character highlighting",
+    "enableCharDiffTooltip": "Highlight changed characters within lines"
   },
   "diffViewer": {
     "viewMode": {

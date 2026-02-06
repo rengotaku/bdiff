@@ -36,7 +36,10 @@
     "sortLinesTooltip": "행 순서와 관계없이 비교",
     "ignoreTrailingNewlines": "후행 줄바꿈 무시",
     "ignoreTrailingNewlinesLabel": "후행 줄바꿈 무시",
-    "ignoreTrailingNewlinesTooltip": "마지막 빈 줄 무시"
+    "ignoreTrailingNewlinesTooltip": "마지막 빈 줄 무시",
+    "enableCharDiff": "문자 단위 하이라이트",
+    "enableCharDiffLabel": "문자 단위 하이라이트",
+    "enableCharDiffTooltip": "줄 내에서 변경된 문자를 하이라이트"
   },
   "diffViewer": {
     "viewMode": {

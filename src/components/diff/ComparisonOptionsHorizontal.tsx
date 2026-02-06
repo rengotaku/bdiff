@@ -45,6 +45,11 @@ export const ComparisonOptionsHorizontal: React.FC<ComparisonOptionsHorizontalPr
       key: 'ignoreTrailingNewlines' as const,
       label: t('comparisonOptions.ignoreTrailingNewlinesLabel'),
       description: t('comparisonOptions.ignoreTrailingNewlinesTooltip')
+    },
+    {
+      key: 'enableCharDiff' as const,
+      label: t('comparisonOptions.enableCharDiffLabel'),
+      description: t('comparisonOptions.enableCharDiffTooltip')
     }
   ];
 

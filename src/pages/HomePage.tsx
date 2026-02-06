@@ -327,6 +327,7 @@ export const HomePage: React.FC = () => {
               modifiedFile={modifiedFile}
               onExportSuccess={(filename) => showSuccessToast(t('export.success'), t('export.successMessage', { filename }))}
               onExportError={(error) => showErrorToast(t('export.error'), error)}
+              enableCharDiff={comparisonOptions.enableCharDiff}
             />
           </div>
         )}

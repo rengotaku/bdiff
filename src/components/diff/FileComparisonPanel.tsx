@@ -20,6 +20,8 @@ export interface FileComparisonPanelProps {
   modifiedFile?: FileInfo | null | undefined;
   onExportSuccess?: (filename: string) => void;
   onExportError?: (error: string) => void;
+  /** Enable character-level inline diff highlighting */
+  enableCharDiff?: boolean;
 }
 
 export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
@@ -33,7 +35,8 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
   originalFile,
   modifiedFile,
   onExportSuccess,
-  onExportError
+  onExportError,
+  enableCharDiff = true
 }) => {
   return (
     <Card className="flex-1">
@@ -125,6 +128,7 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
             <DiffViewer
               lines={diffResult.lines}
               viewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
+              enableCharDiff={enableCharDiff}
             />
           </div>
         )}

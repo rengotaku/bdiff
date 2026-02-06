@@ -36,7 +36,10 @@
     "sortLinesTooltip": "Bandingkan tanpa memperhatikan urutan baris",
     "ignoreTrailingNewlines": "Abaikan baris baru di akhir",
     "ignoreTrailingNewlinesLabel": "Abaikan baris baru di akhir",
-    "ignoreTrailingNewlinesTooltip": "Abaikan baris kosong terakhir"
+    "ignoreTrailingNewlinesTooltip": "Abaikan baris kosong terakhir",
+    "enableCharDiff": "Sorotan karakter",
+    "enableCharDiffLabel": "Sorotan karakter",
+    "enableCharDiffTooltip": "Sorot karakter yang berubah dalam baris"
   },
   "diffViewer": {
     "viewMode": {
