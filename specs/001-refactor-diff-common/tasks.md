@@ -56,16 +56,16 @@
 
 ### 入力
 
-- [ ] T011 Read previous phase output: specs/001-refactor-diff-common/tasks/ph1-output.md
+- [x] T011 Read previous phase output: specs/001-refactor-diff-common/tasks/ph1-output.md
 
 ### テスト実装 (RED)
 
-- [ ] T012 [P] [US3] Create test directory: src/__tests__/services/
-- [ ] T013 [P] [US3] Implement test for pairForUnifiedView in src/__tests__/services/linePairingService.test.ts
-- [ ] T014 [P] [US3] Implement test for pairForSideBySideView in src/__tests__/services/linePairingService.test.ts
-- [ ] T015 [P] [US3] Implement edge case tests (empty array, mismatched counts) in src/__tests__/services/linePairingService.test.ts
-- [ ] T016 Verify `npm test` FAIL (RED) - LinePairingService not found
-- [ ] T017 Generate RED output: specs/001-refactor-diff-common/red-tests/ph2-test.md
+- [x] T012 [P] [US3] Create test directory: src/__tests__/services/
+- [x] T013 [P] [US3] Implement test for pairForUnifiedView in src/__tests__/services/linePairingService.test.ts
+- [x] T014 [P] [US3] Implement test for pairForSideBySideView in src/__tests__/services/linePairingService.test.ts
+- [x] T015 [P] [US3] Implement edge case tests (empty array, mismatched counts) in src/__tests__/services/linePairingService.test.ts
+- [x] T016 Verify `npm test` FAIL (RED) - LinePairingService not found
+- [x] T017 Generate RED output: specs/001-refactor-diff-common/red-tests/ph2-test.md
 
 ### 実装 (GREEN)
 
