@@ -92,13 +92,13 @@
 
 ### 入力
 
-- [ ] T025 Read previous phase output: specs/001-refactor-diff-common/tasks/ph2-output.md
+- [x] T025 Read previous phase output: specs/001-refactor-diff-common/tasks/ph2-output.md
 
 ### テスト実装 (RED)
 
-- [ ] T026 [P] [US2] Create test for getPrefixSymbol in src/__tests__/utils/diffRendering.test.ts
-- [ ] T027 Verify `npm test` PASS (既存関数なのでPASSから開始)
-- [ ] T028 Generate RED output: specs/001-refactor-diff-common/red-tests/ph3-test.md
+- [x] T026 [P] [US2] Create test for getPrefixSymbol in src/__tests__/utils/diffRendering.test.ts
+- [x] T027 Verify `npm test` FAIL (RED) - 新仕様（スペースなし）のテストのため FAIL
+- [x] T028 Generate RED output: specs/001-refactor-diff-common/red-tests/ph3-test.md
 
 ### 実装 (GREEN)
 
