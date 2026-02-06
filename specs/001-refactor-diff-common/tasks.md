@@ -140,19 +140,19 @@
 
 ### 実装 (GREEN)
 
-- [ ] T045 Read RED tests: specs/001-refactor-diff-common/red-tests/ph4-test.md
-- [ ] T046 [US1] Add CharDiffService import to src/services/export/renderers/HTMLRenderer.ts
-- [ ] T047 [US1] Add LinePairingService import to src/services/export/renderers/HTMLRenderer.ts
-- [ ] T048 [US1] Implement renderCharSegments method in HTMLRenderer.ts
-- [ ] T049 [US1] Update generateUnifiedView to use LinePairingService and renderCharSegments
-- [ ] T050 [US1] Update generateSideBySideView to use LinePairingService and renderCharSegments
-- [ ] T051 [US1] Add char highlight CSS (.char-removed, .char-added) to embedded CSS in HTMLRenderer.ts
-- [ ] T052 Verify `npm test` PASS (GREEN)
+- [x] T045 Read RED tests: specs/001-refactor-diff-common/red-tests/ph4-test.md
+- [x] T046 [US1] Add CharDiffService import to src/services/export/renderers/HTMLRenderer.ts
+- [x] T047 [US1] Add LinePairingService import to src/services/export/renderers/HTMLRenderer.ts
+- [x] T048 [US1] Implement renderCharSegments method in HTMLRenderer.ts
+- [x] T049 [US1] Update generateUnifiedView to use LinePairingService and renderCharSegments
+- [x] T050 [US1] Update generateSideBySideView to use LinePairingService and renderCharSegments
+- [x] T051 [US1] Add char highlight CSS (.char-removed, .char-added) to embedded CSS in HTMLRenderer.ts
+- [x] T052 Verify `npm test` PASS (GREEN)
 
 ### 検証
 
-- [ ] T053 Verify `npm run build` passes
-- [ ] T054 Generate phase output: specs/001-refactor-diff-common/tasks/ph4-output.md
+- [x] T053 Verify `npm run build` passes
+- [x] T054 Generate phase output: specs/001-refactor-diff-common/tasks/ph4-output.md
 
 **Checkpoint**: HTML export should match screen display with character-level highlighting
 

@@ -3,10 +3,11 @@
  * Generates standalone HTML documents from diff results
  */
 
-import type { DiffLine } from '../../../types/types';
+import type { DiffLine, CharSegment, LineWithSegments } from '../../../types/types';
 import type { HtmlExportOptions } from '../types';
 import { BaseRenderer } from './BaseRenderer';
 import { TAILWIND_CSS } from '../../tailwindEmbedded';
+import { LinePairingService } from '../../linePairingService';
 
 /**
  * Default HTML export options
@@ -28,11 +29,14 @@ const DEFAULT_OPTIONS: Required<HtmlExportOptions> = {
  * HTML format renderer
  */
 export class HTMLRenderer extends BaseRenderer {
+  private hasCharHighlighting = false;
+
   /**
    * Render diff lines to standalone HTML document
    */
   render(lines: DiffLine[], options: HtmlExportOptions = {}): string {
     const opts = { ...DEFAULT_OPTIONS, ...options };
+    this.hasCharHighlighting = false; // Reset for each render
 
     // Filter lines if differences-only mode is enabled
     const linesToExport = this.filterLines(lines, opts.differencesOnly);
@@ -174,6 +178,21 @@ ${this.getEmbeddedCSS(opts.theme)}
   }
 
   /**
+   * Render character-level segments to HTML with highlighting
+   */
+  private renderCharSegments(segments: CharSegment[]): string {
+    return segments.map(seg => {
+      const escapedText = this.escapeHtml(seg.text);
+      if (seg.type === 'removed') {
+        return `<span class="char-removed">${escapedText}</span>`;
+      } else if (seg.type === 'added') {
+        return `<span class="char-added">${escapedText}</span>`;
+      }
+      return escapedText;
+    }).join('');
+  }
+
+  /**
    * Generate unified view using HTML
    */
   private generateUnifiedView(
@@ -184,7 +203,11 @@ ${this.getEmbeddedCSS(opts.theme)}
       return '<div class="text-center text-gray-500 p-8">No differences to display</div>';
     }
 
-    const lineElements = lines.map(line => this.renderDiffLine(line, options)).join('\n');
+    // Use LinePairingService to get lines with character segments
+    const pairedLines = LinePairingService.pairForUnifiedView(lines, true);
+    const lineElements = pairedLines.map(lineWithSegments =>
+      this.renderDiffLineWithSegments(lineWithSegments, options)
+    ).join('\n');
 
     return `
       <div class="diff-table-container">
@@ -203,15 +226,19 @@ ${this.getEmbeddedCSS(opts.theme)}
     lines: DiffLine[],
     options: Required<HtmlExportOptions>
   ): string {
-    const originalPanelLines = lines.filter(l => l.type !== 'added');
-    const modifiedPanelLines = lines.filter(l => l.type !== 'removed');
-
-    if (originalPanelLines.length === 0 && modifiedPanelLines.length === 0) {
+    if (lines.length === 0) {
       return '<div class="grid grid-cols-2 gap-4"><div class="text-center text-gray-500 p-8">No differences to display</div></div>';
     }
 
-    const originalElements = originalPanelLines.map(line => this.renderDiffLine(line, options)).join('\n');
-    const modifiedElements = modifiedPanelLines.map(line => this.renderDiffLine(line, options)).join('\n');
+    // Use LinePairingService to get paired lines with character segments
+    const { original, modified } = LinePairingService.pairForSideBySideView(lines, true);
+
+    const originalElements = original.map(lineWithSegments =>
+      this.renderDiffLineWithSegments(lineWithSegments, options)
+    ).join('\n');
+    const modifiedElements = modified.map(lineWithSegments =>
+      this.renderDiffLineWithSegments(lineWithSegments, options)
+    ).join('\n');
 
     return `
       <div class="side-by-side-container" role="main" aria-label="Side-by-side diff view">
@@ -243,22 +270,34 @@ ${this.getEmbeddedCSS(opts.theme)}
   }
 
   /**
-   * Render a single diff line as HTML table row
+   * Render a diff line with optional character-level segments
    */
-  private renderDiffLine(line: DiffLine, options: Required<HtmlExportOptions>): string {
+  private renderDiffLineWithSegments(
+    lineWithSegments: LineWithSegments,
+    options: Required<HtmlExportOptions>
+  ): string {
+    const { line, segments } = lineWithSegments;
     const typeClass = `diff-line-${line.type}`;
     const symbol = this.getPrefixSymbol(line.type);
     const lineNumberCell = options.includeLineNumbers
       ? `<td class="line-number">${line.lineNumber}</td>`
       : '';
 
-    const escapedContent = this.escapeHtml(line.content || '');
+    // Use character segments if available, otherwise escape the full content
+    const content = segments
+      ? this.renderCharSegments(segments)
+      : this.escapeHtml(line.content || '');
+
+    // Track if character highlighting is used
+    if (segments && segments.length > 0) {
+      this.hasCharHighlighting = true;
+    }
 
     return `
             <tr class="diff-line ${typeClass}">
               ${lineNumberCell}
               <td class="line-symbol">${symbol}</td>
-              <td class="line-content"><pre>${escapedContent}</pre></td>
+              <td class="line-content"><pre>${content}</pre></td>
             </tr>`;
   }
 
@@ -579,7 +618,19 @@ ${this.getEmbeddedCSS(opts.theme)}
     .diff-line-unchanged .line-content {
       color: var(--unchanged-text);
     }
+${this.hasCharHighlighting ? `
+    /* Character-level highlighting */
+    .char-removed {
+      background-color: #fecaca;
+      color: #991b1b;
+      text-decoration: line-through;
+    }
 
+    .char-added {
+      background-color: #bbf7d0;
+      color: #166534;
+    }
+` : ''}
     /* Side-by-side layout */
     .side-by-side-container {
       display: grid;

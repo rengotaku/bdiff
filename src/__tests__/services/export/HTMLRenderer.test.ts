@@ -369,7 +369,11 @@ describe('HTMLRenderer', () => {
     });
 
     it('char-removed style includes text-decoration line-through', () => {
-      const lines: DiffLine[] = [createLine('unchanged', 'x', 1)];
+      // Need removed+added pair to trigger char diff CSS output
+      const lines: DiffLine[] = [
+        createLine('removed', 'hello world', 1),
+        createLine('added', 'hello there', 2),
+      ];
       const html = renderer.render(lines, { viewMode: 'unified' });
 
       // CSS should include strikethrough for removed characters
