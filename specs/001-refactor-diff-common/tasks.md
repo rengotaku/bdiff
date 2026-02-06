@@ -102,19 +102,19 @@
 
 ### 実装 (GREEN)
 
-- [ ] T029 Read RED tests: specs/001-refactor-diff-common/red-tests/ph3-test.md
-- [ ] T030 [US2] Update getPrefixSymbol in src/utils/diffRendering.ts (remove trailing space)
-- [ ] T031 [P] [US2] Delete getDiffSymbol from src/utils/diffStyling.ts, add import from diffRendering
-- [ ] T032 [P] [US2] Delete getPrefixSymbol from src/services/export/renderers/BaseRenderer.ts, add import
-- [ ] T033 [P] [US2] Delete getDiffSymbol from src/services/export/renderers/HTMLRenderer.ts, add import
-- [ ] T034 [P] [US2] Delete getPrefixSymbol from src/services/svgDiffRenderer.ts, add import
-- [ ] T035 [P] [US2] Delete escapeHtml from src/services/htmlExportService.ts, add import from utils/htmlEscape
-- [ ] T036 Verify `npm test` PASS (GREEN)
+- [x] T029 Read RED tests: specs/001-refactor-diff-common/red-tests/ph3-test.md
+- [x] T030 [US2] Update getPrefixSymbol in src/utils/diffRendering.ts (remove trailing space)
+- [x] T031 [P] [US2] Delete getDiffSymbol from src/utils/diffStyling.ts, add import from diffRendering
+- [x] T032 [P] [US2] Delete getPrefixSymbol from src/services/export/renderers/BaseRenderer.ts, add import
+- [x] T033 [P] [US2] Delete getDiffSymbol from src/services/export/renderers/HTMLRenderer.ts, add import
+- [x] T034 [P] [US2] Delete getPrefixSymbol from src/services/svgDiffRenderer.ts, add import
+- [x] T035 [P] [US2] Delete escapeHtml from src/services/htmlExportService.ts, add import from utils/htmlEscape
+- [x] T036 Verify `npm test` PASS (GREEN)
 
 ### 検証
 
-- [ ] T037 Verify `npm run build` passes
-- [ ] T038 Generate phase output: specs/001-refactor-diff-common/tasks/ph3-output.md
+- [x] T037 Verify `npm run build` passes
+- [x] T038 Generate phase output: specs/001-refactor-diff-common/tasks/ph3-output.md
 
 **Checkpoint**: All duplicate methods removed, single source of truth established
 

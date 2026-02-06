@@ -20,14 +20,19 @@ export const getLineClassName = (type: DiffLine['type']): string => {
 
 export const getPrefixSymbol = (type: DiffLine['type']): string => {
   switch (type) {
-    case 'added': return '+ ';
-    case 'removed': return '- ';
-    case 'modified': return '~ ';
-    default: return '  ';
+    case 'added': return '+';
+    case 'removed': return '-';
+    case 'modified': return '~';
+    default: return ' ';
   }
 };
 
 export const formatLineForCopy = (line: DiffLine): string => {
-  const symbol = getPrefixSymbol(line.type).trim();
+  const symbol = getPrefixSymbol(line.type);
+  // For unchanged lines, we want "  content" (2 spaces)
+  // For other lines, we want "X content" where X is +, -, or ~
+  if (line.type === 'unchanged') {
+    return `  ${line.content || ''}`;
+  }
   return `${symbol} ${line.content || ''}`;
 };

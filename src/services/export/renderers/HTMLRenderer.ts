@@ -247,7 +247,7 @@ ${this.getEmbeddedCSS(opts.theme)}
    */
   private renderDiffLine(line: DiffLine, options: Required<HtmlExportOptions>): string {
     const typeClass = `diff-line-${line.type}`;
-    const symbol = this.getDiffSymbol(line.type);
+    const symbol = this.getPrefixSymbol(line.type);
     const lineNumberCell = options.includeLineNumbers
       ? `<td class="line-number">${line.lineNumber}</td>`
       : '';
@@ -260,22 +260,6 @@ ${this.getEmbeddedCSS(opts.theme)}
               <td class="line-symbol">${symbol}</td>
               <td class="line-content"><pre>${escapedContent}</pre></td>
             </tr>`;
-  }
-
-  /**
-   * Get symbol for diff line type
-   */
-  private getDiffSymbol(type: string): string {
-    switch (type) {
-      case 'added':
-        return '+';
-      case 'removed':
-        return '-';
-      case 'modified':
-        return '~';
-      default:
-        return ' ';
-    }
   }
 
   /**
