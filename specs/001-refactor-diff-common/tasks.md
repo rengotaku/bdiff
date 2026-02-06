@@ -190,20 +190,20 @@
 
 ### 入力
 
-- [ ] T062 Read previous phase output: specs/001-refactor-diff-common/tasks/ph5-output.md
+- [x] T062 Read previous phase output: specs/001-refactor-diff-common/tasks/ph5-output.md
 
 ### 実装
 
-- [ ] T063 [P] Remove any unused imports across modified files
-- [ ] T064 [P] Verify no TODO comments left in code
-- [ ] T065 Run quickstart.md validation checklist
+- [x] T063 [P] Remove any unused imports across modified files
+- [x] T064 [P] Verify no TODO comments left in code
+- [x] T065 Run quickstart.md validation checklist
 
 ### 検証
 
-- [ ] T066 Run `npm test` to verify all tests pass
-- [ ] T067 Run `npm run build` for final build verification
-- [ ] T068 Manual E2E: Compare screen display vs HTML export
-- [ ] T069 Generate phase output: specs/001-refactor-diff-common/tasks/ph6-output.md
+- [x] T066 Run `npm test` to verify all tests pass
+- [x] T067 Run `npm run build` for final build verification
+- [x] T068 Manual E2E: Compare screen display vs HTML export
+- [x] T069 Generate phase output: specs/001-refactor-diff-common/tasks/ph6-output.md
 
 ---
 
