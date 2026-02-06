@@ -198,28 +198,59 @@ export class CharDiffService {
 
   /**
    * Check if two lines are similar enough to warrant character-level diff
+   * Uses multiple heuristics to avoid false positives
    * @param original - Original line
    * @param modified - Modified line
-   * @param threshold - Similarity threshold (0-1), default 0.3
+   * @param threshold - Similarity threshold (0-1), default 0.6
    */
   static shouldShowCharDiff(
     original: string,
     modified: string,
-    threshold: number = 0.3
+    threshold: number = 0.6
   ): boolean {
     if (!original || !modified) return false
     if (original === modified) return false
 
-    // Calculate simple similarity based on common characters
-    const originalChars = new Set(original.split(''))
-    const modifiedChars = new Set(modified.split(''))
+    // Length check: if lengths differ too much, likely not a modified line
+    const lenRatio = Math.min(original.length, modified.length) / Math.max(original.length, modified.length)
+    if (lenRatio < 0.3) return false
 
-    let common = 0
-    for (const char of originalChars) {
-      if (modifiedChars.has(char)) common++
+    // Calculate LCS (Longest Common Subsequence) ratio for better accuracy
+    const lcsLength = this.lcsLength(original, modified)
+    const maxLen = Math.max(original.length, modified.length)
+    const lcsRatio = lcsLength / maxLen
+
+    return lcsRatio >= threshold
+  }
+
+  /**
+   * Calculate the length of the Longest Common Subsequence
+   * Uses optimized space O(min(m,n)) algorithm
+   */
+  private static lcsLength(a: string, b: string): number {
+    // Ensure a is the shorter string for space optimization
+    if (a.length > b.length) {
+      [a, b] = [b, a]
     }
 
-    const similarity = common / Math.max(originalChars.size, modifiedChars.size)
-    return similarity >= threshold
+    const m = a.length
+    const n = b.length
+
+    // Use two rows instead of full matrix
+    let prev = new Array(m + 1).fill(0)
+    let curr = new Array(m + 1).fill(0)
+
+    for (let j = 1; j <= n; j++) {
+      for (let i = 1; i <= m; i++) {
+        if (a[i - 1] === b[j - 1]) {
+          curr[i] = prev[i - 1] + 1
+        } else {
+          curr[i] = Math.max(prev[i], curr[i - 1])
+        }
+      }
+      [prev, curr] = [curr, prev]
+    }
+
+    return prev[m]
   }
 }
