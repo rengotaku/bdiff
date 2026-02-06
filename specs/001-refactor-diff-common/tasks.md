@@ -69,16 +69,16 @@
 
 ### 実装 (GREEN)
 
-- [ ] T018 Read RED tests: specs/001-refactor-diff-common/red-tests/ph2-test.md
-- [ ] T019 [US3] Add LineWithSegments interface to src/types/types.ts
-- [ ] T020 [US3] Create src/services/linePairingService.ts with pairForUnifiedView
-- [ ] T021 [US3] Add pairForSideBySideView to src/services/linePairingService.ts
-- [ ] T022 Verify `npm test` PASS (GREEN)
+- [x] T018 Read RED tests: specs/001-refactor-diff-common/red-tests/ph2-test.md
+- [x] T019 [US3] Add LineWithSegments interface to src/types/types.ts
+- [x] T020 [US3] Create src/services/linePairingService.ts with pairForUnifiedView
+- [x] T021 [US3] Add pairForSideBySideView to src/services/linePairingService.ts
+- [x] T022 Verify `npm test` PASS (GREEN)
 
 ### 検証
 
-- [ ] T023 Verify `npm run build` passes
-- [ ] T024 Generate phase output: specs/001-refactor-diff-common/tasks/ph2-output.md
+- [x] T023 Verify `npm run build` passes
+- [x] T024 Generate phase output: specs/001-refactor-diff-common/tasks/ph2-output.md
 
 **Checkpoint**: LinePairingService should be fully functional and tested
 

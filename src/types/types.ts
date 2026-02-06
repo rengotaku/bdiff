@@ -37,6 +37,17 @@ export interface DiffLine {
 }
 
 /**
+ * Represents a diff line with optional character-level segments
+ * Used for pairing removed/added lines with character diff computation
+ */
+export interface LineWithSegments {
+  /** The diff line data */
+  line: DiffLine;
+  /** Optional character-level segments for highlighting */
+  segments?: CharSegment[];
+}
+
+/**
  * File information interface for uploaded or selected files
  */
 export interface FileInfo {
