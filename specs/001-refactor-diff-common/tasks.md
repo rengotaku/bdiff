@@ -289,10 +289,10 @@ specs/001-refactor-diff-common/
 ```
 
 **チェックリスト**:
-- [ ] LinePairingService入出力テスト
-- [ ] CharDiffService統合テスト (既存)
-- [ ] HTMLRenderer文字セグメントレンダリングテスト
-- [ ] End-to-End テスト（入力→HTML出力）
+- [x] LinePairingService入出力テスト
+- [x] CharDiffService統合テスト (既存)
+- [x] HTMLRenderer文字セグメントレンダリングテスト
+- [x] End-to-End テスト（入力→HTML出力）
 
 ---
 
