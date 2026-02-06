@@ -128,15 +128,15 @@
 
 ### 入力
 
-- [ ] T039 Read previous phase output: specs/001-refactor-diff-common/tasks/ph3-output.md
+- [x] T039 Read previous phase output: specs/001-refactor-diff-common/tasks/ph3-output.md
 
 ### テスト実装 (RED)
 
-- [ ] T040 [P] [US1] Create test for renderCharSegments in src/__tests__/services/export/HTMLRenderer.test.ts
-- [ ] T041 [P] [US1] Create test for unified view with char diff in src/__tests__/services/export/HTMLRenderer.test.ts
-- [ ] T042 [P] [US1] Create test for side-by-side view with char diff in src/__tests__/services/export/HTMLRenderer.test.ts
-- [ ] T043 Verify `npm test` FAIL (RED)
-- [ ] T044 Generate RED output: specs/001-refactor-diff-common/red-tests/ph4-test.md
+- [x] T040 [P] [US1] Create test for renderCharSegments in src/__tests__/services/export/HTMLRenderer.test.ts
+- [x] T041 [P] [US1] Create test for unified view with char diff in src/__tests__/services/export/HTMLRenderer.test.ts
+- [x] T042 [P] [US1] Create test for side-by-side view with char diff in src/__tests__/services/export/HTMLRenderer.test.ts
+- [x] T043 Verify `npm test` FAIL (RED)
+- [x] T044 Generate RED output: specs/001-refactor-diff-common/red-tests/ph4-test.md
 
 ### 実装 (GREEN)
 
