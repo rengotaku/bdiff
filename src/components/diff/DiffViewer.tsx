@@ -120,15 +120,16 @@ SideBySidePanel.displayName = 'SideBySidePanel';
  * Unified diff display component
  */
 const UnifiedPanel = memo<{
-  lines: DiffLine[];
+  lines: LineWithSegments[];
 }>(({ lines }) => (
   <div className="space-y-2">
     <div className="border rounded-md overflow-visible" role="region" aria-label="Unified diff view">
-      {lines.map((line, index) => (
+      {lines.map((item, index) => (
         <DiffLineComponent
-          key={`${line.lineNumber}-${index}`}
-          line={line}
+          key={`${item.line.lineNumber}-${index}`}
+          line={item.line}
           index={index}
+          segments={item.segments}
         />
       ))}
     </div>
@@ -201,6 +202,48 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
     };
   }, [lines, viewMode, enableCharDiff]);
 
+  // Memoize unified view lines with character-level diff
+  const unifiedLinesWithSegments = useMemo(() => {
+    if (viewMode === 'side-by-side') {
+      return [];
+    }
+
+    if (!enableCharDiff) {
+      return lines.map(line => ({ line }));
+    }
+
+    // Find consecutive removed/added pairs and compute char diffs
+    const result: LineWithSegments[] = [];
+    let i = 0;
+
+    while (i < lines.length) {
+      const currentLine = lines[i];
+
+      // Look for removed line followed by added line (a modified pair)
+      if (currentLine.type === 'removed' && i + 1 < lines.length && lines[i + 1].type === 'added') {
+        const removedLine = currentLine;
+        const addedLine = lines[i + 1];
+
+        if (CharDiffService.shouldShowCharDiff(removedLine.content, addedLine.content)) {
+          const { originalSegments, modifiedSegments } = CharDiffService.calculateCharDiff(
+            removedLine.content,
+            addedLine.content
+          );
+          result.push({ line: removedLine, segments: originalSegments });
+          result.push({ line: addedLine, segments: modifiedSegments });
+          i += 2;
+          continue;
+        }
+      }
+
+      // No pair found, just add the line without segments
+      result.push({ line: currentLine });
+      i++;
+    }
+
+    return result;
+  }, [lines, viewMode, enableCharDiff]);
+
   // Render side-by-side view
   if (viewMode === 'side-by-side') {
     return (
@@ -217,10 +260,10 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
     );
   }
 
-  // Render unified view (no character diff for now)
+  // Render unified view with character diff
   return (
     <UnifiedPanel
-      lines={lines}
+      lines={unifiedLinesWithSegments}
     />
   );
 });
