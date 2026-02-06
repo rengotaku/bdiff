@@ -212,31 +212,58 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
       return lines.map(line => ({ line }));
     }
 
-    // Find consecutive removed/added pairs and compute char diffs
+    // Find blocks of removed lines followed by added lines and compute char diffs
     const result: LineWithSegments[] = [];
     let i = 0;
 
     while (i < lines.length) {
       const currentLine = lines[i];
 
-      // Look for removed line followed by added line (a modified pair)
-      if (currentLine.type === 'removed' && i + 1 < lines.length && lines[i + 1].type === 'added') {
-        const removedLine = currentLine;
-        const addedLine = lines[i + 1];
-
-        if (CharDiffService.shouldShowCharDiff(removedLine.content, addedLine.content)) {
-          const { originalSegments, modifiedSegments } = CharDiffService.calculateCharDiff(
-            removedLine.content,
-            addedLine.content
-          );
-          result.push({ line: removedLine, segments: originalSegments });
-          result.push({ line: addedLine, segments: modifiedSegments });
-          i += 2;
-          continue;
+      // Look for a block of removed lines
+      if (currentLine.type === 'removed') {
+        // Collect all consecutive removed lines
+        const removedLines: DiffLine[] = [];
+        while (i < lines.length && lines[i].type === 'removed') {
+          removedLines.push(lines[i]);
+          i++;
         }
+
+        // Collect all consecutive added lines that follow
+        const addedLines: DiffLine[] = [];
+        while (i < lines.length && lines[i].type === 'added') {
+          addedLines.push(lines[i]);
+          i++;
+        }
+
+        // Match removed and added lines by position
+        const maxPairs = Math.max(removedLines.length, addedLines.length);
+        for (let j = 0; j < maxPairs; j++) {
+          const removedLine = removedLines[j];
+          const addedLine = addedLines[j];
+
+          if (removedLine && addedLine &&
+              CharDiffService.shouldShowCharDiff(removedLine.content, addedLine.content)) {
+            // Compute character-level diff for this pair
+            const { originalSegments, modifiedSegments } = CharDiffService.calculateCharDiff(
+              removedLine.content,
+              addedLine.content
+            );
+            result.push({ line: removedLine, segments: originalSegments });
+            result.push({ line: addedLine, segments: modifiedSegments });
+          } else {
+            // No match or not similar enough - add without segments
+            if (removedLine) {
+              result.push({ line: removedLine });
+            }
+            if (addedLine) {
+              result.push({ line: addedLine });
+            }
+          }
+        }
+        continue;
       }
 
-      // No pair found, just add the line without segments
+      // Not a removed line, just add it
       result.push({ line: currentLine });
       i++;
     }
