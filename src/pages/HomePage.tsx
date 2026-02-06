@@ -29,7 +29,9 @@ export const HomePage: React.FC = () => {
     viewMode,
     setViewMode,
     comparisonOptions,
-    setComparisonOptions
+    setComparisonOptions,
+    collapseUnchanged,
+    setCollapseUnchanged
   } = useDiffContext();
 
   const { readFile, isReading, error: fileError } = useFileReader();
@@ -260,6 +262,8 @@ export const HomePage: React.FC = () => {
               options={comparisonOptions}
               onChange={setComparisonOptions}
               disabled={isReading || isProcessing}
+              collapseUnchanged={collapseUnchanged}
+              onCollapseUnchangedChange={setCollapseUnchanged}
             />
           </div>
 
@@ -328,6 +332,7 @@ export const HomePage: React.FC = () => {
               onExportSuccess={(filename) => showSuccessToast(t('export.success'), t('export.successMessage', { filename }))}
               onExportError={(error) => showErrorToast(t('export.error'), error)}
               enableCharDiff={comparisonOptions.enableCharDiff}
+              collapseUnchanged={collapseUnchanged}
             />
           </div>
         )}

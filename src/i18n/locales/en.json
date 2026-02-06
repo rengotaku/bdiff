@@ -39,7 +39,10 @@
     "ignoreTrailingNewlinesTooltip": "Ignore final empty lines",
     "enableCharDiff": "Character highlighting",
     "enableCharDiffLabel": "Character highlighting",
-    "enableCharDiffTooltip": "Highlight changed characters within lines"
+    "enableCharDiffTooltip": "Highlight changed characters within lines",
+    "collapseUnchanged": "Collapse unchanged",
+    "collapseUnchangedLabel": "Collapse unchanged",
+    "collapseUnchangedTooltip": "Show only context around changes (GitHub-style)"
   },
   "diffViewer": {
     "viewMode": {

@@ -48,6 +48,72 @@ export interface LineWithSegments {
 }
 
 /**
+ * Represents a paired line for side-by-side view
+ * Both sides may have content, or one side may be null for insertions/deletions
+ */
+export interface LinePair {
+  /** Original (left) side line, null if line was added */
+  original: LineWithSegments | null;
+  /** Modified (right) side line, null if line was removed */
+  modified: LineWithSegments | null;
+}
+
+/**
+ * Represents a collapsed block of unchanged lines
+ * Used for GitHub-style context line display
+ */
+export interface CollapsedBlock {
+  /** Discriminator for type checking */
+  type: 'collapsed';
+  /** Number of lines that are hidden */
+  count: number;
+  /** Original side starting line number */
+  originalStartLine: number;
+  /** Modified side starting line number */
+  modifiedStartLine: number;
+  /** The actual collapsed line pairs (for expansion) */
+  lines: LinePair[];
+}
+
+/**
+ * Union type for side-by-side view items (line pair or collapsed block)
+ */
+export type SideBySideRow = LinePair | CollapsedBlock;
+
+/**
+ * Type guard to check if a row is a collapsed block
+ */
+export function isCollapsedBlock(row: SideBySideRow): row is CollapsedBlock {
+  return 'type' in row && row.type === 'collapsed';
+}
+
+/**
+ * Represents a collapsed block for unified view
+ */
+export interface UnifiedCollapsedBlock {
+  /** Discriminator for type checking */
+  type: 'collapsed';
+  /** Number of lines that are hidden */
+  count: number;
+  /** Starting line number */
+  startLine: number;
+  /** The actual collapsed lines (for expansion) */
+  lines: LineWithSegments[];
+}
+
+/**
+ * Union type for unified view items
+ */
+export type UnifiedRow = LineWithSegments | UnifiedCollapsedBlock;
+
+/**
+ * Type guard to check if a unified row is a collapsed block
+ */
+export function isUnifiedCollapsedBlock(row: UnifiedRow): row is UnifiedCollapsedBlock {
+  return 'type' in row && row.type === 'collapsed';
+}
+
+/**
  * File information interface for uploaded or selected files
  */
 export interface FileInfo {

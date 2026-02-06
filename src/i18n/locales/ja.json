@@ -39,7 +39,10 @@
     "ignoreTrailingNewlinesTooltip": "最後の空行を無視",
     "enableCharDiff": "文字単位ハイライト",
     "enableCharDiffLabel": "文字単位ハイライト",
-    "enableCharDiffTooltip": "変更された文字を行内でハイライト表示"
+    "enableCharDiffTooltip": "変更された文字を行内でハイライト表示",
+    "collapseUnchanged": "変更なし行を省略",
+    "collapseUnchangedLabel": "変更なし行を省略",
+    "collapseUnchangedTooltip": "変更行の前後のみ表示（GitHub風）"
   },
   "diffViewer": {
     "viewMode": {
