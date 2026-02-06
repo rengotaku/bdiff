@@ -331,3 +331,10 @@ npm run preview
 **プロジェクトURL**: https://github.com/rengotaku/bdiff
 **ライセンス**: ISC
 **開発環境**: Node.js 18+
+
+## Active Technologies
+- TypeScript 5.9.2 + React 19.1.1, Vite 7.1.5, Tailwind CSS 3.4.17 (001-refactor-diff-common)
+- N/A（クライアントサイドのみ） (001-refactor-diff-common)
+
+## Recent Changes
+- 001-refactor-diff-common: Added TypeScript 5.9.2 + React 19.1.1, Vite 7.1.5, Tailwind CSS 3.4.17

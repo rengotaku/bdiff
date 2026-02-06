@@ -98,6 +98,129 @@ Unified表示でのremoved行とadded行のペアリングが、画面表示とH
 - **SC-004**: ペアリングロジックが1箇所に集約される
 - **SC-005**: 既存の画面表示機能に影響がない（リグレッションなし）
 
+## Clarifications
+
+### Session 2026-02-06
+
+- Q: 共通化すべき箇所・すべきでない箇所は何か → A: 下記「共通化分析結果」参照
+- Q: 共通化の判断基準は何か → A: 下記「共通化判断基準」参照
+- Q: 共通化コンポーネントはどこに置くか → A: 下記「ファイル配置方針」参照
+- Q: テストフレームワークは何を使うか → A: **Vitest**（Viteネイティブ、設定簡単、高速）
+
+## 共通化判断基準
+
+### 共通化すべき条件
+
+| 基準 | 説明 |
+|------|------|
+| **同一ロジック・同一出力** | 入力が同じなら出力も同じであるべき |
+| **バグ修正の波及** | 1箇所修正したら全箇所に反映すべき |
+| **テスト容易性** | 1箇所テストすれば全体をカバー |
+| **副作用なし** | 状態を持たない純粋関数 |
+
+### 共通化すべきでない条件
+
+| 基準 | 説明 |
+|------|------|
+| **出力形式が異なる** | 同じ概念でも出力が違う（Tailwind vs CSSクラス名） |
+| **依存先が異なる** | React vs 静的HTML |
+| **拡張方向が異なる** | 将来的に分岐する可能性 |
+| **コンテキスト依存** | 実行環境に依存（DOM操作等） |
+
+### 判断フロー
+
+```
+同じ機能か？
+  ├─ Yes → 出力形式は同じか？
+  │         ├─ Yes → 依存先は同じか？
+  │         │         ├─ Yes → ✅ 共通化すべき
+  │         │         └─ No  → ⚠️ アダプターで吸収検討
+  │         └─ No  → ❌ 共通化すべきでない
+  └─ No  → ❌ 共通化すべきでない
+```
+
+## ファイル配置方針
+
+### 配置ルール
+
+| 種類 | 配置先 | 基準 |
+|------|--------|------|
+| **純粋関数** | `src/utils/` | 副作用なし、入力→出力のみ |
+| **ビジネスロジック** | `src/services/` | 複雑な計算、状態管理 |
+| **型定義** | `src/types/` | interface, type のみ |
+| **UIコンポーネント** | `src/components/` | React専用（共通化対象外） |
+
+### 新規作成ファイル
+
+| ファイル | 内容 |
+|---------|------|
+| `src/services/linePairingService.ts` | ペアリングロジック抽出 |
+| `vitest.config.ts` | Vitest設定 |
+| `src/services/__tests__/linePairingService.test.ts` | ペアリングロジックのテスト |
+| `src/services/__tests__/charDiffService.test.ts` | 文字差分計算のテスト |
+
+### 削除対象メソッド
+
+| ファイル | 削除対象 |
+|---------|---------|
+| `services/export/renderers/HTMLRenderer.ts` | `getDiffSymbol()` |
+| `services/export/renderers/BaseRenderer.ts` | `getPrefixSymbol()` |
+| `services/svgDiffRenderer.ts` | `getPrefixSymbol()` |
+| `utils/diffStyling.ts` | `getDiffSymbol()` |
+| `services/htmlExportService.ts` | `escapeHtml()`
+
+## 共通化分析結果
+
+### 共通化すべき箇所（重複排除対象）
+
+| 機能 | 現在の実装箇所 | 推奨統一先 | 理由 |
+|------|---------------|-----------|------|
+| **差分記号取得** | `utils/diffRendering.ts::getPrefixSymbol` | `utils/diffRendering.ts` | 既に共通化されているが未使用箇所あり |
+| | `utils/diffStyling.ts::DiffStyler.getDiffSymbol` | （削除） | 重複 |
+| | `services/export/renderers/BaseRenderer.ts::getPrefixSymbol` | （削除） | 重複 |
+| | `services/export/renderers/HTMLRenderer.ts::getDiffSymbol` | （削除） | 重複 |
+| | `services/svgDiffRenderer.ts::getPrefixSymbol` | （削除） | 重複 |
+| **行クラス名生成** | `utils/diffRendering.ts::getLineClassName` | `utils/diffRendering.ts` | Tailwindクラス用（React向け） |
+| | `utils/diffStyling.ts::DiffStyler.getLineClass` | 維持（CSS用） | 別用途：CSSクラス名のみ返す |
+| **HTMLエスケープ** | `utils/htmlEscape.ts::escapeHtml` | `utils/htmlEscape.ts` | 既に共通化済み |
+| | `services/htmlExportService.ts::escapeHtml` | （削除） | 重複・DOM依存 |
+| **文字差分計算** | `services/charDiffService.ts` | 維持 | HTMLRendererで流用すべき |
+| **ペアリングロジック** | `components/diff/DiffViewer.tsx`（内部） | 新規抽出：`services/linePairingService.ts` | 共通化必須 |
+
+### 共通化すべきでない箇所（維持）
+
+| 機能 | ファイル | 理由 |
+|------|---------|------|
+| **React用行スタイル** | `utils/diffRendering.ts::getLineClassName` | Tailwindクラス文字列を返す（React専用） |
+| **CSS用行クラス** | `utils/diffStyling.ts::DiffStyler.getLineClass` | CSSクラス名のみ返す（HTML/SVG用） |
+| **CharSegmentRenderer** | `components/diff/DiffViewer.tsx` | Reactコンポーネント（HTML版は別実装必要） |
+| **SideBySidePanel/UnifiedPanel** | `components/diff/DiffViewer.tsx` | Reactコンポーネント（レンダリング層は分離） |
+| **埋め込みCSS生成** | `services/tailwindEmbedded.ts` | HTMLエクスポート専用 |
+| **SVG生成ロジック** | `services/svgDiffRenderer.ts` | SVGエクスポート専用（削除候補かは別検討） |
+
+### 統合後の構成
+
+```
+src/
+├── utils/
+│   ├── diffRendering.ts      # 共通ユーティリティ（統一版）
+│   │   ├── getPrefixSymbol()  # 差分記号（全箇所で使用）
+│   │   ├── getLineClassName() # Tailwindクラス（React用）
+│   │   └── formatLineForCopy()
+│   ├── diffStyling.ts        # CSSクラス名（HTML/SVG用）
+│   │   └── DiffStyler.getLineClass()
+│   └── htmlEscape.ts         # HTMLエスケープ（共通）
+├── services/
+│   ├── charDiffService.ts    # 文字差分計算（共通）
+│   ├── linePairingService.ts # 【新規】ペアリングロジック
+│   └── export/
+│       └── renderers/
+│           └── HTMLRenderer.ts # CharDiffService + LinePairingService使用
+└── components/
+    └── diff/
+        └── DiffViewer.tsx    # CharDiffService + LinePairingService使用
+```
+
 ## 前提条件
 
 - CharDiffServiceは既に実装済みで、画面表示で正常動作している
