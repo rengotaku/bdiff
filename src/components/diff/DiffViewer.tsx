@@ -1,6 +1,6 @@
 import React, { useMemo, memo } from 'react';
 import { getLineClassName, getPrefixSymbol } from '../../utils/diffRendering';
-import type { DiffLine, ViewMode, CharSegment, LineWithSegments } from '../../types/types';
+import type { DiffLine, ViewMode, CharSegment, LineWithSegments, LinePair } from '../../types/types';
 import { LinePairingService } from '../../services/linePairingService';
 
 export interface DiffViewerProps {
@@ -57,7 +57,7 @@ const DiffLineComponent = memo<{
   return (
     <div
       key={index}
-      className="flex items-start hover:bg-gray-25 transition-colors duration-150"
+      className="flex items-stretch hover:bg-gray-25 transition-colors duration-150 h-full"
     >
       <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none">
         {line.lineNumber}
@@ -83,30 +83,96 @@ const DiffLineComponent = memo<{
 DiffLineComponent.displayName = 'DiffLineComponent';
 
 /**
- * Side-by-side diff panel component
+ * Empty line placeholder for side-by-side view
+ * Used when one side has no corresponding line (insertion or deletion)
  */
-const SideBySidePanel = memo<{
-  lines: LineWithSegments[];
-  title: string;
-}>(({ lines, title }) => (
-  <div className="space-y-1">
-    <div className="flex items-center justify-between mb-2 px-4">
-      <div className="font-medium text-sm text-gray-700">{title}</div>
+const EmptyLineCell = memo(() => (
+  <div className="flex items-stretch hover:bg-gray-25 transition-colors duration-150 h-full">
+    <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-300 bg-gray-50 border-r select-none">
+      &nbsp;
     </div>
-    <div className="border rounded-md overflow-visible" role="region" aria-label={title}>
-      {lines.map((item, index) => (
-        <DiffLineComponent
-          key={`${item.line.lineNumber}-${index}`}
-          line={item.line}
+    <div className="flex-1 min-w-0 bg-gray-100">
+      <div className="px-3 py-1">
+        <span className="font-mono text-sm text-gray-300">&nbsp;</span>
+      </div>
+    </div>
+  </div>
+));
+
+EmptyLineCell.displayName = 'EmptyLineCell';
+
+/**
+ * Single cell in side-by-side view (one side of a line pair)
+ */
+const SideBySideCell = memo<{
+  item: LineWithSegments | null;
+  index: number;
+}>(({ item, index }) => {
+  if (!item) {
+    return <EmptyLineCell />;
+  }
+
+  return (
+    <div className="h-full">
+      <DiffLineComponent
+        line={item.line}
+        index={index}
+        segments={item.segments}
+      />
+    </div>
+  );
+});
+
+SideBySideCell.displayName = 'SideBySideCell';
+
+/**
+ * Side-by-side pair row component
+ * Renders original and modified lines in the same grid row for height synchronization
+ */
+const SideBySidePairRow = memo<{
+  pair: LinePair;
+  index: number;
+}>(({ pair, index }) => (
+  <div className="grid grid-cols-2">
+    <div className="border-r border-gray-200">
+      <SideBySideCell item={pair.original} index={index} />
+    </div>
+    <SideBySideCell item={pair.modified} index={index} />
+  </div>
+));
+
+SideBySidePairRow.displayName = 'SideBySidePairRow';
+
+/**
+ * Side-by-side view with synchronized line heights
+ */
+const SideBySideView = memo<{
+  pairs: LinePair[];
+}>(({ pairs }) => (
+  <div role="main" aria-label="Side-by-side diff view">
+    {/* Header row */}
+    <div className="grid grid-cols-2 mb-2">
+      <div className="px-4">
+        <div className="font-medium text-sm text-gray-700">Original</div>
+      </div>
+      <div className="px-4">
+        <div className="font-medium text-sm text-gray-700">Modified</div>
+      </div>
+    </div>
+    {/* Line pairs */}
+    <div className="overflow-visible">
+      {pairs.map((pair, index) => (
+        <SideBySidePairRow
+          key={`pair-${index}`}
+          pair={pair}
           index={index}
-          segments={item.segments}
         />
       ))}
     </div>
   </div>
 ));
 
-SideBySidePanel.displayName = 'SideBySidePanel';
+SideBySideView.displayName = 'SideBySideView';
 
 /**
  * Unified diff display component
@@ -141,18 +207,13 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
   viewMode,
   enableCharDiff = true
 }) => {
-  // Memoize filtered lines for side-by-side view with character-level diff
-  const { originalLinesWithSegments, modifiedLinesWithSegments } = useMemo(() => {
+  // Memoize line pairs for side-by-side view with synchronized heights
+  const sideBySidePairs = useMemo(() => {
     if (viewMode !== 'side-by-side') {
-      return { originalLinesWithSegments: [], modifiedLinesWithSegments: [] };
+      return [];
     }
 
-    const { original, modified } = LinePairingService.pairForSideBySideView(lines, enableCharDiff);
-
-    return {
-      originalLinesWithSegments: original,
-      modifiedLinesWithSegments: modified
-    };
+    return LinePairingService.pairLinesForSideBySide(lines, enableCharDiff);
   }, [lines, viewMode, enableCharDiff]);
 
   // Memoize unified view lines with character-level diff
@@ -164,20 +225,9 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
     return LinePairingService.pairForUnifiedView(lines, enableCharDiff);
   }, [lines, viewMode, enableCharDiff]);
 
-  // Render side-by-side view
+  // Render side-by-side view with synchronized row heights
   if (viewMode === 'side-by-side') {
-    return (
-      <div className="grid grid-cols-2 gap-4" role="main" aria-label="Side-by-side diff view">
-        <SideBySidePanel
-          lines={originalLinesWithSegments}
-          title="Original"
-        />
-        <SideBySidePanel
-          lines={modifiedLinesWithSegments}
-          title="Modified"
-        />
-      </div>
-    );
+    return <SideBySideView pairs={sideBySidePairs} />;
   }
 
   // Render unified view with character diff

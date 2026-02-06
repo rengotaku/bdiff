@@ -48,6 +48,17 @@ export interface LineWithSegments {
 }
 
 /**
+ * Represents a paired line for side-by-side view
+ * Both sides may have content, or one side may be null for insertions/deletions
+ */
+export interface LinePair {
+  /** Original (left) side line, null if line was added */
+  original: LineWithSegments | null;
+  /** Modified (right) side line, null if line was removed */
+  modified: LineWithSegments | null;
+}
+
+/**
  * File information interface for uploaded or selected files
  */
 export interface FileInfo {
