@@ -1,27 +1,53 @@
 import type { DiffResult, DiffLine, DiffStats, DiffType, ComparisonOptions } from '../types/types'
 import { TextPreprocessor } from '../utils/textPreprocessor'
+import { diffLines, type Change } from 'diff'
 
 interface Edit {
   op: 'add' | 'delete' | 'equal'
   text: string
 }
 
+/** Diff algorithm type */
+export type DiffAlgorithm = 'builtin' | 'jsdiff';
+
+/** Extended options with algorithm selection */
+export interface DiffCalculationOptions extends ComparisonOptions {
+  algorithm?: DiffAlgorithm;
+}
+
 export class DiffService {
+  /** Current algorithm (can be changed at runtime) */
+  private static currentAlgorithm: DiffAlgorithm = 'jsdiff';
+
   /**
-   * Myers差分アルゴリズムを使用してテキストの差分を計算
+   * Set the default diff algorithm
+   */
+  static setAlgorithm(algorithm: DiffAlgorithm): void {
+    this.currentAlgorithm = algorithm;
+  }
+
+  /**
+   * Get the current diff algorithm
+   */
+  static getAlgorithm(): DiffAlgorithm {
+    return this.currentAlgorithm;
+  }
+
+  /**
+   * 差分を計算（アルゴリズム切り替え可能）
    * @param original - Original text
    * @param modified - Modified text
-   * @param options - Optional comparison options
+   * @param options - Optional comparison options (including algorithm selection)
    */
   static calculateDiff(
-    original: string, 
-    modified: string, 
-    options?: ComparisonOptions
+    original: string,
+    modified: string,
+    options?: DiffCalculationOptions
   ): DiffResult {
     // Apply preprocessing if options are provided
     let processedOriginal = original;
     let processedModified = modified;
-    
+
     if (options && TextPreprocessor.hasActiveOptions(options)) {
       [processedOriginal, processedModified] = TextPreprocessor.preprocessTexts(
         original,
@@ -29,55 +55,130 @@ export class DiffService {
         options
       );
     }
-    
-    const originalLines = processedOriginal.split('\n')
-    const modifiedLines = processedModified.split('\n')
-    
-    const edits = this.computeDiff(originalLines, modifiedLines)
-    const lines = this.createDiffLines(edits)
-    const stats = this.calculateStats(lines)
-    
-    return { lines, stats }
+
+    // Select algorithm
+    const algorithm = options?.algorithm ?? this.currentAlgorithm;
+
+    if (algorithm === 'jsdiff') {
+      return this.calculateDiffWithJsDiff(processedOriginal, processedModified);
+    } else {
+      return this.calculateDiffWithBuiltin(processedOriginal, processedModified);
+    }
   }
 
   /**
-   * Myers差分アルゴリズムの実装
+   * jsdiff ライブラリを使用した差分計算
    */
-  private static computeDiff(a: string[], b: string[]): Edit[] {
+  private static calculateDiffWithJsDiff(original: string, modified: string): DiffResult {
+    const changes: Change[] = diffLines(original, modified);
+    const lines = this.convertJsDiffToLines(changes);
+    const stats = this.calculateStats(lines);
+    return { lines, stats };
+  }
+
+  /**
+   * jsdiff の出力を DiffLine[] に変換
+   */
+  private static convertJsDiffToLines(changes: Change[]): DiffLine[] {
+    const lines: DiffLine[] = [];
+    let originalLineNum = 1;
+    let modifiedLineNum = 1;
+    let globalLineNum = 1;
+
+    for (const change of changes) {
+      // Split by newline, handling trailing newline
+      const content = change.value;
+      const lineTexts = content.split('\n');
+
+      // Remove last empty element if content ends with newline
+      if (lineTexts[lineTexts.length - 1] === '') {
+        lineTexts.pop();
+      }
+
+      for (const text of lineTexts) {
+        let type: DiffType;
+        let originalNum: number | undefined;
+        let modifiedNum: number | undefined;
+
+        if (change.added) {
+          type = 'added';
+          originalNum = undefined;
+          modifiedNum = modifiedLineNum++;
+        } else if (change.removed) {
+          type = 'removed';
+          originalNum = originalLineNum++;
+          modifiedNum = undefined;
+        } else {
+          type = 'unchanged';
+          originalNum = originalLineNum++;
+          modifiedNum = modifiedLineNum++;
+        }
+
+        lines.push({
+          lineNumber: globalLineNum++,
+          content: text,
+          type,
+          originalLineNumber: originalNum,
+          newLineNumber: modifiedNum
+        });
+      }
+    }
+
+    return lines;
+  }
+
+  /**
+   * 自前のMyers差分アルゴリズムを使用した差分計算
+   */
+  private static calculateDiffWithBuiltin(original: string, modified: string): DiffResult {
+    const originalLines = original.split('\n');
+    const modifiedLines = modified.split('\n');
+
+    const edits = this.computeMyersDiff(originalLines, modifiedLines);
+    const lines = this.createDiffLines(edits);
+    const stats = this.calculateStats(lines);
+
+    return { lines, stats };
+  }
+
+  /**
+   * Myers差分アルゴリズムの実装（自前実装）
+   */
+  private static computeMyersDiff(a: string[], b: string[]): Edit[] {
     const m = a.length
     const n = b.length
     const max = m + n
-    
+
     const v: number[] = new Array(2 * max + 1).fill(0)
     const trace: number[][] = []
-    
+
     for (let d = 0; d <= max; d++) {
       trace.push([...v])
-      
+
       for (let k = -d; k <= d; k += 2) {
         let x: number
-        
+
         if (k === -d || (k !== d && v[max + k - 1] < v[max + k + 1])) {
           x = v[max + k + 1]
         } else {
           x = v[max + k - 1] + 1
         }
-        
+
         let y = x - k
-        
+
         while (x < m && y < n && a[x] === b[y]) {
           x++
           y++
         }
-        
+
         v[max + k] = x
-        
+
         if (x >= m && y >= n) {
           return this.backtrack(a, b, trace, d, max)
         }
       }
     }
-    
+
     return []
   }
 
@@ -88,27 +189,27 @@ export class DiffService {
     const edits: Edit[] = []
     let x = a.length
     let y = b.length
-    
+
     for (let depth = d; depth >= 0; depth--) {
       const v = trace[depth]
       const k = x - y
-      
+
       let prevK: number
       if (k === -depth || (k !== depth && v[max + k - 1] < v[max + k + 1])) {
         prevK = k + 1
       } else {
         prevK = k - 1
       }
-      
+
       const prevX = v[max + prevK]
       const prevY = prevX - prevK
-      
+
       while (x > prevX && y > prevY) {
         edits.unshift({ op: 'equal', text: a[x - 1] })
         x--
         y--
       }
-      
+
       if (depth > 0) {
         if (x > prevX) {
           edits.unshift({ op: 'delete', text: a[x - 1] })
@@ -119,7 +220,7 @@ export class DiffService {
         }
       }
     }
-    
+
     return edits
   }
 
@@ -223,16 +324,16 @@ export class DiffService {
 
     const originalWords = original.toLowerCase().split(/\s+/)
     const modifiedWords = modified.toLowerCase().split(/\s+/)
-    
+
     const commonWords = new Set()
     const allWords = new Set([...originalWords, ...modifiedWords])
-    
+
     for (const word of originalWords) {
       if (modifiedWords.includes(word)) {
         commonWords.add(word)
       }
     }
-    
+
     return Math.round((commonWords.size / allWords.size) * 100)
   }
 
