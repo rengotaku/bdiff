@@ -236,10 +236,9 @@ export class LinePairingService {
    * on the same row, enabling proper height synchronization.
    *
    * Algorithm:
-   * 1. Process lines sequentially
-   * 2. Unchanged lines: create pair with same content on both sides
-   * 3. Removed/added blocks: match by content similarity, not position
-   * 4. Compute character diff for paired removed/added lines if enabled
+   * 1. First pass: Collect ALL removed and added lines with their positions
+   * 2. Global content-based matching across ALL removed/added lines
+   * 3. Second pass: Build pairs maintaining original order
    *
    * @param lines - All diff lines
    * @param enableCharDiff - Whether to compute character-level diff
@@ -253,16 +252,43 @@ export class LinePairingService {
       return [];
     }
 
+    // First pass: Collect all removed and added lines with their indices
+    const allRemoved: { line: DiffLine; index: number }[] = [];
+    const allAdded: { line: DiffLine; index: number }[] = [];
+
+    lines.forEach((line, index) => {
+      if (line.type === 'removed') {
+        allRemoved.push({ line, index });
+      } else if (line.type === 'added') {
+        allAdded.push({ line, index });
+      }
+    });
+
+    // Global content-based matching
+    const globalMatches = this.matchByContent(
+      allRemoved.map(r => r.line),
+      allAdded.map(a => a.line)
+    );
+
+    // Create mappings: removed index -> added item, added index -> removed item
+    const removedToAdded = new Map<number, { line: DiffLine; index: number }>();
+    const addedToRemoved = new Map<number, { line: DiffLine; index: number }>();
+
+    for (const { removedIdx, addedIdx } of globalMatches) {
+      removedToAdded.set(allRemoved[removedIdx].index, allAdded[addedIdx]);
+      addedToRemoved.set(allAdded[addedIdx].index, allRemoved[removedIdx]);
+    }
+
+    // Second pass: Build pairs
     const pairs: LinePair[] = [];
-    let i = 0;
     let originalLineNum = 1;
     let modifiedLineNum = 1;
+    const processedAddedIndices = new Set<number>();
 
-    while (i < lines.length) {
+    for (let i = 0; i < lines.length; i++) {
       const currentLine = lines[i];
 
       if (currentLine.type === 'unchanged') {
-        // Unchanged lines appear on both sides with their respective line numbers
         const originalLine: DiffLine = { ...currentLine, lineNumber: originalLineNum };
         const modifiedLine: DiffLine = { ...currentLine, lineNumber: modifiedLineNum };
         pairs.push({
@@ -271,85 +297,61 @@ export class LinePairingService {
         });
         originalLineNum++;
         modifiedLineNum++;
-        i++;
         continue;
       }
 
-      // Collect consecutive removed lines
-      const removedLines: DiffLine[] = [];
-      while (i < lines.length && lines[i].type === 'removed') {
-        removedLines.push(lines[i]);
-        i++;
-      }
-
-      // Collect consecutive added lines
-      const addedLines: DiffLine[] = [];
-      while (i < lines.length && lines[i].type === 'added') {
-        addedLines.push(lines[i]);
-        i++;
-      }
-
-      // Match by content similarity instead of position
-      const matches = this.matchByContent(removedLines, addedLines);
-
-      // Create a mapping for quick lookup
-      const removedToAdded = new Map<number, number>();
-      for (const { removedIdx, addedIdx } of matches) {
-        removedToAdded.set(removedIdx, addedIdx);
-      }
-
-      // Track which added lines have been processed
-      const processedAdded = new Set<number>();
-
-      for (let j = 0; j < removedLines.length; j++) {
-        const removedLine = removedLines[j];
-        const addedIdx = removedToAdded.get(j);
-        const addedLine = addedIdx !== undefined ? addedLines[addedIdx] : null;
-
-        if (addedLine !== null) {
-          processedAdded.add(addedIdx!);
-        }
-
-        // Create copies with correct line numbers
-        const originalWithLineNum: DiffLine = { ...removedLine, lineNumber: originalLineNum };
+      if (currentLine.type === 'removed') {
+        const matchedAdded = removedToAdded.get(i);
+        const originalWithLineNum: DiffLine = { ...currentLine, lineNumber: originalLineNum };
         originalLineNum++;
 
-        const modifiedWithLineNum = addedLine
-          ? { ...addedLine, lineNumber: modifiedLineNum }
-          : null;
-        if (addedLine) modifiedLineNum++;
+        if (matchedAdded) {
+          // Mark this added line as processed
+          processedAddedIndices.add(matchedAdded.index);
 
-        if (enableCharDiff && modifiedWithLineNum &&
-            CharDiffService.shouldShowCharDiff(originalWithLineNum.content, modifiedWithLineNum.content)) {
-          // Compute character-level diff for this pair
-          const { originalSegments, modifiedSegments } = CharDiffService.calculateCharDiff(
-            originalWithLineNum.content,
-            modifiedWithLineNum.content
-          );
-          pairs.push({
-            original: { line: originalWithLineNum, segments: originalSegments },
-            modified: { line: modifiedWithLineNum, segments: modifiedSegments }
-          });
-        } else {
-          pairs.push({
-            original: { line: originalWithLineNum },
-            modified: modifiedWithLineNum ? { line: modifiedWithLineNum } : null
-          });
-        }
-      }
-
-      // Process unmatched added lines (those without corresponding removed lines)
-      for (let j = 0; j < addedLines.length; j++) {
-        if (!processedAdded.has(j)) {
-          const addedLine = addedLines[j];
-          const modifiedWithLineNum: DiffLine = { ...addedLine, lineNumber: modifiedLineNum };
+          const modifiedWithLineNum: DiffLine = { ...matchedAdded.line, lineNumber: modifiedLineNum };
           modifiedLineNum++;
 
+          if (enableCharDiff &&
+              CharDiffService.shouldShowCharDiff(originalWithLineNum.content, modifiedWithLineNum.content)) {
+            const { originalSegments, modifiedSegments } = CharDiffService.calculateCharDiff(
+              originalWithLineNum.content,
+              modifiedWithLineNum.content
+            );
+            pairs.push({
+              original: { line: originalWithLineNum, segments: originalSegments },
+              modified: { line: modifiedWithLineNum, segments: modifiedSegments }
+            });
+          } else {
+            pairs.push({
+              original: { line: originalWithLineNum },
+              modified: { line: modifiedWithLineNum }
+            });
+          }
+        } else {
+          // No match - removed only
           pairs.push({
-            original: null,
-            modified: { line: modifiedWithLineNum }
+            original: { line: originalWithLineNum },
+            modified: null
           });
         }
+        continue;
+      }
+
+      if (currentLine.type === 'added') {
+        // Skip if already processed as part of a match
+        if (processedAddedIndices.has(i)) {
+          continue;
+        }
+
+        // Unmatched added line
+        const modifiedWithLineNum: DiffLine = { ...currentLine, lineNumber: modifiedLineNum };
+        modifiedLineNum++;
+
+        pairs.push({
+          original: null,
+          modified: { line: modifiedWithLineNum }
+        });
       }
     }
 
