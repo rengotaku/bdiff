@@ -62,11 +62,11 @@ const DiffLineComponent = memo<{
       key={index}
       className="flex items-stretch hover:bg-gray-25 transition-colors duration-150 h-full"
     >
-      <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none">
+      <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none flex items-center">
         {line.lineNumber}
       </div>
-      <div className="flex-1 min-w-0">
-        <div className={getLineClassName(line.type)}>
+      <div className="flex-1 min-w-0 h-full flex">
+        <div className={`${getLineClassName(line.type)} flex-1 flex items-start`}>
           <span className="text-gray-400 select-none mr-2" aria-hidden="true">
             {getPrefixSymbol(line.type)}
           </span>
@@ -91,11 +91,11 @@ DiffLineComponent.displayName = 'DiffLineComponent';
  */
 const EmptyLineCell = memo(() => (
   <div className="flex items-stretch hover:bg-gray-25 transition-colors duration-150 h-full">
-    <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-300 bg-gray-50 border-r select-none">
+    <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-300 bg-gray-50 border-r select-none flex items-center">
       &nbsp;
     </div>
-    <div className="flex-1 min-w-0 bg-gray-100">
-      <div className="px-3 py-1">
+    <div className="flex-1 min-w-0 h-full flex">
+      <div className="flex-1 bg-gray-100 border-l-4 border-gray-200 px-4 py-1">
         <span className="font-mono text-sm text-gray-300">&nbsp;</span>
       </div>
     </div>
@@ -136,11 +136,13 @@ const SideBySidePairRow = memo<{
   pair: LinePair;
   index: number;
 }>(({ pair, index }) => (
-  <div className="grid grid-cols-2">
-    <div className="border-r border-gray-200">
+  <div className="grid grid-cols-2 items-stretch">
+    <div className="border-r border-gray-200 min-h-full">
       <SideBySideCell item={pair.original} index={index} />
     </div>
-    <SideBySideCell item={pair.modified} index={index} />
+    <div className="min-h-full">
+      <SideBySideCell item={pair.modified} index={index} />
+    </div>
   </div>
 ));
 
