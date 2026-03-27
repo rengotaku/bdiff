@@ -62,7 +62,7 @@ const DiffLineComponent = memo<{
       key={index}
       className="flex items-stretch hover:bg-gray-25 transition-colors duration-150 h-full"
     >
-      <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none flex items-center">
+      <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none">
         {line.lineNumber}
       </div>
       <div className="flex-1 min-w-0 h-full flex">
@@ -91,7 +91,7 @@ DiffLineComponent.displayName = 'DiffLineComponent';
  */
 const EmptyLineCell = memo(() => (
   <div className="flex items-stretch hover:bg-gray-25 transition-colors duration-150 h-full">
-    <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-300 bg-gray-50 border-r select-none flex items-center">
+    <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-300 bg-gray-50 border-r select-none">
       &nbsp;
     </div>
     <div className="flex-1 min-w-0 h-full flex">
