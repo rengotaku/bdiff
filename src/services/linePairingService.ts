@@ -1,11 +1,47 @@
 import type { DiffLine, LineWithSegments, LinePair, SideBySideRow, CollapsedBlock, UnifiedRow, UnifiedCollapsedBlock } from '../types/types';
 import { CharDiffService } from './charDiffService';
 
+/** Matching algorithm type */
+export type MatchingAlgorithm = 'greedy' | 'recursive';
+
 /**
  * Service for pairing removed/added lines in diff views
  * Extracts common pairing logic used by both screen display and HTML export
  */
 export class LinePairingService {
+  /** Current matching algorithm (can be changed at runtime) */
+  private static currentAlgorithm: MatchingAlgorithm = 'greedy';
+
+  /** Similarity threshold for matching (0-1) */
+  private static similarityThreshold = 0.5;
+
+  /**
+   * Set the matching algorithm
+   */
+  static setAlgorithm(algorithm: MatchingAlgorithm): void {
+    this.currentAlgorithm = algorithm;
+  }
+
+  /**
+   * Get the current matching algorithm
+   */
+  static getAlgorithm(): MatchingAlgorithm {
+    return this.currentAlgorithm;
+  }
+
+  /**
+   * Set the similarity threshold for matching
+   */
+  static setSimilarityThreshold(threshold: number): void {
+    this.similarityThreshold = Math.max(0, Math.min(1, threshold));
+  }
+
+  /**
+   * Get the current similarity threshold
+   */
+  static getSimilarityThreshold(): number {
+    return this.similarityThreshold;
+  }
   /**
    * Calculate similarity between two strings (0-1 scale)
    * Uses Levenshtein distance normalized by max length
@@ -38,10 +74,10 @@ export class LinePairingService {
   }
 
   /**
-   * Match removed and added lines by content similarity
+   * Match removed and added lines by content similarity (Greedy algorithm)
    * Returns optimal pairings where similar content is aligned
    */
-  private static matchByContent(
+  private static matchByContentGreedy(
     removedLines: DiffLine[],
     addedLines: DiffLine[]
   ): { removedIdx: number; addedIdx: number }[] {
@@ -57,8 +93,7 @@ export class LinePairingService {
           removedLines[i].content,
           addedLines[j].content
         );
-        // Only consider pairs with good similarity (threshold: 0.5)
-        if (score >= 0.5) {
+        if (score >= this.similarityThreshold) {
           scores.push({ removedIdx: i, addedIdx: j, score });
         }
       }
@@ -81,6 +116,98 @@ export class LinePairingService {
     }
 
     return matches;
+  }
+
+  /**
+   * Match removed and added lines by content similarity (Recursive algorithm - diff2html style)
+   * Uses divide-and-conquer approach for better order preservation
+   */
+  private static matchByContentRecursive(
+    removedLines: DiffLine[],
+    addedLines: DiffLine[],
+    removedOffset: number = 0,
+    addedOffset: number = 0
+  ): { removedIdx: number; addedIdx: number }[] {
+    // Base case: no lines to match
+    if (removedLines.length === 0 || addedLines.length === 0) {
+      return [];
+    }
+
+    // Base case: combined length < 3, return as-is (diff2html behavior)
+    if (removedLines.length + addedLines.length < 3) {
+      // Try to match the single pair if similar enough
+      if (removedLines.length === 1 && addedLines.length === 1) {
+        const score = this.calculateSimilarity(
+          removedLines[0].content,
+          addedLines[0].content
+        );
+        if (score >= this.similarityThreshold) {
+          return [{ removedIdx: removedOffset, addedIdx: addedOffset }];
+        }
+      }
+      return [];
+    }
+
+    // Find the best matching pair
+    let bestScore = this.similarityThreshold;
+    let bestI = -1;
+    let bestJ = -1;
+
+    for (let i = 0; i < removedLines.length; i++) {
+      for (let j = 0; j < addedLines.length; j++) {
+        const score = this.calculateSimilarity(
+          removedLines[i].content,
+          addedLines[j].content
+        );
+        if (score > bestScore) {
+          bestScore = score;
+          bestI = i;
+          bestJ = j;
+        }
+      }
+    }
+
+    // No match found above threshold
+    if (bestI === -1) {
+      return [];
+    }
+
+    // Recursively match before the best match
+    const beforeMatches = this.matchByContentRecursive(
+      removedLines.slice(0, bestI),
+      addedLines.slice(0, bestJ),
+      removedOffset,
+      addedOffset
+    );
+
+    // The best match itself
+    const currentMatch = {
+      removedIdx: removedOffset + bestI,
+      addedIdx: addedOffset + bestJ
+    };
+
+    // Recursively match after the best match
+    const afterMatches = this.matchByContentRecursive(
+      removedLines.slice(bestI + 1),
+      addedLines.slice(bestJ + 1),
+      removedOffset + bestI + 1,
+      addedOffset + bestJ + 1
+    );
+
+    return [...beforeMatches, currentMatch, ...afterMatches];
+  }
+
+  /**
+   * Match removed and added lines using the selected algorithm
+   */
+  private static matchByContent(
+    removedLines: DiffLine[],
+    addedLines: DiffLine[]
+  ): { removedIdx: number; addedIdx: number }[] {
+    if (this.currentAlgorithm === 'recursive') {
+      return this.matchByContentRecursive(removedLines, addedLines);
+    }
+    return this.matchByContentGreedy(removedLines, addedLines);
   }
   /**
    * Unified view pairing - finds removed/added blocks and pairs by position
