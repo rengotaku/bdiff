@@ -161,19 +161,18 @@ describe('LinePairingService', () => {
         expect(result[0].modified?.line.content).toContain('すでに初回アート監修OK済み');
       });
 
-      it('全く異なる行はペアリングされない', () => {
+      it('全く異なる行でもインターリーブによりペアリングされる', () => {
         const lines: DiffLine[] = [
           createLine('これは削除される行です', 'removed', 1),
           createLine('ABCDEFGHIJKLMNOP', 'added', 2),
         ];
         const result = LinePairingService.pairLinesForSideBySide(lines, false);
 
-        // 類似度が低いためペアリングされず、別々の行になる
-        expect(result).toHaveLength(2);
+        // インターリーブにより、マッチしない行も位置ベースでペアリングされる
+        // （表示をコンパクトにするため）
+        expect(result).toHaveLength(1);
         expect(result[0].original?.line.content).toBe('これは削除される行です');
-        expect(result[0].modified).toBeNull();
-        expect(result[1].original).toBeNull();
-        expect(result[1].modified?.line.content).toBe('ABCDEFGHIJKLMNOP');
+        expect(result[0].modified?.line.content).toBe('ABCDEFGHIJKLMNOP');
       });
 
       it('複数の候補から最も類似度の高いペアを選択', () => {
