@@ -54,8 +54,11 @@ const DiffLineComponent = memo<{
   line: DiffLine;
   index: number;
   segments?: CharSegment[];
-}>(({ line, index, segments }) => {
+  /** Override line number display (for side-by-side view) */
+  displayLineNumber?: number;
+}>(({ line, index, segments, displayLineNumber }) => {
   const hasSegments = segments && segments.length > 0;
+  const lineNumToShow = displayLineNumber ?? line.lineNumber;
 
   return (
     <div
@@ -63,7 +66,7 @@ const DiffLineComponent = memo<{
       className="flex items-stretch hover:bg-gray-25 transition-colors duration-150 h-full"
     >
       <div className="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none">
-        {line.lineNumber}
+        {lineNumToShow}
       </div>
       <div className="flex-1 min-w-0 h-full flex">
         <div className={`${getLineClassName(line.type)} flex-1 flex items-start`}>
@@ -110,10 +113,17 @@ EmptyLineCell.displayName = 'EmptyLineCell';
 const SideBySideCell = memo<{
   item: LineWithSegments | null;
   index: number;
-}>(({ item, index }) => {
+  /** Which side of the diff: 'original' or 'modified' */
+  side: 'original' | 'modified';
+}>(({ item, index, side }) => {
   if (!item) {
     return <EmptyLineCell />;
   }
+
+  // Use appropriate line number based on side
+  const displayLineNumber = side === 'original'
+    ? item.line.originalLineNumber
+    : item.line.newLineNumber;
 
   return (
     <div className="h-full">
@@ -121,6 +131,7 @@ const SideBySideCell = memo<{
         line={item.line}
         index={index}
         segments={item.segments}
+        displayLineNumber={displayLineNumber}
       />
     </div>
   );
@@ -138,10 +149,10 @@ const SideBySidePairRow = memo<{
 }>(({ pair, index }) => (
   <div className="grid grid-cols-2 items-stretch">
     <div className="border-r border-gray-200 min-h-full">
-      <SideBySideCell item={pair.original} index={index} />
+      <SideBySideCell item={pair.original} index={index} side="original" />
     </div>
     <div className="min-h-full">
-      <SideBySideCell item={pair.modified} index={index} />
+      <SideBySideCell item={pair.modified} index={index} side="modified" />
     </div>
   </div>
 ));
