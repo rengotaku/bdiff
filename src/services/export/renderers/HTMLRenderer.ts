@@ -242,18 +242,14 @@ ${this.getEmbeddedCSS(opts.theme)}
     return `
       <div class="side-by-side-container" role="main" aria-label="Side-by-side diff view">
         <table class="side-by-side-table">
-          <colgroup>
-            <col class="col-line-number">
-            <col class="col-line-symbol">
-            <col class="col-line-content">
-            <col class="col-line-number">
-            <col class="col-line-symbol">
-            <col class="col-line-content">
-          </colgroup>
           <thead>
-            <tr>
-              <th colspan="3" class="panel-header">Original</th>
-              <th colspan="3" class="panel-header">Modified</th>
+            <tr class="panel-header-row">
+              <th class="panel-header-cell line-num-header" style="width:40px;"></th>
+              <th class="panel-header-cell symbol-header" style="width:20px;"></th>
+              <th class="panel-header-cell content-header">Original</th>
+              <th class="panel-header-cell line-num-header" style="width:40px;"></th>
+              <th class="panel-header-cell symbol-header" style="width:20px;"></th>
+              <th class="panel-header-cell content-header">Modified</th>
             </tr>
           </thead>
           <tbody>
@@ -677,30 +673,28 @@ ${this.hasCharHighlighting ? `
       table-layout: fixed;
     }
 
-    .side-by-side-table .col-line-number {
-      width: 50px;
-    }
-
-    .side-by-side-table .col-line-symbol {
-      width: 24px;
-    }
-
-    .side-by-side-table .col-line-content {
-      width: calc(50% - 74px);
-    }
-
-    .side-by-side-table thead th.panel-header {
-      width: 50%;
-      padding: 8px 16px;
+    .side-by-side-table .panel-header-row {
       background: var(--header-bg);
       border-bottom: 1px solid var(--border-color);
+    }
+
+    .side-by-side-table .panel-header-cell {
+      padding: 8px 4px;
       font-weight: 500;
       font-size: 14px;
       color: var(--text-color);
-      text-align: left;
     }
 
-    .side-by-side-table thead th:first-child {
+    .side-by-side-table .panel-header-cell.content-header {
+      text-align: left;
+      padding-left: 12px;
+    }
+
+    .side-by-side-table .panel-header-cell.content-header:first-of-type {
+      border-right: 2px solid var(--border-color);
+    }
+
+    .side-by-side-table th:nth-child(3) {
       border-right: 2px solid var(--border-color);
     }
 
