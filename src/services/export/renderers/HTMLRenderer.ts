@@ -230,43 +230,67 @@ ${this.getEmbeddedCSS(opts.theme)}
       return '<div class="grid grid-cols-2 gap-4"><div class="text-center text-gray-500 p-8">No differences to display</div></div>';
     }
 
-    // Use LinePairingService to get paired lines with character segments
-    const { original, modified } = LinePairingService.pairForSideBySideView(lines, true);
+    // Use LinePairingService to get properly paired lines (same as screen display)
+    const pairs = LinePairingService.pairLinesForSideBySide(lines, true);
 
-    const originalElements = original.map(lineWithSegments =>
-      this.renderDiffLineWithSegments(lineWithSegments, options)
-    ).join('\n');
-    const modifiedElements = modified.map(lineWithSegments =>
-      this.renderDiffLineWithSegments(lineWithSegments, options)
-    ).join('\n');
+    const pairRows = pairs.map(pair => {
+      const originalCell = this.renderSideBySideCell(pair.original, options, 'original');
+      const modifiedCell = this.renderSideBySideCell(pair.modified, options, 'modified');
+      return `<tr class="side-by-side-row">${originalCell}${modifiedCell}</tr>`;
+    }).join('\n');
 
     return `
       <div class="side-by-side-container" role="main" aria-label="Side-by-side diff view">
-        <div class="side-by-side-panel">
-          <div class="panel-header">
-            <div class="panel-title">Original</div>
-          </div>
-          <div class="diff-table-container">
-            <table class="diff-table">
-              <tbody>
-                ${originalElements}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="side-by-side-panel">
-          <div class="panel-header">
-            <div class="panel-title">Modified</div>
-          </div>
-          <div class="diff-table-container">
-            <table class="diff-table">
-              <tbody>
-                ${modifiedElements}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <table class="side-by-side-table">
+          <thead>
+            <tr>
+              <th colspan="3" class="panel-header">Original</th>
+              <th colspan="3" class="panel-header">Modified</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${pairRows}
+          </tbody>
+        </table>
       </div>`;
+  }
+
+  /**
+   * Render a single cell in side-by-side view
+   */
+  private renderSideBySideCell(
+    item: LineWithSegments | null,
+    options: Required<HtmlExportOptions>,
+    side: 'original' | 'modified'
+  ): string {
+    if (!item) {
+      const lineNumCell = options.includeLineNumbers ? '<td class="line-number empty"></td>' : '';
+      return `${lineNumCell}<td class="line-symbol empty"></td><td class="line-content empty"></td>`;
+    }
+
+    const { line, segments } = item;
+    const typeClass = `diff-line-${line.type}`;
+    const symbol = this.getPrefixSymbol(line.type);
+
+    // Use correct line number based on side
+    const displayLineNumber = side === 'original'
+      ? (line.originalLineNumber ?? line.lineNumber)
+      : (line.newLineNumber ?? line.lineNumber);
+
+    const lineNumCell = options.includeLineNumbers
+      ? `<td class="line-number ${typeClass}">${displayLineNumber ?? ''}</td>`
+      : '';
+
+    // Use character segments if available
+    const content = segments
+      ? this.renderCharSegments(segments)
+      : this.escapeHtml(line.content || '');
+
+    if (segments && segments.length > 0) {
+      this.hasCharHighlighting = true;
+    }
+
+    return `${lineNumCell}<td class="line-symbol ${typeClass}">${symbol}</td><td class="line-content ${typeClass}"><pre>${content}</pre></td>`;
   }
 
   /**
@@ -633,31 +657,89 @@ ${this.hasCharHighlighting ? `
 ` : ''}
     /* Side-by-side layout */
     .side-by-side-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      overflow-x: auto;
     }
 
-    .side-by-side-panel {
-      min-width: 0;
+    .side-by-side-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      table-layout: fixed;
     }
 
-    .panel-header {
+    .side-by-side-table thead th.panel-header {
+      width: 50%;
       padding: 8px 16px;
       background: var(--header-bg);
-      border: 1px solid var(--border-color);
-      border-bottom: none;
-      border-radius: 8px 8px 0 0;
-    }
-
-    .panel-title {
+      border-bottom: 1px solid var(--border-color);
       font-weight: 500;
       font-size: 14px;
       color: var(--text-color);
+      text-align: left;
     }
 
-    .side-by-side-panel .diff-table-container {
-      border-radius: 0 0 8px 8px;
+    .side-by-side-table thead th:first-child {
+      border-right: 2px solid var(--border-color);
+    }
+
+    .side-by-side-row td {
+      vertical-align: top;
+      padding: 0;
+    }
+
+    .side-by-side-row td:nth-child(3) {
+      border-right: 2px solid var(--border-color);
+    }
+
+    .side-by-side-row td.empty {
+      background: #f9fafb;
+    }
+
+    .side-by-side-row td.line-number {
+      width: 50px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: #6b7280;
+      background: #f9fafb;
+      text-align: right;
+      border-right: 1px solid var(--border-color);
+    }
+
+    .side-by-side-row td.line-symbol {
+      width: 24px;
+      padding: 4px 8px;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .side-by-side-row td.line-content {
+      padding: 4px 12px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .side-by-side-row td.line-content pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .side-by-side-row td.diff-line-removed {
+      background: #fef2f2;
+    }
+
+    .side-by-side-row td.diff-line-added {
+      background: #f0fdf4;
+    }
+
+    .side-by-side-row td.diff-line-unchanged {
+      background: transparent;
     }
 
     @media print {

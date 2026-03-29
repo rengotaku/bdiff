@@ -89,6 +89,7 @@ tsconfig.tsbuildinfo
 
 # Test files and temporary content
 *.txt
+!src/__tests__/fixtures/*.txt
 
 # Documentation files - only CLAUDE.md allowed in root
 /*.md
@@ -100,4 +101,4 @@ dev-server.log
 .dev-server.pid
 
 .claude/
-.serena/
+.serena/*.png

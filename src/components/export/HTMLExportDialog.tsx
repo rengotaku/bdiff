@@ -13,7 +13,7 @@ const DEFAULT_HTML_EXPORT_OPTIONS: Required<HtmlExportOptions> = {
   includeStats: true,
   theme: 'light',
   differencesOnly: false,
-  viewMode: 'unified',
+  viewMode: 'side-by-side',
   title: 'BDiff Comparison Report',
   filename: undefined as any,
   originalFile: undefined as any,
@@ -137,21 +137,6 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
               <input
                 type="radio"
                 name="viewMode"
-                value="unified"
-                checked={options.viewMode === 'unified'}
-                onChange={(e) => updateOption('viewMode', e.target.value as 'unified' | 'side-by-side')}
-                className="text-blue-600 focus:ring-blue-500"
-              />
-              <div className="ml-3 flex-1">
-                <div className="text-sm font-medium text-gray-900">{t('export.html.viewMode.unified')}</div>
-                <div className="text-xs text-gray-500">{t('export.html.viewMode.unifiedDesc')}</div>
-              </div>
-            </label>
-
-            <label className="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-              <input
-                type="radio"
-                name="viewMode"
                 value="side-by-side"
                 checked={options.viewMode === 'side-by-side'}
                 onChange={(e) => updateOption('viewMode', e.target.value as 'unified' | 'side-by-side')}
@@ -160,6 +145,21 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
               <div className="ml-3 flex-1">
                 <div className="text-sm font-medium text-gray-900">{t('export.html.viewMode.sideBySide')}</div>
                 <div className="text-xs text-gray-500">{t('export.html.viewMode.sideBySideDesc')}</div>
+              </div>
+            </label>
+
+            <label className="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+              <input
+                type="radio"
+                name="viewMode"
+                value="unified"
+                checked={options.viewMode === 'unified'}
+                onChange={(e) => updateOption('viewMode', e.target.value as 'unified' | 'side-by-side')}
+                className="text-blue-600 focus:ring-blue-500"
+              />
+              <div className="ml-3 flex-1">
+                <div className="text-sm font-medium text-gray-900">{t('export.html.viewMode.unified')}</div>
+                <div className="text-xs text-gray-500">{t('export.html.viewMode.unifiedDesc')}</div>
               </div>
             </label>
           </div>
