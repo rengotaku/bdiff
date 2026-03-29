@@ -161,18 +161,19 @@ describe('LinePairingService', () => {
         expect(result[0].modified?.line.content).toContain('すでに初回アート監修OK済み');
       });
 
-      it('全く異なる行でもインターリーブによりペアリングされる', () => {
+      it('全く異なる行は別々に出力される（インターリーブなし）', () => {
         const lines: DiffLine[] = [
           createLine('これは削除される行です', 'removed', 1),
           createLine('ABCDEFGHIJKLMNOP', 'added', 2),
         ];
         const result = LinePairingService.pairLinesForSideBySide(lines, false);
 
-        // インターリーブにより、マッチしない行も位置ベースでペアリングされる
-        // （表示をコンパクトにするため）
-        expect(result).toHaveLength(1);
+        // 類似していない行はペアリングされず、別々に出力される
+        expect(result).toHaveLength(2);
         expect(result[0].original?.line.content).toBe('これは削除される行です');
-        expect(result[0].modified?.line.content).toBe('ABCDEFGHIJKLMNOP');
+        expect(result[0].modified).toBeNull();
+        expect(result[1].original).toBeNull();
+        expect(result[1].modified?.line.content).toBe('ABCDEFGHIJKLMNOP');
       });
 
       it('複数の候補から最も類似度の高いペアを選択', () => {
@@ -273,25 +274,22 @@ describe('LinePairingService', () => {
         ]);
       });
 
-      it('unchanged行で区切られたremoved/addedはマッチしない', () => {
-        // これは正しい動作: 別の変更として扱う
+      it('unchanged行で区切られたremoved/addedも2パス目でマッチする', () => {
+        // 2パスアプローチにより、離れた位置の類似行もマッチする
         const lines: DiffLine[] = [
           createLine('削除される行', 'removed', 1),
           createLine('変更なしの行', 'unchanged', 2),
-          createLine('削除される行', 'added', 3),  // 同じ内容だがマッチしない
+          createLine('削除される行', 'added', 3),  // 同じ内容なのでマッチする
         ];
         const result = LinePairingService.pairLinesForSideBySide(lines, false);
 
-        expect(result).toHaveLength(3);
-        // removedはマッチなし
+        expect(result).toHaveLength(2);
+        // removed と added がマッチしてペアになる
         expect(result[0].original?.line.content).toBe('削除される行');
-        expect(result[0].modified).toBeNull();
+        expect(result[0].modified?.line.content).toBe('削除される行');
         // unchanged
         expect(result[1].original?.line.type).toBe('unchanged');
         expect(result[1].modified?.line.type).toBe('unchanged');
-        // addedはマッチなし
-        expect(result[2].original).toBeNull();
-        expect(result[2].modified?.line.content).toBe('削除される行');
       });
 
       it('長いテキストでも正しくマッチング', () => {
