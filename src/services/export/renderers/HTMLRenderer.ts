@@ -242,6 +242,14 @@ ${this.getEmbeddedCSS(opts.theme)}
     return `
       <div class="side-by-side-container" role="main" aria-label="Side-by-side diff view">
         <table class="side-by-side-table">
+          <colgroup>
+            <col class="col-line-number">
+            <col class="col-line-symbol">
+            <col class="col-line-content">
+            <col class="col-line-number">
+            <col class="col-line-symbol">
+            <col class="col-line-content">
+          </colgroup>
           <thead>
             <tr>
               <th colspan="3" class="panel-header">Original</th>
@@ -667,6 +675,18 @@ ${this.hasCharHighlighting ? `
       border-radius: 8px;
       overflow: hidden;
       table-layout: fixed;
+    }
+
+    .side-by-side-table .col-line-number {
+      width: 50px;
+    }
+
+    .side-by-side-table .col-line-symbol {
+      width: 24px;
+    }
+
+    .side-by-side-table .col-line-content {
+      width: calc(50% - 74px);
     }
 
     .side-by-side-table thead th.panel-header {
