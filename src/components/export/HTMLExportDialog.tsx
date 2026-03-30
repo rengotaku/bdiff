@@ -18,6 +18,7 @@ const DEFAULT_HTML_EXPORT_OPTIONS: Required<HtmlExportOptions> = {
   filename: undefined as any,
   originalFile: undefined as any,
   modifiedFile: undefined as any,
+  collapseUnchanged: false,
 };
 
 interface HTMLExportDialogProps {

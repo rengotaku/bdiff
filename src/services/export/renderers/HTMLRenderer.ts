@@ -4,6 +4,7 @@
  */
 
 import type { DiffLine, CharSegment, LineWithSegments } from '../../../types/types';
+import { isCollapsedBlock, isUnifiedCollapsedBlock } from '../../../types/types';
 import type { HtmlExportOptions } from '../types';
 import { BaseRenderer } from './BaseRenderer';
 import { TAILWIND_CSS } from '../../tailwindEmbedded';
@@ -23,6 +24,7 @@ const DEFAULT_OPTIONS: Required<HtmlExportOptions> = {
   filename: undefined as any,
   originalFile: undefined as any,
   modifiedFile: undefined as any,
+  collapseUnchanged: false,
 };
 
 /**
@@ -205,9 +207,22 @@ ${this.getEmbeddedCSS(opts.theme)}
 
     // Use LinePairingService to get lines with character segments
     const pairedLines = LinePairingService.pairForUnifiedView(lines, true);
-    const lineElements = pairedLines.map(lineWithSegments =>
-      this.renderDiffLineWithSegments(lineWithSegments, options)
-    ).join('\n');
+
+    // Apply context filtering if collapseUnchanged is enabled
+    const rows = options.collapseUnchanged
+      ? LinePairingService.applyContextFilterUnified(pairedLines, 3)
+      : pairedLines;
+
+    const lineElements = rows.map(row => {
+      if (isUnifiedCollapsedBlock(row)) {
+        const colSpan = options.includeLineNumbers ? 3 : 2;
+        return `
+            <tr class="collapsed-row">
+              <td colspan="${colSpan}" class="collapsed-cell">⋯ ${row.count} lines hidden ⋯</td>
+            </tr>`;
+      }
+      return this.renderDiffLineWithSegments(row, options);
+    }).join('\n');
 
     return `
       <div class="diff-table-container">
@@ -233,9 +248,18 @@ ${this.getEmbeddedCSS(opts.theme)}
     // Use LinePairingService to get properly paired lines (same as screen display)
     const pairs = LinePairingService.pairLinesForSideBySide(lines, true);
 
-    const pairRows = pairs.map(pair => {
-      const originalCell = this.renderSideBySideCell(pair.original, options, 'original');
-      const modifiedCell = this.renderSideBySideCell(pair.modified, options, 'modified');
+    // Apply context filtering if collapseUnchanged is enabled
+    const rows = options.collapseUnchanged
+      ? LinePairingService.applyContextFilter(pairs, 3)
+      : pairs;
+
+    const colCount = options.includeLineNumbers ? 6 : 4;
+    const pairRows = rows.map(row => {
+      if (isCollapsedBlock(row)) {
+        return `<tr class="side-by-side-row collapsed-row"><td colspan="${colCount}" class="collapsed-cell">⋯ ${row.count} lines hidden ⋯</td></tr>`;
+      }
+      const originalCell = this.renderSideBySideCell(row.original, options, 'original');
+      const modifiedCell = this.renderSideBySideCell(row.modified, options, 'modified');
       return `<tr class="side-by-side-row">${originalCell}${modifiedCell}</tr>`;
     }).join('\n');
 
@@ -659,6 +683,19 @@ ${this.hasCharHighlighting ? `
       color: #166534;
     }
 ` : ''}
+    /* Collapsed rows */
+    .collapsed-row {
+      background: ${isLight ? '#f3f4f6' : '#374151'};
+    }
+
+    .collapsed-cell {
+      text-align: center;
+      padding: 6px 8px;
+      font-size: 12px;
+      color: ${isLight ? '#6b7280' : '#9ca3af'};
+      cursor: default;
+    }
+
     /* Side-by-side layout */
     .side-by-side-container {
       overflow-x: auto;
