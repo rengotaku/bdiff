@@ -30,16 +30,23 @@ export abstract class BaseRenderer implements IRenderer {
    */
   generateFilename(originalFile?: FileInfo, modifiedFile?: FileInfo): string {
     const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const fallback = this.sanitizeFilename(`diff_${timestamp}${this.getFileExtension()}`);
 
     if (originalFile?.name && modifiedFile?.name) {
-      const originalName = this.stripExtension(originalFile.name);
-      const modifiedName = this.stripExtension(modifiedFile.name);
+      const originalName = this.truncateName(this.sanitizeFilename(this.stripExtension(originalFile.name)));
+      const modifiedName = this.truncateName(this.sanitizeFilename(this.stripExtension(modifiedFile.name)));
+
+      // Fall back if sanitized names are empty or only underscores
+      if (!this.isMeaningfulName(originalName) || !this.isMeaningfulName(modifiedName)) {
+        return fallback;
+      }
+
       return this.sanitizeFilename(
         `${originalName}_vs_${modifiedName}_diff_${timestamp}${this.getFileExtension()}`
       );
     }
 
-    return this.sanitizeFilename(`diff_${timestamp}${this.getFileExtension()}`);
+    return fallback;
   }
 
   /**
@@ -92,7 +99,22 @@ export abstract class BaseRenderer implements IRenderer {
   protected sanitizeFilename(filename: string): string {
     return filename
       .replace(/[^a-zA-Z0-9._-]/g, '_')
-      .replace(/_{2,}/g, '_');
+      .replace(/_{2,}/g, '_')
+      .replace(/^_+|_+$/g, '');
+  }
+
+  /**
+   * Truncate a name to max length for filename safety
+   */
+  private truncateName(name: string, maxLength: number = 20): string {
+    return name.length > maxLength ? name.slice(0, maxLength) : name;
+  }
+
+  /**
+   * Check if a sanitized name contains meaningful characters (not just underscores/empty)
+   */
+  private isMeaningfulName(name: string): boolean {
+    return name.replace(/_/g, '').length > 0;
   }
 
   /**

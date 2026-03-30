@@ -631,16 +631,29 @@ ${this.getEmbeddedCSS(opts.theme)}
    */
   static generateFilename(originalFile: FileInfo, modifiedFile: FileInfo): string {
     const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-    const originalName = originalFile.name.replace(/\.[^/.]+$/, ''); // Remove extension
-    const modifiedName = modifiedFile.name.replace(/\.[^/.]+$/, ''); // Remove extension
-    
-    return `${originalName}_vs_${modifiedName}_diff_${timestamp}.html`;
+    const fallback = `diff_${timestamp}.html`;
+    const originalName = this.truncateName(this.sanitizeFilename(originalFile.name.replace(/\.[^/.]+$/, '')));
+    const modifiedName = this.truncateName(this.sanitizeFilename(modifiedFile.name.replace(/\.[^/.]+$/, '')));
+
+    if (!this.isMeaningfulName(originalName) || !this.isMeaningfulName(modifiedName)) {
+      return fallback;
+    }
+
+    return this.sanitizeFilename(`${originalName}_vs_${modifiedName}_diff_${timestamp}.html`);
   }
 
   /**
    * Sanitize filename for safe download
    */
   private static sanitizeFilename(filename: string): string {
-    return filename.replace(/[^a-zA-Z0-9._-]/g, '_').replace(/_{2,}/g, '_');
+    return filename.replace(/[^a-zA-Z0-9._-]/g, '_').replace(/_{2,}/g, '_').replace(/^_+|_+$/g, '');
+  }
+
+  private static truncateName(name: string, maxLength: number = 20): string {
+    return name.length > maxLength ? name.slice(0, maxLength) : name;
+  }
+
+  private static isMeaningfulName(name: string): boolean {
+    return name.replace(/_/g, '').length > 0;
   }
 }
