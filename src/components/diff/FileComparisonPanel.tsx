@@ -83,6 +83,7 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
               diffResult={diffResult}
               originalFile={originalFile || null}
               modifiedFile={modifiedFile || null}
+              collapseUnchanged={collapseUnchanged}
               variant="ghost"
               size="sm"
               onSuccess={onExportSuccess}

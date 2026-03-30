@@ -28,6 +28,8 @@ export interface BaseExportOptions {
   originalFile?: FileInfo;
   /** Modified file information */
   modifiedFile?: FileInfo;
+  /** Collapse unchanged lines (show only context around changes) */
+  collapseUnchanged?: boolean;
 }
 
 /**

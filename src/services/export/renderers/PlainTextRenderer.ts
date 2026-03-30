@@ -20,6 +20,7 @@ const DEFAULT_OPTIONS: Required<PlainTextExportOptions> = {
   filename: undefined as any,
   originalFile: undefined as any,
   modifiedFile: undefined as any,
+  collapseUnchanged: false,
 };
 
 /**

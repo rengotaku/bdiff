@@ -12,6 +12,8 @@ interface HTMLExportButtonProps {
   originalFile: FileInfo | null;
   /** Modified file information */
   modifiedFile: FileInfo | null;
+  /** Collapse unchanged lines (inherited from main view settings) */
+  collapseUnchanged?: boolean;
   /** Button variant */
   variant?: 'primary' | 'secondary' | 'ghost';
   /** Button size */
@@ -31,6 +33,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
   diffResult,
   originalFile,
   modifiedFile,
+  collapseUnchanged = true,
   variant = 'ghost',
   size = 'sm',
   className,
@@ -79,6 +82,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
         ...options,
         originalFile,
         modifiedFile,
+        collapseUnchanged,
       };
 
       // Export and download using new ExportService
@@ -115,6 +119,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
         ...options,
         originalFile,
         modifiedFile,
+        collapseUnchanged,
       };
 
       // Export and preview using new ExportService
