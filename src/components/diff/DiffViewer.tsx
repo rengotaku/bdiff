@@ -195,7 +195,7 @@ CollapsedLinesRow.displayName = 'CollapsedLinesRow';
  */
 const SideBySideView = memo<{
   rows: SideBySideRow[];
-  onExpandBlock: (index: number) => void;
+  onExpandBlock: (startLine: number) => void;
 }>(({ rows, onExpandBlock }) => (
   <div role="main" aria-label="Side-by-side diff view">
     {/* Header row */}
@@ -212,9 +212,9 @@ const SideBySideView = memo<{
       {rows.map((row, index) =>
         isCollapsedBlock(row) ? (
           <CollapsedLinesRow
-            key={`collapsed-${index}`}
+            key={`collapsed-${row.originalStartLine}`}
             block={row}
-            onExpand={() => onExpandBlock(index)}
+            onExpand={() => onExpandBlock(row.originalStartLine)}
           />
         ) : (
           <SideBySidePairRow
@@ -258,16 +258,16 @@ UnifiedCollapsedRow.displayName = 'UnifiedCollapsedRow';
  */
 const UnifiedPanel = memo<{
   rows: UnifiedRow[];
-  onExpandBlock: (index: number) => void;
+  onExpandBlock: (startLine: number) => void;
 }>(({ rows, onExpandBlock }) => (
   <div className="space-y-2">
     <div className="border rounded-md overflow-visible" role="region" aria-label="Unified diff view">
       {rows.map((row, index) =>
         isUnifiedCollapsedBlock(row) ? (
           <UnifiedCollapsedRow
-            key={`collapsed-${index}`}
+            key={`collapsed-${row.startLine}`}
             block={row}
-            onExpand={() => onExpandBlock(index)}
+            onExpand={() => onExpandBlock(row.startLine)}
           />
         ) : (
           <DiffLineComponent
@@ -296,7 +296,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
   enableCharDiff = true,
   contextLines
 }) => {
-  // Track expanded blocks by their original index in filtered rows
+  // Track expanded blocks by their originalStartLine / startLine (stable identifiers)
   const [expandedSideBySideBlocks, setExpandedSideBySideBlocks] = useState<Set<number>>(new Set());
   const [expandedUnifiedBlocks, setExpandedUnifiedBlocks] = useState<Set<number>>(new Set());
 
@@ -326,11 +326,10 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
       return filtered;
     }
 
-    // Re-expand blocks (note: this is a simplified approach)
+    // Re-expand blocks using originalStartLine as stable identifier
     const result: SideBySideRow[] = [];
-    filtered.forEach((row, index) => {
-      if (isCollapsedBlock(row) && expandedSideBySideBlocks.has(index)) {
-        // Expand this block
+    filtered.forEach((row) => {
+      if (isCollapsedBlock(row) && expandedSideBySideBlocks.has(row.originalStartLine)) {
         result.push(...row.lines);
       } else {
         result.push(row);
@@ -390,11 +389,10 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
       return filtered;
     }
 
-    // Re-expand blocks
+    // Re-expand blocks using startLine as stable identifier
     const result: UnifiedRow[] = [];
-    filtered.forEach((row, index) => {
-      if (isUnifiedCollapsedBlock(row) && expandedUnifiedBlocks.has(index)) {
-        // Expand this block
+    filtered.forEach((row) => {
+      if (isUnifiedCollapsedBlock(row) && expandedUnifiedBlocks.has(row.startLine)) {
         result.push(...row.lines);
       } else {
         result.push(row);
