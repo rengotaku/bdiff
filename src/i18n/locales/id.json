@@ -97,6 +97,7 @@
       },
       "displayOptions": {
         "title": "Opsi Tampilan",
+        "advancedTitle": "Opsi Lanjutan",
         "includeHeader": "Sertakan header informasi file",
         "includeStats": "Sertakan statistik",
         "differencesOnly": "Tampilkan perbedaan saja"

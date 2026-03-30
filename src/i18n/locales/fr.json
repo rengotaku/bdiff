@@ -97,6 +97,7 @@
       },
       "displayOptions": {
         "title": "Options d'affichage",
+        "advancedTitle": "Options avancées",
         "includeHeader": "Inclure l'en-tête d'informations du fichier",
         "includeStats": "Inclure les statistiques",
         "differencesOnly": "Afficher uniquement les différences"

@@ -97,6 +97,7 @@
       },
       "displayOptions": {
         "title": "顯示選項",
+        "advancedTitle": "進階選項",
         "includeHeader": "包含檔案資訊標題",
         "includeStats": "包含統計資訊",
         "differencesOnly": "僅顯示差異"
