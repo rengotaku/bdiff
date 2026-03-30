@@ -50,6 +50,7 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
   const { t } = useTranslation();
   const [options, setOptions] = useState<HtmlExportOptions>(DEFAULT_HTML_EXPORT_OPTIONS);
   const [editableFilename, setEditableFilename] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Extract filename without extension and extension separately
   const fileExtension = suggestedFilename.match(/\.[^.]+$/)?.[0] || '.html';
@@ -94,14 +95,6 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
     onPreview(previewOptions);
   }, [options, editableFilename, fileExtension, onPreview]);
 
-  /**
-   * Reset to default options
-   */
-  const handleReset = useCallback(() => {
-    setOptions(DEFAULT_HTML_EXPORT_OPTIONS);
-    setEditableFilename(filenameWithoutExt);
-  }, [filenameWithoutExt]);
-
   return (
     <Modal
       isOpen={isOpen}
@@ -130,11 +123,11 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
           </div>
         )}
 
-        {/* Section 2: View Mode Selection */}
+        {/* Section 2: View Mode Selection with Icons */}
         <div>
           <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('export.html.viewMode.title')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <label className="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+            <label className={`flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${options.viewMode === 'side-by-side' ? 'border-blue-500 bg-blue-50' : ''}`}>
               <input
                 type="radio"
                 name="viewMode"
@@ -143,13 +136,16 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
                 onChange={(e) => updateOption('viewMode', e.target.value as 'unified' | 'side-by-side')}
                 className="text-blue-600 focus:ring-blue-500"
               />
-              <div className="ml-3 flex-1">
+              <svg className="w-5 h-5 ml-3 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2z" />
+              </svg>
+              <div className="ml-2 flex-1">
                 <div className="text-sm font-medium text-gray-900">{t('export.html.viewMode.sideBySide')}</div>
                 <div className="text-xs text-gray-500">{t('export.html.viewMode.sideBySideDesc')}</div>
               </div>
             </label>
 
-            <label className="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+            <label className={`flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${options.viewMode === 'unified' ? 'border-blue-500 bg-blue-50' : ''}`}>
               <input
                 type="radio"
                 name="viewMode"
@@ -158,7 +154,10 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
                 onChange={(e) => updateOption('viewMode', e.target.value as 'unified' | 'side-by-side')}
                 className="text-blue-600 focus:ring-blue-500"
               />
-              <div className="ml-3 flex-1">
+              <svg className="w-5 h-5 ml-3 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+              <div className="ml-2 flex-1">
                 <div className="text-sm font-medium text-gray-900">{t('export.html.viewMode.unified')}</div>
                 <div className="text-xs text-gray-500">{t('export.html.viewMode.unifiedDesc')}</div>
               </div>
@@ -166,52 +165,43 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
           </div>
         </div>
 
-        {/* Section 3: Display Options */}
+        {/* Section 3: Advanced Options (collapsible) */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('export.html.displayOptions.title')}</h3>
-          <div className="space-y-3">
-            <label className="flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={options.includeHeader}
-                onChange={(e) => updateOption('includeHeader', e.target.checked)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <span className="ml-2 text-sm text-gray-700">{t('export.html.displayOptions.includeHeader')}</span>
-            </label>
+          <button
+            type="button"
+            className="flex items-center gap-2 text-sm font-semibold text-gray-900 hover:text-gray-700 transition-colors"
+            onClick={() => setShowAdvanced(prev => !prev)}
+          >
+            <span className={`text-xs transition-transform ${showAdvanced ? 'rotate-90' : ''}`}>▶</span>
+            {t('export.html.displayOptions.advancedTitle')}
+          </button>
+          {showAdvanced && (
+            <div className="space-y-3 mt-3 pl-4">
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={options.includeHeader}
+                  onChange={(e) => updateOption('includeHeader', e.target.checked)}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm text-gray-700">{t('export.html.displayOptions.includeHeader')}</span>
+              </label>
 
-            <label className="flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={options.includeStats}
-                onChange={(e) => updateOption('includeStats', e.target.checked)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <span className="ml-2 text-sm text-gray-700">{t('export.html.displayOptions.includeStats')}</span>
-            </label>
-
-            <label className="flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={options.differencesOnly}
-                onChange={(e) => updateOption('differencesOnly', e.target.checked)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <span className="ml-2 text-sm text-gray-700">{t('export.html.displayOptions.differencesOnly')}</span>
-            </label>
-          </div>
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={options.includeStats}
+                  onChange={(e) => updateOption('includeStats', e.target.checked)}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm text-gray-700">{t('export.html.displayOptions.includeStats')}</span>
+              </label>
+            </div>
+          )}
         </div>
 
         {/* Section 4: Actions */}
-        <div className="flex justify-between pt-4 border-t border-gray-200">
-          <Button
-            variant="ghost"
-            onClick={handleReset}
-            disabled={isExporting}
-          >
-            {t('export.html.buttons.reset')}
-          </Button>
-
+        <div className="flex justify-end pt-4 border-t border-gray-200">
           <div className="flex gap-2">
             <Button
               variant="ghost"

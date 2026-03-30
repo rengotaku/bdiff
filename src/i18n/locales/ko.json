@@ -97,6 +97,7 @@
       },
       "displayOptions": {
         "title": "표시 옵션",
+        "advancedTitle": "고급 옵션",
         "includeHeader": "파일 정보 헤더 포함",
         "includeStats": "통계 정보 포함",
         "differencesOnly": "차이점만 표시"

@@ -100,6 +100,7 @@
       },
       "displayOptions": {
         "title": "表示オプション",
+        "advancedTitle": "詳細オプション",
         "includeHeader": "ファイル情報ヘッダーを含む",
         "includeStats": "統計情報を含む",
         "differencesOnly": "差分のみ表示"

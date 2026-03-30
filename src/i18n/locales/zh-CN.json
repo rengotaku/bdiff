@@ -97,6 +97,7 @@
       },
       "displayOptions": {
         "title": "显示选项",
+        "advancedTitle": "高级选项",
         "includeHeader": "包含文件信息标题",
         "includeStats": "包含统计信息",
         "differencesOnly": "仅显示差异"
