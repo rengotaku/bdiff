@@ -296,6 +296,7 @@ export const DiffPage: React.FC = () => {
                     diffResult={diffResult}
                     originalFile={originalFile}
                     modifiedFile={modifiedFile}
+                    viewMode={viewMode}
                     variant="ghost"
                     size="sm"
                     className="w-full h-10"
