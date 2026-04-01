@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Tooltip } from '../ui/Tooltip';
@@ -41,6 +42,8 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
   enableCharDiff = true,
   collapseUnchanged = true
 }) => {
+  const { t } = useTranslation();
+
   return (
     <Card className="flex-1">
       <CardHeader>
@@ -48,7 +51,7 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
           <div className="flex items-center gap-4">
             {/* Statistics with Tooltips */}
             <div className="flex items-center gap-3 text-xs">
-              <Tooltip content="Similarity percentage between the two files" position="bottom">
+              <Tooltip content={t('diffViewer.statistics.similarity')} position="bottom">
                 <Badge 
                   variant={similarityPercentage >= 80 ? 'success' : similarityPercentage >= 50 ? 'warning' : 'destructive'}
                   size="sm"
@@ -56,16 +59,16 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
                   {similarityPercentage}%
                 </Badge>
               </Tooltip>
-              <Tooltip content="Added lines" position="bottom">
+              <Tooltip content={t('diffViewer.statistics.additions')} position="bottom">
                 <Badge variant="added" size="sm">+{diffResult.stats.added}</Badge>
               </Tooltip>
-              <Tooltip content="Removed lines" position="bottom">
+              <Tooltip content={t('diffViewer.statistics.deletions')} position="bottom">
                 <Badge variant="removed" size="sm">-{diffResult.stats.removed}</Badge>
               </Tooltip>
-              <Tooltip content="Modified lines" position="bottom">
+              <Tooltip content={t('diffViewer.statistics.changes')} position="bottom">
                 <Badge variant="modified" size="sm">~{diffResult.stats.modified}</Badge>
               </Tooltip>
-              <Tooltip content="Unchanged lines" position="bottom">
+              <Tooltip content={t('diffViewer.statistics.unchanged')} position="bottom">
                 <Badge variant="secondary" size="sm">{diffResult.stats.unchanged}</Badge>
               </Tooltip>
             </div>
@@ -77,7 +80,7 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
               onClick={onCopy}
               loading={isCopying}
               size="sm"
-              label="Copy All"
+              label={t('diffViewer.actions.copyDiff')}
             />
             <HTMLExportButton
               diffResult={diffResult}
@@ -97,8 +100,8 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
                     ? 'bg-white shadow-sm text-primary'
                     : 'text-gray-light hover:text-gray'
                 }`}
-                title="Side by Side View"
-                aria-label="Side by Side View"
+                title={t('diffViewer.viewMode.sideBySideTitle')}
+                aria-label={t('diffViewer.viewMode.sideBySideTitle')}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2z" />
@@ -111,8 +114,8 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
                     ? 'bg-white shadow-sm text-primary'
                     : 'text-gray-light hover:text-gray'
                 }`}
-                title="Unified View"
-                aria-label="Unified View"
+                title={t('diffViewer.viewMode.unifiedTitle')}
+                aria-label={t('diffViewer.viewMode.unifiedTitle')}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />

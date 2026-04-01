@@ -11,6 +11,7 @@ export type {
   ExportFormat,
   ExportOptions,
   ExportResult,
+  ExportLabels,
   BaseExportOptions,
   HtmlExportOptions,
   SvgExportOptions,

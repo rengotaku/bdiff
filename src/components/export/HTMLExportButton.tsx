@@ -48,6 +48,35 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
   const canExport = diffResult && originalFile && modifiedFile;
 
   /**
+   * Build translated labels for export renderers (方式B)
+   */
+  const buildExportLabels = useCallback(() => ({
+    comparisonReport: t('exportLabels.comparisonReport'),
+    generated: t('exportLabels.generated'),
+    originalFile: t('exportLabels.originalFile'),
+    modifiedFile: t('exportLabels.modifiedFile'),
+    name: t('exportLabels.name'),
+    size: t('exportLabels.size'),
+    lines: t('exportLabels.lines'),
+    lastModified: t('exportLabels.lastModified'),
+    footerText: t('exportLabels.footerText'),
+    noDifferences: t('exportLabels.noDifferences'),
+    linesHidden: t('exportLabels.linesHidden'),
+    original: t('exportLabels.original'),
+    modified: t('exportLabels.modified'),
+    fileInformation: t('exportLabels.fileInformation'),
+    statistics: t('exportLabels.statistics'),
+    diffContent: t('exportLabels.diffContent'),
+    added: t('exportLabels.added'),
+    removed: t('exportLabels.removed'),
+    modifiedStat: t('exportLabels.modifiedStat'),
+    unchanged: t('exportLabels.unchanged'),
+    similarityStat: t('exportLabels.similarityStat'),
+    diffComparison: t('exportLabels.diffComparison'),
+    statisticsLabel: t('exportLabels.statisticsLabel'),
+  }), [t]);
+
+  /**
    * Handle opening the export dialog
    */
   const handleOpenDialog = useCallback(() => {
@@ -70,19 +99,20 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
    */
   const handleExport = useCallback(async (options: HtmlExportOptions) => {
     if (!diffResult || !originalFile || !modifiedFile) {
-      onError?.('Missing required data for export');
+      onError?.(t('errors.exportFailed'));
       return;
     }
 
     setIsExporting(true);
 
     try {
-      // Prepare export options with file information
+      // Prepare export options with file information and translated labels
       const exportOptions: HtmlExportOptions = {
         ...options,
         originalFile,
         modifiedFile,
         collapseUnchanged,
+        labels: buildExportLabels(),
       };
 
       // Export and download using new ExportService
@@ -98,37 +128,38 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
       setIsDialogOpen(false);
     } catch (error) {
       console.error('Export error:', error);
-      onError?.(error instanceof Error ? error.message : 'Export failed');
+      onError?.(error instanceof Error ? error.message : t('errors.exportFailed'));
     } finally {
       setIsExporting(false);
     }
-  }, [diffResult, originalFile, modifiedFile, onSuccess, onError]);
+  }, [diffResult, originalFile, modifiedFile, onSuccess, onError, buildExportLabels, t]);
 
   /**
    * Handle preview functionality
    */
   const handlePreview = useCallback(async (options: HtmlExportOptions) => {
     if (!diffResult || !originalFile || !modifiedFile) {
-      onError?.('Missing required data for preview');
+      onError?.(t('errors.exportFailed'));
       return;
     }
 
     try {
-      // Prepare export options with file information
+      // Prepare export options with file information and translated labels
       const exportOptions: HtmlExportOptions = {
         ...options,
         originalFile,
         modifiedFile,
         collapseUnchanged,
+        labels: buildExportLabels(),
       };
 
       // Export and preview using new ExportService
       ExportService.exportHtmlAndPreview(diffResult.lines, exportOptions);
     } catch (error) {
       console.error('Preview error:', error);
-      onError?.(error instanceof Error ? error.message : 'Failed to display preview');
+      onError?.(error instanceof Error ? error.message : t('errors.exportFailed'));
     }
-  }, [diffResult, originalFile, modifiedFile, onError]);
+  }, [diffResult, originalFile, modifiedFile, onError, buildExportLabels, t]);
 
   // Generate suggested filename for display
   const suggestedFilename = canExport && originalFile && modifiedFile

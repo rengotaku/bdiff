@@ -13,7 +13,11 @@
     "modifiedPlaceholder": "수정된 텍스트를 붙여넣거나 입력하거나 파일을 드롭하세요...",
     "dropzonePlaceholder": "파일을 여기에 드롭하세요",
     "selectFile": "파일 선택",
-    "fileInfo": "{{name}} ({{size}})"
+    "fileInfo": "{{name}} ({{size}})",
+    "clear": "지우기",
+    "browseFile": "파일 찾아보기",
+    "loaded": "로드됨:",
+    "processing": "처리 중...잠시 기다려 주세요."
   },
   "comparison": {
     "compareButton": "파일 비교",
@@ -39,30 +43,46 @@
     "ignoreTrailingNewlinesTooltip": "마지막 빈 줄 무시",
     "enableCharDiff": "문자 단위 하이라이트",
     "enableCharDiffLabel": "문자 단위 하이라이트",
-    "enableCharDiffTooltip": "줄 내에서 변경된 문자를 하이라이트"
+    "enableCharDiffTooltip": "줄 내에서 변경된 문자를 하이라이트",
+    "collapseUnchanged": "변경 없는 행 접기",
+    "collapseUnchangedLabel": "변경 없는 행 접기",
+    "collapseUnchangedTooltip": "변경 주변의 컨텍스트만 표시 (GitHub 스타일)"
   },
   "diffViewer": {
     "viewMode": {
       "label": "보기 모드",
       "sideBySide": "나란히",
       "unified": "통합",
-      "split": "분할"
+      "split": "분할",
+      "sideBySideTitle": "나란히 보기",
+      "unifiedTitle": "통합 보기"
     },
     "statistics": {
       "similarity": "두 파일 간의 유사도",
       "additions": "추가된 줄 수",
       "deletions": "삭제된 줄 수",
-      "changes": "변경된 줄 수"
+      "changes": "변경된 줄 수",
+      "unchanged": "변경되지 않은 줄 수"
     },
     "actions": {
       "copy": "복사",
       "copying": "복사 중...",
-      "export": "내보내기"
+      "export": "내보내기",
+      "copyDiff": "차이점 복사"
     },
+    "sideBySideHeader": {
+      "original": "원본",
+      "modified": "수정됨"
+    },
+    "collapsedLines": "⋯ {{count}} 줄 숨김 ⋯",
+    "expandLines": "숨겨진 {{count}} 줄 펼치기",
     "noDifferences": {
       "title": "차이점을 찾을 수 없음",
       "message": "파일이 동일합니다",
-      "similarity": "유사도 {{percentage}}%"
+      "similarity": "유사도 {{percentage}}%",
+      "noChangesDetected": "변경 사항이 감지되지 않았습니다.",
+      "fullMatch": "100% 일치",
+      "noChanges": "변경 없음"
     }
   },
   "export": {
@@ -131,5 +151,71 @@
     "copy": "차이점 복사",
     "export": "내보내기",
     "help": "도움말 표시"
+  },
+  "collapsibleSelector": {
+    "selectNewFiles": "새 파일 선택",
+    "fileSelection": "파일 선택",
+    "compareFiles": "파일 비교",
+    "clear": "지우기",
+    "originalFile": "원본 파일",
+    "modifiedFile": "수정된 파일"
+  },
+  "diffPage": {
+    "title": "파일 비교",
+    "processingSubtitle": "파일 처리 중...",
+    "comparisonFailed": "비교 실패",
+    "noFilesToCompare": "비교할 파일이 없습니다",
+    "processingFiles": "파일 처리 중...",
+    "calculatingDifferences": "파일 간의 차이점을 계산 중",
+    "errorOccurred": "오류가 발생했습니다",
+    "goBack": "뒤로 가기",
+    "uploadDescription": "파일을 업로드하거나 선택하여 차이점을 확인하세요",
+    "uploadFiles": "파일 업로드",
+    "fileInformation": "파일 정보",
+    "original": "원본",
+    "modified": "수정됨",
+    "showDetails": "상세 정보 표시",
+    "originalFile": "원본 파일",
+    "modifiedFile": "수정된 파일",
+    "size": "크기:",
+    "type": "유형:",
+    "lastModified": "수정일:",
+    "linesCount": "줄 수:",
+    "comparisonStatistics": "비교 통계",
+    "similarity": "유사도",
+    "added": "추가",
+    "removed": "삭제",
+    "modifiedStat": "수정",
+    "unchanged": "변경 없음",
+    "viewMode": "보기 모드",
+    "sideBySide": "나란히",
+    "unified": "통합",
+    "newComparison": "새 비교",
+    "differences": "차이점"
+  },
+  "exportLabels": {
+    "comparisonReport": "BDiff 비교 보고서",
+    "generated": "생성일:",
+    "originalFile": "📄 원본 파일",
+    "modifiedFile": "📄 수정된 파일",
+    "name": "이름:",
+    "size": "크기:",
+    "lines": "줄 수:",
+    "lastModified": "수정일:",
+    "footerText": "BDiff - 파일 비교 도구로 생성",
+    "noDifferences": "표시할 차이점이 없습니다",
+    "linesHidden": "⋯ {{count}} 줄 숨김 ⋯",
+    "original": "원본",
+    "modified": "수정됨",
+    "fileInformation": "파일 정보",
+    "statistics": "통계",
+    "diffContent": "차이점 내용",
+    "added": "추가",
+    "removed": "삭제",
+    "modifiedStat": "수정",
+    "unchanged": "변경 없음",
+    "similarityStat": "유사도",
+    "diffComparison": "차이점 비교",
+    "statisticsLabel": "통계:"
   }
 }

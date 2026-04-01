@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { Card, CardContent } from '../ui/Card';
 import { cn } from '../../utils/cn';
@@ -18,6 +19,7 @@ export const CollapsibleFileSelector: React.FC<CollapsibleFileSelectorProps> = (
   onNewComparison,
   className
 }) => {
+  const { t } = useTranslation();
   const [internalIsCollapsed, setInternalIsCollapsed] = useState(true);
   
   const isCollapsed = controlledIsCollapsed !== undefined ? controlledIsCollapsed : internalIsCollapsed;
@@ -64,7 +66,7 @@ export const CollapsibleFileSelector: React.FC<CollapsibleFileSelectorProps> = (
               )}
             </Button>
             <span className="text-sm font-medium text-gray-700">
-              {isCollapsed ? 'Select New Files' : 'File Selection'}
+              {isCollapsed ? t('collapsibleSelector.selectNewFiles') : t('collapsibleSelector.fileSelection')}
             </span>
           </div>
           
@@ -75,7 +77,7 @@ export const CollapsibleFileSelector: React.FC<CollapsibleFileSelectorProps> = (
                 size="sm"
                 onClick={onNewComparison}
               >
-                Compare Files
+                {t('collapsibleSelector.compareFiles')}
               </Button>
             )}
             {!isCollapsed && (
@@ -88,7 +90,7 @@ export const CollapsibleFileSelector: React.FC<CollapsibleFileSelectorProps> = (
                   onFileSelect?.({ original: null, modified: null });
                 }}
               >
-                Clear
+                {t('collapsibleSelector.clear')}
               </Button>
             )}
           </div>
@@ -99,7 +101,7 @@ export const CollapsibleFileSelector: React.FC<CollapsibleFileSelectorProps> = (
             {/* Original File Input */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">
-                Original File
+                {t('collapsibleSelector.originalFile')}
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -130,7 +132,7 @@ export const CollapsibleFileSelector: React.FC<CollapsibleFileSelectorProps> = (
             {/* Modified File Input */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">
-                Modified File
+                {t('collapsibleSelector.modifiedFile')}
               </label>
               <div className="flex items-center gap-2">
                 <input

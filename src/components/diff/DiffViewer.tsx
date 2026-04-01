@@ -1,6 +1,7 @@
 import React, { useMemo, memo, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getLineClassName, getPrefixSymbol } from '../../utils/diffRendering';
-import type { DiffLine, ViewMode, CharSegment, LineWithSegments, LinePair, SideBySideRow, CollapsedBlock, UnifiedRow, UnifiedCollapsedBlock } from '../../types/types';
+import type { DiffLine, ViewMode, CharSegment, LineWithSegments, LinePair, SideBySideRow, UnifiedRow } from '../../types/types';
 import { isCollapsedBlock, isUnifiedCollapsedBlock } from '../../types/types';
 import { LinePairingService } from '../../services/linePairingService';
 
@@ -164,25 +165,26 @@ SideBySidePairRow.displayName = 'SideBySidePairRow';
  * Shows a clickable row that expands to reveal hidden lines
  */
 const CollapsedLinesRow = memo<{
-  block: CollapsedBlock;
   onExpand: () => void;
-}>(({ block, onExpand }) => (
+  collapsedText: string;
+  expandLabel: string;
+}>(({ onExpand, collapsedText, expandLabel }) => (
   <div
     className="grid grid-cols-2 cursor-pointer hover:bg-blue-50 transition-colors"
     onClick={onExpand}
     role="button"
     tabIndex={0}
     onKeyDown={(e) => e.key === 'Enter' && onExpand()}
-    aria-label={`Expand ${block.count} hidden lines`}
+    aria-label={expandLabel}
   >
     <div className="border-r border-gray-200 bg-gray-100 py-1 px-4 text-center">
       <span className="text-xs text-gray-500">
-        ⋯ {block.count} lines hidden ⋯
+        {collapsedText}
       </span>
     </div>
     <div className="bg-gray-100 py-1 px-4 text-center">
       <span className="text-xs text-gray-500">
-        ⋯ {block.count} lines hidden ⋯
+        {collapsedText}
       </span>
     </div>
   </div>
@@ -196,15 +198,19 @@ CollapsedLinesRow.displayName = 'CollapsedLinesRow';
 const SideBySideView = memo<{
   rows: SideBySideRow[];
   onExpandBlock: (startLine: number) => void;
-}>(({ rows, onExpandBlock }) => (
+  headerOriginal: string;
+  headerModified: string;
+  collapsedLinesText: (count: number) => string;
+  expandLinesText: (count: number) => string;
+}>(({ rows, onExpandBlock, headerOriginal, headerModified, collapsedLinesText, expandLinesText }) => (
   <div role="main" aria-label="Side-by-side diff view">
     {/* Header row */}
     <div className="grid grid-cols-2 mb-2">
       <div className="px-4">
-        <div className="font-medium text-sm text-gray-700">Original</div>
+        <div className="font-medium text-sm text-gray-700">{headerOriginal}</div>
       </div>
       <div className="px-4">
-        <div className="font-medium text-sm text-gray-700">Modified</div>
+        <div className="font-medium text-sm text-gray-700">{headerModified}</div>
       </div>
     </div>
     {/* Line pairs */}
@@ -213,8 +219,9 @@ const SideBySideView = memo<{
         isCollapsedBlock(row) ? (
           <CollapsedLinesRow
             key={`collapsed-${row.originalStartLine}`}
-            block={row}
             onExpand={() => onExpandBlock(row.originalStartLine)}
+            collapsedText={collapsedLinesText(row.count)}
+            expandLabel={expandLinesText(row.count)}
           />
         ) : (
           <SideBySidePairRow
@@ -234,19 +241,20 @@ SideBySideView.displayName = 'SideBySideView';
  * Collapsed lines row for unified view
  */
 const UnifiedCollapsedRow = memo<{
-  block: UnifiedCollapsedBlock;
   onExpand: () => void;
-}>(({ block, onExpand }) => (
+  collapsedText: string;
+  expandLabel: string;
+}>(({ onExpand, collapsedText, expandLabel }) => (
   <div
     className="cursor-pointer hover:bg-blue-50 transition-colors bg-gray-100 py-1 px-4 text-center"
     onClick={onExpand}
     role="button"
     tabIndex={0}
     onKeyDown={(e) => e.key === 'Enter' && onExpand()}
-    aria-label={`Expand ${block.count} hidden lines`}
+    aria-label={expandLabel}
   >
     <span className="text-xs text-gray-500">
-      ⋯ {block.count} lines hidden ⋯
+      {collapsedText}
     </span>
   </div>
 ));
@@ -259,15 +267,18 @@ UnifiedCollapsedRow.displayName = 'UnifiedCollapsedRow';
 const UnifiedPanel = memo<{
   rows: UnifiedRow[];
   onExpandBlock: (startLine: number) => void;
-}>(({ rows, onExpandBlock }) => (
+  collapsedLinesText: (count: number) => string;
+  expandLinesText: (count: number) => string;
+}>(({ rows, onExpandBlock, collapsedLinesText, expandLinesText }) => (
   <div className="space-y-2">
     <div className="border rounded-md overflow-visible" role="region" aria-label="Unified diff view">
       {rows.map((row, index) =>
         isUnifiedCollapsedBlock(row) ? (
           <UnifiedCollapsedRow
             key={`collapsed-${row.startLine}`}
-            block={row}
             onExpand={() => onExpandBlock(row.startLine)}
+            collapsedText={collapsedLinesText(row.count)}
+            expandLabel={expandLinesText(row.count)}
           />
         ) : (
           <DiffLineComponent
@@ -296,6 +307,8 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
   enableCharDiff = true,
   contextLines
 }) => {
+  const { t } = useTranslation();
+
   // Track expanded blocks by their originalStartLine / startLine (stable identifiers)
   const [expandedSideBySideBlocks, setExpandedSideBySideBlocks] = useState<Set<number>>(new Set());
   const [expandedUnifiedBlocks, setExpandedUnifiedBlocks] = useState<Set<number>>(new Set());
@@ -402,9 +415,23 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
     return result;
   }, [viewMode, unifiedLinesWithSegments, contextLines, expandedUnifiedBlocks]);
 
+  const collapsedLinesText = useCallback((count: number) =>
+    t('diffViewer.collapsedLines', { count }), [t]);
+  const expandLinesText = useCallback((count: number) =>
+    t('diffViewer.expandLines', { count }), [t]);
+
   // Render side-by-side view with synchronized row heights
   if (viewMode === 'side-by-side') {
-    return <SideBySideView rows={sideBySideRows} onExpandBlock={handleExpandSideBySideBlock} />;
+    return (
+      <SideBySideView
+        rows={sideBySideRows}
+        onExpandBlock={handleExpandSideBySideBlock}
+        headerOriginal={t('diffViewer.sideBySideHeader.original')}
+        headerModified={t('diffViewer.sideBySideHeader.modified')}
+        collapsedLinesText={collapsedLinesText}
+        expandLinesText={expandLinesText}
+      />
+    );
   }
 
   // Render unified view with character diff
@@ -412,6 +439,8 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(({
     <UnifiedPanel
       rows={unifiedRows}
       onExpandBlock={handleExpandUnifiedBlock}
+      collapsedLinesText={collapsedLinesText}
+      expandLinesText={expandLinesText}
     />
   );
 });
