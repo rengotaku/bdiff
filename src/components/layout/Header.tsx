@@ -33,10 +33,11 @@ const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center justify-between h-12">
           {/* Left side - Logo and title */}
           <div className="flex items-center">
-            <div className="flex-shrink-0 flex items-end gap-4">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">{title}</h1>
+            <div className="flex-shrink-0 flex items-center gap-2">
+              <img src="/favicon.svg" alt="BDiff logo" className="h-7 w-7" />
+              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{title}</h1>
               {subtitle && (
-                <p className="text-xs text-gray-light">{subtitle}</p>
+                <p className="text-xs text-gray-light ml-2 self-end mb-0.5">{subtitle}</p>
               )}
             </div>
           </div>
