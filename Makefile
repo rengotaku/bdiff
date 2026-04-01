@@ -1,7 +1,7 @@
 # Makefile for bdiff project
 # Development and build automation
 
-.PHONY: help install dev dev-bg dev-stop build preview clean test lint typecheck kill-port setup deps-update deps-audit security-check docker-build docker-run git-status commit
+.PHONY: help install dev dev-bg dev-stop build preview clean test lint typecheck kill-port setup deps-update deps-audit security-check docker-build docker-run git-status commit i18n-check
 
 # Default port for development server
 PORT := 14000
@@ -72,6 +72,10 @@ lint: ## Run linting (if available)
 test: ## Run tests
 	@echo "$(COLOR_YELLOW)Running tests...$(COLOR_RESET)"
 	@$(NPM) test
+
+i18n-check: ## Check i18n locale key consistency across all languages
+	@echo "$(COLOR_BLUE)Checking i18n locale key consistency...$(COLOR_RESET)"
+	@$(NODE) scripts/check-i18n-keys.cjs
 
 # Dependency management
 deps-update: ## Update dependencies
@@ -170,7 +174,7 @@ env-info: ## Display environment information
 	@echo "Memory: $$(free -h | grep '^Mem:' | awk '{print $$7}') available"
 
 # All-in-one commands
-full-check: typecheck security-check build ## Complete project health check
+full-check: typecheck i18n-check security-check build ## Complete project health check
 	@echo "$(COLOR_GREEN)Full project check complete!$(COLOR_RESET)"
 
 fresh-start: clean install setup dev ## Complete fresh start

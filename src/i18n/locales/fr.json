@@ -43,7 +43,10 @@
     "ignoreTrailingNewlinesTooltip": "Ignorer les lignes vides finales",
     "enableCharDiff": "Surlignage des caractères",
     "enableCharDiffLabel": "Surlignage des caractères",
-    "enableCharDiffTooltip": "Surligner les caractères modifiés dans les lignes"
+    "enableCharDiffTooltip": "Surligner les caractères modifiés dans les lignes",
+    "collapseUnchanged": "Réduire les lignes inchangées",
+    "collapseUnchangedLabel": "Réduire les lignes inchangées",
+    "collapseUnchangedTooltip": "Afficher uniquement le contexte autour des modifications (style GitHub)"
   },
   "diffViewer": {
     "viewMode": {

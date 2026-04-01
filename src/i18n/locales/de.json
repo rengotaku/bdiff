@@ -43,7 +43,10 @@
     "ignoreTrailingNewlinesTooltip": "Abschließende Leerzeilen ignorieren",
     "enableCharDiff": "Zeichenhervorhebung",
     "enableCharDiffLabel": "Zeichenhervorhebung",
-    "enableCharDiffTooltip": "Geänderte Zeichen in Zeilen hervorheben"
+    "enableCharDiffTooltip": "Geänderte Zeichen in Zeilen hervorheben",
+    "collapseUnchanged": "Unveränderte Zeilen ausblenden",
+    "collapseUnchangedLabel": "Unveränderte Zeilen ausblenden",
+    "collapseUnchangedTooltip": "Nur Kontext um Änderungen anzeigen (GitHub-Stil)"
   },
   "diffViewer": {
     "viewMode": {
