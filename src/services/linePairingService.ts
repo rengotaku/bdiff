@@ -552,7 +552,7 @@ export class LinePairingService {
       return pairs;
     }
 
-    // Use content-based matching
+    // Use content-based matching for reordering similar lines
     const matches = this.matchByContent(removedLines, addedLines);
 
     // Create index mappings for matched pairs
@@ -567,16 +567,33 @@ export class LinePairingService {
     // Track which lines have been output
     const usedAdded = new Set<number>();
 
-    // Process removed lines in order, matching by content similarity only
+    // Positional index for fallback pairing of unmatched lines
+    let nextUnmatchedAddedIdx = 0;
+
+    // Process removed lines in order
     for (let removedIdx = 0; removedIdx < removedLines.length; removedIdx++) {
       const removed = removedLines[removedIdx];
 
-      // Check for content match
+      // Check for content-similarity match first
+      let added: DiffLine | undefined;
       if (removedToAdded.has(removedIdx)) {
         const addedIdx = removedToAdded.get(removedIdx)!;
-        const added = addedLines[addedIdx];
+        added = addedLines[addedIdx];
         usedAdded.add(addedIdx);
+      } else {
+        // Fallback: pair positionally with next unused added line
+        while (nextUnmatchedAddedIdx < addedLines.length &&
+               (usedAdded.has(nextUnmatchedAddedIdx) || addedToRemoved.has(nextUnmatchedAddedIdx))) {
+          nextUnmatchedAddedIdx++;
+        }
+        if (nextUnmatchedAddedIdx < addedLines.length) {
+          added = addedLines[nextUnmatchedAddedIdx];
+          usedAdded.add(nextUnmatchedAddedIdx);
+          nextUnmatchedAddedIdx++;
+        }
+      }
 
+      if (added) {
         // Output matched pair with char diff if applicable
         if (enableCharDiff && CharDiffService.shouldShowCharDiff(removed.content, added.content)) {
           const { originalSegments, modifiedSegments } = CharDiffService.calculateCharDiff(
@@ -594,12 +611,12 @@ export class LinePairingService {
           });
         }
       } else {
-        // No match - output removed line alone (will be matched in second pass if possible)
+        // No added line available - output removed line alone
         pairs.push({ original: { line: removed }, modified: null });
       }
     }
 
-    // Output remaining added lines (will be matched in second pass if possible)
+    // Output remaining added lines that weren't paired
     for (let addedIdx = 0; addedIdx < addedLines.length; addedIdx++) {
       if (!usedAdded.has(addedIdx)) {
         pairs.push({ original: null, modified: { line: addedLines[addedIdx] } });
