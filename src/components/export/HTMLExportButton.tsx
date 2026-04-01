@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { HTMLExportDialog } from './HTMLExportDialog';
 import { ExportService, type HtmlExportOptions } from '../../services/export';
-import type { DiffResult, FileInfo } from '../../types/types';
+import type { DiffResult, FileInfo, ViewMode } from '../../types/types';
 
 interface HTMLExportButtonProps {
   /** The diff result to export */
@@ -12,6 +12,8 @@ interface HTMLExportButtonProps {
   originalFile: FileInfo | null;
   /** Modified file information */
   modifiedFile: FileInfo | null;
+  /** Current view mode from DiffViewer (inherited as default for export) */
+  viewMode?: ViewMode;
   /** Collapse unchanged lines (inherited from main view settings) */
   collapseUnchanged?: boolean;
   /** Button variant */
@@ -33,6 +35,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
   diffResult,
   originalFile,
   modifiedFile,
+  viewMode,
   collapseUnchanged = true,
   variant = 'ghost',
   size = 'sm',
@@ -186,6 +189,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
         onPreview={handlePreview}
         isExporting={isExporting}
         suggestedFilename={suggestedFilename}
+        initialViewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
       />
     </>
   );

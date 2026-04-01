@@ -35,6 +35,8 @@ interface HTMLExportDialogProps {
   isExporting?: boolean;
   /** Suggested filename */
   suggestedFilename?: string;
+  /** Initial view mode inherited from DiffViewer */
+  initialViewMode?: 'side-by-side' | 'unified';
 }
 
 /**
@@ -46,10 +48,18 @@ export const HTMLExportDialog: React.FC<HTMLExportDialogProps> = ({
   onExport,
   onPreview,
   isExporting = false,
-  suggestedFilename = ''
+  suggestedFilename = '',
+  initialViewMode
 }) => {
   const { t } = useTranslation();
   const [options, setOptions] = useState<HtmlExportOptions>(DEFAULT_HTML_EXPORT_OPTIONS);
+
+  // Sync viewMode when dialog opens with inherited value
+  useEffect(() => {
+    if (isOpen && initialViewMode) {
+      setOptions(prev => ({ ...prev, viewMode: initialViewMode }));
+    }
+  }, [isOpen, initialViewMode]);
   const [editableFilename, setEditableFilename] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
 
