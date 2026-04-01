@@ -13,7 +13,11 @@
     "modifiedPlaceholder": "Collez, tapez votre texte modifié ici, ou déposez un fichier...",
     "dropzonePlaceholder": "Déposez votre fichier ici",
     "selectFile": "Sélectionner un fichier",
-    "fileInfo": "{{name}} ({{size}})"
+    "fileInfo": "{{name}} ({{size}})",
+    "clear": "Effacer",
+    "browseFile": "Parcourir",
+    "loaded": "Chargé :",
+    "processing": "Traitement en cours... Veuillez patienter."
   },
   "comparison": {
     "compareButton": "Comparer les fichiers",
@@ -46,23 +50,36 @@
       "label": "Mode d'affichage",
       "sideBySide": "Côte à côte",
       "unified": "Unifié",
-      "split": "Divisé"
+      "split": "Divisé",
+      "sideBySideTitle": "Vue côte à côte",
+      "unifiedTitle": "Vue unifiée"
     },
     "statistics": {
       "similarity": "Pourcentage de similarité entre les deux fichiers",
       "additions": "Nombre de lignes ajoutées",
       "deletions": "Nombre de lignes supprimées",
-      "changes": "Nombre de lignes modifiées"
+      "changes": "Nombre de lignes modifiées",
+      "unchanged": "Nombre de lignes inchangées"
     },
     "actions": {
       "copy": "Copier",
       "copying": "Copie en cours...",
-      "export": "Exporter"
+      "export": "Exporter",
+      "copyDiff": "Copier les différences"
     },
+    "sideBySideHeader": {
+      "original": "Original",
+      "modified": "Modifié"
+    },
+    "collapsedLines": "⋯ {{count}} lignes masquées ⋯",
+    "expandLines": "Afficher {{count}} lignes masquées",
     "noDifferences": {
       "title": "Aucune différence trouvée",
       "message": "Les fichiers sont identiques",
-      "similarity": "{{percentage}}% de similarité"
+      "similarity": "{{percentage}}% de similarité",
+      "noChangesDetected": "Aucune modification détectée.",
+      "fullMatch": "100% identique",
+      "noChanges": "Aucune modification"
     }
   },
   "export": {
@@ -131,5 +148,71 @@
     "copy": "Copier les différences",
     "export": "Exporter",
     "help": "Afficher l'aide"
+  },
+  "collapsibleSelector": {
+    "selectNewFiles": "Sélectionner de nouveaux fichiers",
+    "fileSelection": "Sélection de fichiers",
+    "compareFiles": "Comparer les fichiers",
+    "clear": "Effacer",
+    "originalFile": "Fichier original",
+    "modifiedFile": "Fichier modifié"
+  },
+  "diffPage": {
+    "title": "Comparaison de fichiers",
+    "processingSubtitle": "Traitement de vos fichiers...",
+    "comparisonFailed": "Échec de la comparaison",
+    "noFilesToCompare": "Aucun fichier à comparer",
+    "processingFiles": "Traitement des fichiers...",
+    "calculatingDifferences": "Calcul des différences entre vos fichiers",
+    "errorOccurred": "Une erreur est survenue",
+    "goBack": "Retour",
+    "uploadDescription": "Téléchargez ou sélectionnez des fichiers pour voir leurs différences",
+    "uploadFiles": "Télécharger des fichiers",
+    "fileInformation": "Informations sur le fichier",
+    "original": "Original",
+    "modified": "Modifié",
+    "showDetails": "Afficher les détails",
+    "originalFile": "Fichier original",
+    "modifiedFile": "Fichier modifié",
+    "size": "Taille :",
+    "type": "Type :",
+    "lastModified": "Modifié :",
+    "linesCount": "Lignes :",
+    "comparisonStatistics": "Statistiques de comparaison",
+    "similarity": "Similarité",
+    "added": "Ajouté",
+    "removed": "Supprimé",
+    "modifiedStat": "Modifié",
+    "unchanged": "Inchangé",
+    "viewMode": "Mode d'affichage",
+    "sideBySide": "Côte à côte",
+    "unified": "Unifié",
+    "newComparison": "Nouvelle comparaison",
+    "differences": "Différences"
+  },
+  "exportLabels": {
+    "comparisonReport": "Rapport de comparaison BDiff",
+    "generated": "Généré :",
+    "originalFile": "📄 Fichier original",
+    "modifiedFile": "📄 Fichier modifié",
+    "name": "Nom :",
+    "size": "Taille :",
+    "lines": "Lignes :",
+    "lastModified": "Modifié :",
+    "footerText": "Généré par BDiff - Outil de comparaison de fichiers",
+    "noDifferences": "Aucune différence à afficher",
+    "linesHidden": "⋯ {{count}} lignes masquées ⋯",
+    "original": "Original",
+    "modified": "Modifié",
+    "fileInformation": "Informations sur le fichier",
+    "statistics": "Statistiques",
+    "diffContent": "Contenu des différences",
+    "added": "Ajouté",
+    "removed": "Supprimé",
+    "modifiedStat": "Modifié",
+    "unchanged": "Inchangé",
+    "similarityStat": "Similarité",
+    "diffComparison": "Comparaison des différences",
+    "statisticsLabel": "Statistiques :"
   }
 }

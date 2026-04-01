@@ -4,7 +4,7 @@
  */
 
 import type { DiffLine } from '../../../types/types';
-import type { MarkdownExportOptions } from '../types';
+import type { MarkdownExportOptions, ExportLabels } from '../types';
 import { BaseRenderer } from './BaseRenderer';
 
 /**
@@ -21,6 +21,7 @@ const DEFAULT_OPTIONS: Required<MarkdownExportOptions> = {
   originalFile: undefined as any,
   modifiedFile: undefined as any,
   collapseUnchanged: false,
+  labels: undefined as any,
 };
 
 /**
@@ -48,12 +49,12 @@ export class MarkdownRenderer extends BaseRenderer {
 
     // Add stats if requested
     if (opts.includeStats) {
-      sections.push(this.generateStats(lines));
+      sections.push(this.generateStats(lines, opts.labels));
       sections.push('');
     }
 
     // Add diff content
-    sections.push('## Diff Content');
+    sections.push(`## ${opts.labels?.diffContent ?? 'Diff Content'}`);
     sections.push('');
     sections.push(this.generateDiffContent(lines, opts));
 
@@ -78,16 +79,17 @@ export class MarkdownRenderer extends BaseRenderer {
    * Generate header section
    */
   private generateHeader(opts: Required<MarkdownExportOptions>): string {
+    const l = opts.labels ?? {};
     const lines: string[] = [];
 
-    lines.push('## File Information');
+    lines.push(`## ${l.fileInformation ?? 'File Information'}`);
     lines.push('');
-    lines.push(`**Generated:** ${this.formatDate(new Date())}`);
+    lines.push(`**${l.generated ?? 'Generated:'}** ${this.formatDate(new Date())}`);
     lines.push('');
     lines.push('| File | Name | Size |');
     lines.push('|------|------|------|');
-    lines.push(`| Original | \`${opts.originalFile.name}\` | ${opts.originalFile.size} bytes |`);
-    lines.push(`| Modified | \`${opts.modifiedFile.name}\` | ${opts.modifiedFile.size} bytes |`);
+    lines.push(`| ${l.original ?? 'Original'} | \`${opts.originalFile.name}\` | ${opts.originalFile.size} bytes |`);
+    lines.push(`| ${l.modified ?? 'Modified'} | \`${opts.modifiedFile.name}\` | ${opts.modifiedFile.size} bytes |`);
 
     return lines.join('\n');
   }
@@ -95,21 +97,22 @@ export class MarkdownRenderer extends BaseRenderer {
   /**
    * Generate statistics section
    */
-  private generateStats(lines: DiffLine[]): string {
+  private generateStats(lines: DiffLine[], labels?: ExportLabels): string {
     const stats = this.getLineStats(lines);
     const total = lines.length;
     const similarity = total > 0 ? Math.round((stats.unchanged / total) * 100) : 100;
+    const l = labels ?? {};
 
     const output: string[] = [];
-    output.push('## Statistics');
+    output.push(`## ${l.statistics ?? 'Statistics'}`);
     output.push('');
     output.push('| Metric | Count |');
     output.push('|--------|-------|');
-    output.push(`| Added | \`+${stats.added}\` |`);
-    output.push(`| Removed | \`-${stats.removed}\` |`);
-    output.push(`| Modified | \`~${stats.modified}\` |`);
-    output.push(`| Unchanged | \`${stats.unchanged}\` |`);
-    output.push(`| Similarity | **${similarity}%** |`);
+    output.push(`| ${l.added ?? 'Added'} | \`+${stats.added}\` |`);
+    output.push(`| ${l.removed ?? 'Removed'} | \`-${stats.removed}\` |`);
+    output.push(`| ${l.modifiedStat ?? 'Modified'} | \`~${stats.modified}\` |`);
+    output.push(`| ${l.unchanged ?? 'Unchanged'} | \`${stats.unchanged}\` |`);
+    output.push(`| ${l.similarityStat ?? 'Similarity'} | **${similarity}%** |`);
 
     return output.join('\n');
   }

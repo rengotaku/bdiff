@@ -5,7 +5,7 @@
 
 import type { DiffLine, CharSegment, LineWithSegments } from '../../../types/types';
 import { isCollapsedBlock, isUnifiedCollapsedBlock } from '../../../types/types';
-import type { HtmlExportOptions } from '../types';
+import type { HtmlExportOptions, ExportLabels } from '../types';
 import { BaseRenderer } from './BaseRenderer';
 import { TAILWIND_CSS } from '../../tailwindEmbedded';
 import { LinePairingService } from '../../linePairingService';
@@ -25,6 +25,7 @@ const DEFAULT_OPTIONS: Required<HtmlExportOptions> = {
   originalFile: undefined as any,
   modifiedFile: undefined as any,
   collapseUnchanged: false,
+  labels: undefined as any,
 };
 
 /**
@@ -90,14 +91,14 @@ ${this.getEmbeddedCSS(opts.theme)}
 </head>
 <body>
   <div class="container">
-    ${opts.includeHeader && opts.originalFile && opts.modifiedFile ? this.generateHeader(opts.originalFile, opts.modifiedFile, timestamp) : ''}
+    ${opts.includeHeader && opts.originalFile && opts.modifiedFile ? this.generateHeader(opts.originalFile, opts.modifiedFile, timestamp, opts.labels) : ''}
     ${opts.includeStats ? this.generateStatsSection(linesToRender) : ''}
     <section class="diff-section">
       <div class="diff-content">
         ${diffHtml}
       </div>
     </section>
-    ${this.generateFooter()}
+    ${this.generateFooter(opts.labels)}
   </div>
 </body>
 </html>`;
@@ -109,38 +110,50 @@ ${this.getEmbeddedCSS(opts.theme)}
   private generateHeader(
     originalFile: any,
     modifiedFile: any,
-    timestamp: string
+    timestamp: string,
+    labels?: ExportLabels
   ): string {
+    const l = {
+      comparisonReport: labels?.comparisonReport ?? 'BDiff Comparison Report',
+      generated: labels?.generated ?? 'Generated:',
+      originalFile: labels?.originalFile ?? '📄 Original File',
+      modifiedFile: labels?.modifiedFile ?? '📄 Modified File',
+      name: labels?.name ?? 'Name:',
+      size: labels?.size ?? 'Size:',
+      lines: labels?.lines ?? 'Lines:',
+      lastModified: labels?.lastModified ?? 'Modified:',
+    };
+
     return `
     <header class="report-header">
       <details class="header-details">
         <summary class="header-summary">
-          <h1>BDiff Comparison Report</h1>
+          <h1>${this.escapeHtml(l.comparisonReport)}</h1>
           <span class="toggle-icon">▶</span>
         </summary>
         <div class="metadata">
           <div class="metadata-row">
-            <span class="label">Generated:</span>
+            <span class="label">${this.escapeHtml(l.generated)}</span>
             <span class="value">${this.formatDate(new Date(timestamp))}</span>
           </div>
           <div class="file-comparison">
             <div class="file-info original-file">
-              <h3>📄 Original File</h3>
+              <h3>${this.escapeHtml(l.originalFile)}</h3>
               <div class="file-details">
-                <div><strong>Name:</strong> ${this.escapeHtml(originalFile.name)}</div>
-                <div><strong>Size:</strong> ${originalFile.size.toLocaleString()} bytes</div>
-                <div><strong>Lines:</strong> ${originalFile.content.split('\n').length.toLocaleString()}</div>
-                ${originalFile.lastModified ? `<div><strong>Modified:</strong> ${this.formatDate(originalFile.lastModified, 'en-US')}</div>` : ''}
+                <div><strong>${this.escapeHtml(l.name)}</strong> ${this.escapeHtml(originalFile.name)}</div>
+                <div><strong>${this.escapeHtml(l.size)}</strong> ${originalFile.size.toLocaleString()} bytes</div>
+                <div><strong>${this.escapeHtml(l.lines)}</strong> ${originalFile.content.split('\n').length.toLocaleString()}</div>
+                ${originalFile.lastModified ? `<div><strong>${this.escapeHtml(l.lastModified)}</strong> ${this.formatDate(originalFile.lastModified, 'en-US')}</div>` : ''}
               </div>
             </div>
             <div class="comparison-arrow">↔️</div>
             <div class="file-info modified-file">
-              <h3>📄 Modified File</h3>
+              <h3>${this.escapeHtml(l.modifiedFile)}</h3>
               <div class="file-details">
-                <div><strong>Name:</strong> ${this.escapeHtml(modifiedFile.name)}</div>
-                <div><strong>Size:</strong> ${modifiedFile.size.toLocaleString()} bytes</div>
-                <div><strong>Lines:</strong> ${modifiedFile.content.split('\n').length.toLocaleString()}</div>
-                ${modifiedFile.lastModified ? `<div><strong>Modified:</strong> ${this.formatDate(modifiedFile.lastModified, 'en-US')}</div>` : ''}
+                <div><strong>${this.escapeHtml(l.name)}</strong> ${this.escapeHtml(modifiedFile.name)}</div>
+                <div><strong>${this.escapeHtml(l.size)}</strong> ${modifiedFile.size.toLocaleString()} bytes</div>
+                <div><strong>${this.escapeHtml(l.lines)}</strong> ${modifiedFile.content.split('\n').length.toLocaleString()}</div>
+                ${modifiedFile.lastModified ? `<div><strong>${this.escapeHtml(l.lastModified)}</strong> ${this.formatDate(modifiedFile.lastModified, 'en-US')}</div>` : ''}
               </div>
             </div>
           </div>
@@ -172,10 +185,14 @@ ${this.getEmbeddedCSS(opts.theme)}
   /**
    * Generate footer section
    */
-  private generateFooter(): string {
+  private generateFooter(labels?: ExportLabels): string {
+    const footerText = labels?.footerText
+      ? this.escapeHtml(labels.footerText)
+      : 'Generated by <a href="https://bdiff.v41.me" target="_blank">BDiff</a> - File Comparison Tool';
+
     return `
     <footer class="report-footer">
-      <p>Generated by <a href="https://bdiff.v41.me" target="_blank">BDiff</a> - File Comparison Tool</p>
+      <p>${footerText}</p>
     </footer>`;
   }
 
@@ -202,7 +219,8 @@ ${this.getEmbeddedCSS(opts.theme)}
     options: Required<HtmlExportOptions>
   ): string {
     if (lines.length === 0) {
-      return '<div class="text-center text-gray-500 p-8">No differences to display</div>';
+      const noDiffText = options.labels?.noDifferences ?? 'No differences to display';
+      return `<div class="text-center text-gray-500 p-8">${this.escapeHtml(noDiffText)}</div>`;
     }
 
     // Use LinePairingService to get lines with character segments
@@ -216,9 +234,12 @@ ${this.getEmbeddedCSS(opts.theme)}
     const lineElements = rows.map(row => {
       if (isUnifiedCollapsedBlock(row)) {
         const colSpan = options.includeLineNumbers ? 3 : 2;
+        const hiddenText = options.labels?.linesHidden
+          ? (options.labels.linesHidden as string).replace('{{count}}', String(row.count))
+          : `⋯ ${row.count} lines hidden ⋯`;
         return `
             <tr class="collapsed-row">
-              <td colspan="${colSpan}" class="collapsed-cell">⋯ ${row.count} lines hidden ⋯</td>
+              <td colspan="${colSpan}" class="collapsed-cell">${this.escapeHtml(hiddenText)}</td>
             </tr>`;
       }
       return this.renderDiffLineWithSegments(row, options);
@@ -242,7 +263,8 @@ ${this.getEmbeddedCSS(opts.theme)}
     options: Required<HtmlExportOptions>
   ): string {
     if (lines.length === 0) {
-      return '<div class="grid grid-cols-2 gap-4"><div class="text-center text-gray-500 p-8">No differences to display</div></div>';
+      const noDiffText = options.labels?.noDifferences ?? 'No differences to display';
+      return `<div class="grid grid-cols-2 gap-4"><div class="text-center text-gray-500 p-8">${this.escapeHtml(noDiffText)}</div></div>`;
     }
 
     // Use LinePairingService to get properly paired lines (same as screen display)
@@ -256,7 +278,10 @@ ${this.getEmbeddedCSS(opts.theme)}
     const colCount = options.includeLineNumbers ? 6 : 4;
     const pairRows = rows.map(row => {
       if (isCollapsedBlock(row)) {
-        return `<tr class="side-by-side-row collapsed-row"><td colspan="${colCount}" class="collapsed-cell">⋯ ${row.count} lines hidden ⋯</td></tr>`;
+        const hiddenText = options.labels?.linesHidden
+          ? (options.labels.linesHidden as string).replace('{{count}}', String(row.count))
+          : `⋯ ${row.count} lines hidden ⋯`;
+        return `<tr class="side-by-side-row collapsed-row"><td colspan="${colCount}" class="collapsed-cell">${this.escapeHtml(hiddenText)}</td></tr>`;
       }
       const originalCell = this.renderSideBySideCell(row.original, options, 'original');
       const modifiedCell = this.renderSideBySideCell(row.modified, options, 'modified');
@@ -270,10 +295,10 @@ ${this.getEmbeddedCSS(opts.theme)}
             <tr class="panel-header-row">
               <th class="panel-header-cell line-num-header" style="width:40px;"></th>
               <th class="panel-header-cell symbol-header" style="width:20px;"></th>
-              <th class="panel-header-cell content-header">Original</th>
+              <th class="panel-header-cell content-header">${this.escapeHtml(options.labels?.original ?? 'Original')}</th>
               <th class="panel-header-cell line-num-header" style="width:40px;"></th>
               <th class="panel-header-cell symbol-header" style="width:20px;"></th>
-              <th class="panel-header-cell content-header">Modified</th>
+              <th class="panel-header-cell content-header">${this.escapeHtml(options.labels?.modified ?? 'Modified')}</th>
             </tr>
           </thead>
           <tbody>

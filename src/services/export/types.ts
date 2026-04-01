@@ -11,6 +11,36 @@ import type { DiffLine, ViewMode, FileInfo } from '../../types/types';
 export type ExportFormat = 'html' | 'svg' | 'markdown' | 'plaintext';
 
 /**
+ * Translated labels passed from components to renderers (方式B)
+ * Renderers use these instead of hardcoded strings
+ */
+export interface ExportLabels {
+  comparisonReport?: string;
+  generated?: string;
+  originalFile?: string;
+  modifiedFile?: string;
+  name?: string;
+  size?: string;
+  lines?: string;
+  lastModified?: string;
+  footerText?: string;
+  noDifferences?: string;
+  linesHidden?: string;
+  original?: string;
+  modified?: string;
+  fileInformation?: string;
+  statistics?: string;
+  diffContent?: string;
+  added?: string;
+  removed?: string;
+  modifiedStat?: string;
+  unchanged?: string;
+  similarityStat?: string;
+  diffComparison?: string;
+  statisticsLabel?: string;
+}
+
+/**
  * Base export options shared across all formats
  */
 export interface BaseExportOptions {
@@ -30,6 +60,8 @@ export interface BaseExportOptions {
   modifiedFile?: FileInfo;
   /** Collapse unchanged lines (show only context around changes) */
   collapseUnchanged?: boolean;
+  /** Translated labels for i18n support */
+  labels?: ExportLabels;
 }
 
 /**

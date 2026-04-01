@@ -13,7 +13,11 @@
     "modifiedPlaceholder": "変更後のテキストを貼り付けるか、ファイルをドロップしてください...",
     "dropzonePlaceholder": "ファイルをここにドロップ",
     "selectFile": "ファイルを選択",
-    "fileInfo": "{{name}} ({{size}})"
+    "fileInfo": "{{name}} ({{size}})",
+    "clear": "クリア",
+    "browseFile": "ファイルを参照",
+    "loaded": "読み込み済み:",
+    "processing": "処理中...お待ちください。"
   },
   "comparison": {
     "compareButton": "ファイルを比較",
@@ -49,23 +53,36 @@
       "label": "表示モード",
       "sideBySide": "横並び",
       "unified": "統合",
-      "split": "分割"
+      "split": "分割",
+      "sideBySideTitle": "横並び表示",
+      "unifiedTitle": "統合表示"
     },
     "statistics": {
       "similarity": "2つのファイル間の類似度",
       "additions": "追加された行数",
       "deletions": "削除された行数",
-      "changes": "変更された行数"
+      "changes": "変更された行数",
+      "unchanged": "未変更の行数"
     },
     "actions": {
       "copy": "コピー",
       "copying": "コピー中...",
-      "export": "エクスポート"
+      "export": "エクスポート",
+      "copyDiff": "差分をコピー"
     },
+    "sideBySideHeader": {
+      "original": "オリジナル",
+      "modified": "変更後"
+    },
+    "collapsedLines": "⋯ {{count}} 行を省略 ⋯",
+    "expandLines": "省略された {{count}} 行を展開",
     "noDifferences": {
       "title": "差分が見つかりません",
       "message": "ファイルは同一です",
-      "similarity": "類似度 {{percentage}}%"
+      "similarity": "類似度 {{percentage}}%",
+      "noChangesDetected": "変更は検出されませんでした。",
+      "fullMatch": "100% 一致",
+      "noChanges": "変更なし"
     }
   },
   "export": {
@@ -134,5 +151,71 @@
     "copy": "差分をコピー",
     "export": "エクスポート",
     "help": "ヘルプを表示"
+  },
+  "collapsibleSelector": {
+    "selectNewFiles": "新しいファイルを選択",
+    "fileSelection": "ファイル選択",
+    "compareFiles": "ファイルを比較",
+    "clear": "クリア",
+    "originalFile": "元のファイル",
+    "modifiedFile": "変更後のファイル"
+  },
+  "diffPage": {
+    "title": "ファイル比較",
+    "processingSubtitle": "ファイルを処理中...",
+    "comparisonFailed": "比較に失敗しました",
+    "noFilesToCompare": "比較するファイルがありません",
+    "processingFiles": "ファイルを処理中...",
+    "calculatingDifferences": "ファイル間の差分を計算中",
+    "errorOccurred": "エラーが発生しました",
+    "goBack": "戻る",
+    "uploadDescription": "ファイルをアップロードまたは選択して差分を確認",
+    "uploadFiles": "ファイルをアップロード",
+    "fileInformation": "ファイル情報",
+    "original": "オリジナル",
+    "modified": "変更後",
+    "showDetails": "詳細情報を表示",
+    "originalFile": "元のファイル",
+    "modifiedFile": "変更後のファイル",
+    "size": "サイズ:",
+    "type": "タイプ:",
+    "lastModified": "更新日:",
+    "linesCount": "行数:",
+    "comparisonStatistics": "比較統計",
+    "similarity": "類似度",
+    "added": "追加",
+    "removed": "削除",
+    "modifiedStat": "変更",
+    "unchanged": "未変更",
+    "viewMode": "表示モード",
+    "sideBySide": "横並び",
+    "unified": "統合",
+    "newComparison": "新しい比較",
+    "differences": "差分"
+  },
+  "exportLabels": {
+    "comparisonReport": "BDiff 比較レポート",
+    "generated": "生成日時:",
+    "originalFile": "📄 元のファイル",
+    "modifiedFile": "📄 変更後のファイル",
+    "name": "名前:",
+    "size": "サイズ:",
+    "lines": "行数:",
+    "lastModified": "更新日:",
+    "footerText": "BDiff - ファイル比較ツールで生成",
+    "noDifferences": "表示する差分がありません",
+    "linesHidden": "⋯ {{count}} 行を省略 ⋯",
+    "original": "オリジナル",
+    "modified": "変更後",
+    "fileInformation": "ファイル情報",
+    "statistics": "統計",
+    "diffContent": "差分内容",
+    "added": "追加",
+    "removed": "削除",
+    "modifiedStat": "変更",
+    "unchanged": "未変更",
+    "similarityStat": "類似度",
+    "diffComparison": "差分比較",
+    "statisticsLabel": "統計:"
   }
 }

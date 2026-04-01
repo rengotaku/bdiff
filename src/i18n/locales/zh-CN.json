@@ -13,7 +13,11 @@
     "modifiedPlaceholder": "粘贴、输入修改后的文本或拖放文件...",
     "dropzonePlaceholder": "将文件拖放到此处",
     "selectFile": "选择文件",
-    "fileInfo": "{{name}} ({{size}})"
+    "fileInfo": "{{name}} ({{size}})",
+    "clear": "清除",
+    "browseFile": "浏览文件",
+    "loaded": "已加载:",
+    "processing": "处理中...请稍候。"
   },
   "comparison": {
     "compareButton": "比较文件",
@@ -46,23 +50,36 @@
       "label": "查看模式",
       "sideBySide": "并排",
       "unified": "统一",
-      "split": "分割"
+      "split": "分割",
+      "sideBySideTitle": "并排查看",
+      "unifiedTitle": "统一查看"
     },
     "statistics": {
       "similarity": "两个文件之间的相似度",
       "additions": "添加的行数",
       "deletions": "删除的行数",
-      "changes": "更改的行数"
+      "changes": "更改的行数",
+      "unchanged": "未更改的行数"
     },
     "actions": {
       "copy": "复制",
       "copying": "复制中...",
-      "export": "导出"
+      "export": "导出",
+      "copyDiff": "复制差异"
     },
+    "sideBySideHeader": {
+      "original": "原始",
+      "modified": "修改后"
+    },
+    "collapsedLines": "⋯ {{count}} 行已隐藏 ⋯",
+    "expandLines": "展开 {{count}} 行隐藏内容",
     "noDifferences": {
       "title": "未找到差异",
       "message": "文件完全相同",
-      "similarity": "相似度 {{percentage}}%"
+      "similarity": "相似度 {{percentage}}%",
+      "noChangesDetected": "未检测到任何更改。",
+      "fullMatch": "100% 匹配",
+      "noChanges": "无更改"
     }
   },
   "export": {
@@ -131,5 +148,71 @@
     "copy": "复制差异",
     "export": "导出",
     "help": "显示帮助"
+  },
+  "collapsibleSelector": {
+    "selectNewFiles": "选择新文件",
+    "fileSelection": "文件选择",
+    "compareFiles": "比较文件",
+    "clear": "清除",
+    "originalFile": "原始文件",
+    "modifiedFile": "修改后的文件"
+  },
+  "diffPage": {
+    "title": "文件比较",
+    "processingSubtitle": "正在处理您的文件...",
+    "comparisonFailed": "比较失败",
+    "noFilesToCompare": "没有要比较的文件",
+    "processingFiles": "正在处理文件...",
+    "calculatingDifferences": "正在计算文件之间的差异",
+    "errorOccurred": "发生错误",
+    "goBack": "返回",
+    "uploadDescription": "上传或选择文件以查看差异",
+    "uploadFiles": "上传文件",
+    "fileInformation": "文件信息",
+    "original": "原始",
+    "modified": "修改后",
+    "showDetails": "显示详细信息",
+    "originalFile": "原始文件",
+    "modifiedFile": "修改后的文件",
+    "size": "大小：",
+    "type": "类型：",
+    "lastModified": "修改日期：",
+    "linesCount": "行数：",
+    "comparisonStatistics": "比较统计",
+    "similarity": "相似度",
+    "added": "添加",
+    "removed": "删除",
+    "modifiedStat": "修改",
+    "unchanged": "未更改",
+    "viewMode": "查看模式",
+    "sideBySide": "并排",
+    "unified": "统一",
+    "newComparison": "新比较",
+    "differences": "差异"
+  },
+  "exportLabels": {
+    "comparisonReport": "BDiff 比较报告",
+    "generated": "生成日期：",
+    "originalFile": "📄 原始文件",
+    "modifiedFile": "📄 修改后的文件",
+    "name": "名称：",
+    "size": "大小：",
+    "lines": "行数：",
+    "lastModified": "修改日期：",
+    "footerText": "由 BDiff - 文件比较工具生成",
+    "noDifferences": "没有差异可显示",
+    "linesHidden": "⋯ {{count}} 行已隐藏 ⋯",
+    "original": "原始",
+    "modified": "修改后",
+    "fileInformation": "文件信息",
+    "statistics": "统计",
+    "diffContent": "差异内容",
+    "added": "添加",
+    "removed": "删除",
+    "modifiedStat": "修改",
+    "unchanged": "未更改",
+    "similarityStat": "相似度",
+    "diffComparison": "差异比较",
+    "statisticsLabel": "统计："
   }
 }

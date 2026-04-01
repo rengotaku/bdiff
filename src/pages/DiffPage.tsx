@@ -1,5 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { PageLayout } from '../components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -20,6 +21,7 @@ import { DiffService } from '../services/diffService';
 import type { ViewMode } from '../types/types';
 
 export const DiffPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     originalFile,
@@ -43,8 +45,8 @@ export const DiffPage: React.FC = () => {
     copyDiff,
     isLoading: isCopying
   } = useClipboard({
-    onSuccess: () => showSuccessToast('Copy Complete', 'Diff copied to clipboard'),
-    onError: (error) => showErrorToast('Copy Failed', error)
+    onSuccess: () => showSuccessToast(t('toast.copyComplete'), t('toast.copyMessage')),
+    onError: (error) => showErrorToast(t('errors.copyFailed'), error)
   });
 
   const handleGoBack = useCallback(() => {
@@ -107,8 +109,8 @@ export const DiffPage: React.FC = () => {
     return (
       <PageLayout
         header={{
-          title: 'File Comparison',
-          subtitle: 'Processing your files...',
+          title: t('diffPage.title'),
+          subtitle: t('diffPage.processingSubtitle'),
         }}
         maxWidth="full"
       >
@@ -117,8 +119,8 @@ export const DiffPage: React.FC = () => {
             <div className="text-center py-12">
               <LoadingSpinner size="lg" />
               <div className="mt-4">
-                <h3 className="text-lg font-medium text-gray-900">Processing files...</h3>
-                <p className="text-gray-600 mt-1">Calculating differences between your files</p>
+                <h3 className="text-lg font-medium text-gray-900">{t('diffPage.processingFiles')}</h3>
+                <p className="text-gray-600 mt-1">{t('diffPage.calculatingDifferences')}</p>
               </div>
             </div>
           </CardContent>
@@ -132,17 +134,17 @@ export const DiffPage: React.FC = () => {
     return (
       <PageLayout
         header={{
-          title: 'File Comparison',
-          subtitle: 'Comparison failed',
+          title: t('diffPage.title'),
+          subtitle: t('diffPage.comparisonFailed'),
         }}
         maxWidth="full"
       >
         <Card>
           <CardContent>
             <EmptyState
-              title="Error occurred"
+              title={t('diffPage.errorOccurred')}
               description={error}
-              action={{ label: 'Go Back', onClick: handleGoBack }}
+              action={{ label: t('diffPage.goBack'), onClick: handleGoBack }}
             />
           </CardContent>
         </Card>
@@ -155,17 +157,17 @@ export const DiffPage: React.FC = () => {
     return (
       <PageLayout
         header={{
-          title: 'File Comparison',
-          subtitle: 'No files to compare',
+          title: t('diffPage.title'),
+          subtitle: t('diffPage.noFilesToCompare'),
         }}
         maxWidth="full"
       >
         <Card>
           <CardContent>
             <EmptyState
-              title="No files to compare"
-              description="Upload or select files to see their differences"
-              action={{ label: 'Upload Files', onClick: handleGoBack }}
+              title={t('diffPage.noFilesToCompare')}
+              description={t('diffPage.uploadDescription')}
+              action={{ label: t('diffPage.uploadFiles'), onClick: handleGoBack }}
             />
           </CardContent>
         </Card>
@@ -176,7 +178,7 @@ export const DiffPage: React.FC = () => {
   return (
     <PageLayout
       header={{
-        title: 'File Comparison',
+        title: t('diffPage.title'),
         subtitle: `${originalFile.name} vs ${modifiedFile.name}`,
       }}
       maxWidth="full"
@@ -195,39 +197,39 @@ export const DiffPage: React.FC = () => {
               {/* File Information */}
               <div className="space-y-4 min-h-[200px] flex flex-col justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">File Information</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('diffPage.fileInformation')}</h3>
                   <div className="space-y-3">
                     <div>
-                      <div className="text-sm font-medium text-green-700 mb-1">Original</div>
+                      <div className="text-sm font-medium text-green-700 mb-1">{t('diffPage.original')}</div>
                       <div className="text-sm text-gray-600">{originalFile.name}</div>
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-blue-700 mb-1">Modified</div>
+                      <div className="text-sm font-medium text-blue-700 mb-1">{t('diffPage.modified')}</div>
                       <div className="text-sm text-gray-600">{modifiedFile.name}</div>
                     </div>
                   </div>
                 </div>
                 <details className="text-xs text-gray-500">
                   <summary className="cursor-pointer hover:text-gray-700 transition-colors">
-                    詳細情報を表示
+                    {t('diffPage.showDetails')}
                   </summary>
                   <div className="mt-3 space-y-3 pl-4">
                     <div>
-                      <div className="font-medium text-green-700 mb-1">Original File</div>
+                      <div className="font-medium text-green-700 mb-1">{t('diffPage.originalFile')}</div>
                       <div className="space-y-1">
-                        <div>Size: {originalFile.size.toLocaleString()} bytes</div>
-                        <div>Type: {originalFile.name.split('.').pop()?.toUpperCase() || 'Unknown'}</div>
-                        <div>Modified: {originalFile.lastModified?.toLocaleString()}</div>
-                        <div>Lines: {originalFile.content.split('\n').length.toLocaleString()}</div>
+                        <div>{t('diffPage.size')} {originalFile.size.toLocaleString()} bytes</div>
+                        <div>{t('diffPage.type')} {originalFile.name.split('.').pop()?.toUpperCase() || 'Unknown'}</div>
+                        <div>{t('diffPage.lastModified')} {originalFile.lastModified?.toLocaleString()}</div>
+                        <div>{t('diffPage.linesCount')} {originalFile.content.split('\n').length.toLocaleString()}</div>
                       </div>
                     </div>
                     <div className="border-t border-gray-200 pt-2">
-                      <div className="font-medium text-blue-700 mb-1">Modified File</div>
+                      <div className="font-medium text-blue-700 mb-1">{t('diffPage.modifiedFile')}</div>
                       <div className="space-y-1">
-                        <div>Size: {modifiedFile.size.toLocaleString()} bytes</div>
-                        <div>Type: {modifiedFile.name.split('.').pop()?.toUpperCase() || 'Unknown'}</div>
-                        <div>Modified: {modifiedFile.lastModified?.toLocaleString()}</div>
-                        <div>Lines: {modifiedFile.content.split('\n').length.toLocaleString()}</div>
+                        <div>{t('diffPage.size')} {modifiedFile.size.toLocaleString()} bytes</div>
+                        <div>{t('diffPage.type')} {modifiedFile.name.split('.').pop()?.toUpperCase() || 'Unknown'}</div>
+                        <div>{t('diffPage.lastModified')} {modifiedFile.lastModified?.toLocaleString()}</div>
+                        <div>{t('diffPage.linesCount')} {modifiedFile.content.split('\n').length.toLocaleString()}</div>
                       </div>
                     </div>
                   </div>
@@ -236,10 +238,10 @@ export const DiffPage: React.FC = () => {
 
               {/* Comparison Statistics */}
               <div className="space-y-4 min-h-[200px]">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Comparison Statistics</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('diffPage.comparisonStatistics')}</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">Similarity</span>
+                    <span className="text-sm text-gray-700">{t('diffPage.similarity')}</span>
                     <Badge
                       variant={similarityPercentage >= 80 ? 'success' : similarityPercentage >= 50 ? 'warning' : 'destructive'}
                     >
@@ -249,19 +251,19 @@ export const DiffPage: React.FC = () => {
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-600">Added</span>
+                      <span className="text-xs text-gray-600">{t('diffPage.added')}</span>
                       <Badge variant="added" size="sm">+{diffResult.stats.added}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-600">Removed</span>
+                      <span className="text-xs text-gray-600">{t('diffPage.removed')}</span>
                       <Badge variant="removed" size="sm">-{diffResult.stats.removed}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-600">Modified</span>
+                      <span className="text-xs text-gray-600">{t('diffPage.modifiedStat')}</span>
                       <Badge variant="modified" size="sm">~{diffResult.stats.modified}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-600">Unchanged</span>
+                      <span className="text-xs text-gray-600">{t('diffPage.unchanged')}</span>
                       <Badge variant="secondary" size="sm">{diffResult.stats.unchanged}</Badge>
                     </div>
                   </div>
@@ -271,12 +273,12 @@ export const DiffPage: React.FC = () => {
               {/* View Mode and Actions */}
               <div className="space-y-4 min-h-[200px] flex flex-col justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">View Mode</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('diffPage.viewMode')}</h3>
                   <ToggleSwitch
                     value={viewMode === 'split' ? 'side-by-side' : viewMode}
                     options={[
-                      { value: 'side-by-side', label: 'Side by Side' },
-                      { value: 'unified', label: 'Unified' }
+                      { value: 'side-by-side', label: t('diffPage.sideBySide') },
+                      { value: 'unified', label: t('diffPage.unified') }
                     ]}
                     onChange={(value) => setViewMode(value as ViewMode)}
                   />
@@ -287,7 +289,7 @@ export const DiffPage: React.FC = () => {
                     onClick={handleCopy}
                     loading={isCopying}
                     size="sm"
-                    label="Copy All"
+                    label={t('diffViewer.actions.copyDiff')}
                     className="w-full h-10"
                   />
                   <HTMLExportButton
@@ -297,8 +299,8 @@ export const DiffPage: React.FC = () => {
                     variant="ghost"
                     size="sm"
                     className="w-full h-10"
-                    onSuccess={(filename) => showSuccessToast('Export Complete', `Downloaded ${filename}`)}
-                    onError={(error) => showErrorToast('Export Failed', error)}
+                    onSuccess={(filename) => showSuccessToast(t('export.success'), t('export.successMessage', { filename }))}
+                    onError={(error) => showErrorToast(t('export.error'), error)}
                   />
                   <Button
                     variant="primary"
@@ -306,7 +308,7 @@ export const DiffPage: React.FC = () => {
                     onClick={handleNewComparison}
                     className="w-full h-10"
                   >
-                    New Comparison
+                    {t('diffPage.newComparison')}
                   </Button>
                 </div>
               </div>
@@ -317,7 +319,7 @@ export const DiffPage: React.FC = () => {
         {/* Diff Viewer */}
         <Card>
           <CardHeader>
-            <CardTitle>Differences</CardTitle>
+            <CardTitle>{t('diffPage.differences')}</CardTitle>
           </CardHeader>
           <CardContent>
             {hasNoDifferences ? (

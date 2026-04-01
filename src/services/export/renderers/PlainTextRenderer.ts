@@ -4,7 +4,7 @@
  */
 
 import type { DiffLine } from '../../../types/types';
-import type { PlainTextExportOptions } from '../types';
+import type { PlainTextExportOptions, ExportLabels } from '../types';
 import { BaseRenderer } from './BaseRenderer';
 
 /**
@@ -21,6 +21,7 @@ const DEFAULT_OPTIONS: Required<PlainTextExportOptions> = {
   originalFile: undefined as any,
   modifiedFile: undefined as any,
   collapseUnchanged: false,
+  labels: undefined as any,
 };
 
 /**
@@ -42,7 +43,7 @@ export class PlainTextRenderer extends BaseRenderer {
 
     // Add stats if requested
     if (opts.includeStats) {
-      sections.push(this.generateStats(lines));
+      sections.push(this.generateStats(lines, opts.labels));
       sections.push(''); // Empty line
     }
 
@@ -74,15 +75,17 @@ export class PlainTextRenderer extends BaseRenderer {
    * Generate header section
    */
   private generateHeader(opts: Required<PlainTextExportOptions>): string {
+    const l = opts.labels ?? {};
     const lines: string[] = [];
+    const title = opts.title || l.diffComparison || 'Diff Comparison';
 
-    lines.push(opts.title);
-    lines.push('='.repeat(opts.title.length));
+    lines.push(title);
+    lines.push('='.repeat(title.length));
     lines.push('');
-    lines.push(`Generated: ${this.formatDate(new Date())}`);
+    lines.push(`${l.generated ?? 'Generated:'} ${this.formatDate(new Date())}`);
     lines.push('');
-    lines.push(`Original:  ${opts.originalFile.name} (${opts.originalFile.size} bytes)`);
-    lines.push(`Modified:  ${opts.modifiedFile.name} (${opts.modifiedFile.size} bytes)`);
+    lines.push(`${l.original ?? 'Original'}:  ${opts.originalFile.name} (${opts.originalFile.size} bytes)`);
+    lines.push(`${l.modified ?? 'Modified'}:  ${opts.modifiedFile.name} (${opts.modifiedFile.size} bytes)`);
 
     return lines.join('\n');
   }
@@ -90,18 +93,19 @@ export class PlainTextRenderer extends BaseRenderer {
   /**
    * Generate statistics section
    */
-  private generateStats(lines: DiffLine[]): string {
+  private generateStats(lines: DiffLine[], labels?: ExportLabels): string {
     const stats = this.getLineStats(lines);
     const total = lines.length;
     const similarity = total > 0 ? Math.round((stats.unchanged / total) * 100) : 100;
+    const l = labels ?? {};
 
     return [
-      'Statistics:',
-      `  Added:     ${stats.added}`,
-      `  Removed:   ${stats.removed}`,
-      `  Modified:  ${stats.modified}`,
-      `  Unchanged: ${stats.unchanged}`,
-      `  Similarity: ${similarity}%`,
+      `${l.statisticsLabel ?? 'Statistics:'}`,
+      `  ${l.added ?? 'Added'}:     ${stats.added}`,
+      `  ${l.removed ?? 'Removed'}:   ${stats.removed}`,
+      `  ${l.modifiedStat ?? 'Modified'}:  ${stats.modified}`,
+      `  ${l.unchanged ?? 'Unchanged'}: ${stats.unchanged}`,
+      `  ${l.similarityStat ?? 'Similarity'}: ${similarity}%`,
     ].join('\n');
   }
 

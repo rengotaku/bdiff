@@ -1,4 +1,5 @@
 import React, { useCallback, useId, memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import { Button } from '../ui/Button';
 import type { FileInfo } from '../../types/types';
@@ -51,6 +52,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = memo(({
   disabled = false,
   onClear
 }) => {
+  const { t } = useTranslation();
   const textareaId = useId();
   const fileInputId = useId();
   const labelId = useId();
@@ -114,7 +116,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = memo(({
               disabled={disabled}
               className="text-gray-500 hover:text-gray-700"
             >
-              Clear
+              {t('fileUpload.clear')}
             </Button>
           )}
         </div>
@@ -163,7 +165,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = memo(({
               </span>
               {fileInfo && (
                 <span>
-                  <strong>Loaded:</strong> {fileInfo.name} ({formatFileSize(fileInfo.size)})
+                  <strong>{t('fileUpload.loaded')}</strong> {fileInfo.name} ({formatFileSize(fileInfo.size)})
                 </span>
               )}
             </div>
@@ -186,7 +188,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = memo(({
                     : 'text-blue-600 hover:text-blue-700 focus:text-blue-800 group-focus-within:ring-2 group-focus-within:ring-blue-500 group-focus-within:ring-opacity-50 rounded px-1'
                   }
                 `}>
-                  Browse file
+                  {t('fileUpload.browseFile')}
                 </span>
               </label>
               
@@ -199,7 +201,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = memo(({
           {/* Loading or error states could be added here */}
           {disabled && (
             <div className="text-xs text-gray-500 italic">
-              Processing... Please wait.
+              {t('fileUpload.processing')}
             </div>
           )}
         </div>

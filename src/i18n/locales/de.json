@@ -13,7 +13,11 @@
     "modifiedPlaceholder": "Geänderten Text hier einfügen, eingeben oder Datei ablegen...",
     "dropzonePlaceholder": "Datei hier ablegen",
     "selectFile": "Datei auswählen",
-    "fileInfo": "{{name}} ({{size}})"
+    "fileInfo": "{{name}} ({{size}})",
+    "clear": "Löschen",
+    "browseFile": "Datei durchsuchen",
+    "loaded": "Geladen:",
+    "processing": "Verarbeitung... Bitte warten."
   },
   "comparison": {
     "compareButton": "Dateien vergleichen",
@@ -46,23 +50,36 @@
       "label": "Anzeigemodus",
       "sideBySide": "Nebeneinander",
       "unified": "Vereinheitlicht",
-      "split": "Geteilt"
+      "split": "Geteilt",
+      "sideBySideTitle": "Nebeneinander-Ansicht",
+      "unifiedTitle": "Vereinheitlichte Ansicht"
     },
     "statistics": {
       "similarity": "Ähnlichkeitsprozentsatz zwischen den beiden Dateien",
       "additions": "Anzahl hinzugefügter Zeilen",
       "deletions": "Anzahl gelöschter Zeilen",
-      "changes": "Anzahl geänderter Zeilen"
+      "changes": "Anzahl geänderter Zeilen",
+      "unchanged": "Anzahl unveränderter Zeilen"
     },
     "actions": {
       "copy": "Kopieren",
       "copying": "Kopiere...",
-      "export": "Exportieren"
+      "export": "Exportieren",
+      "copyDiff": "Unterschiede kopieren"
     },
+    "sideBySideHeader": {
+      "original": "Original",
+      "modified": "Geändert"
+    },
+    "collapsedLines": "⋯ {{count}} Zeilen ausgeblendet ⋯",
+    "expandLines": "{{count}} ausgeblendete Zeilen anzeigen",
     "noDifferences": {
       "title": "Keine Unterschiede gefunden",
       "message": "Die Dateien sind identisch",
-      "similarity": "{{percentage}}% Ähnlichkeit"
+      "similarity": "{{percentage}}% Ähnlichkeit",
+      "noChangesDetected": "Keine Änderungen erkannt.",
+      "fullMatch": "100% Übereinstimmung",
+      "noChanges": "Keine Änderungen"
     }
   },
   "export": {
@@ -131,5 +148,71 @@
     "copy": "Unterschiede kopieren",
     "export": "Exportieren",
     "help": "Hilfe anzeigen"
+  },
+  "collapsibleSelector": {
+    "selectNewFiles": "Neue Dateien auswählen",
+    "fileSelection": "Dateiauswahl",
+    "compareFiles": "Dateien vergleichen",
+    "clear": "Löschen",
+    "originalFile": "Originaldatei",
+    "modifiedFile": "Geänderte Datei"
+  },
+  "diffPage": {
+    "title": "Dateivergleich",
+    "processingSubtitle": "Ihre Dateien werden verarbeitet...",
+    "comparisonFailed": "Vergleich fehlgeschlagen",
+    "noFilesToCompare": "Keine Dateien zum Vergleichen",
+    "processingFiles": "Dateien werden verarbeitet...",
+    "calculatingDifferences": "Unterschiede zwischen Ihren Dateien werden berechnet",
+    "errorOccurred": "Ein Fehler ist aufgetreten",
+    "goBack": "Zurück",
+    "uploadDescription": "Laden Sie Dateien hoch oder wählen Sie welche aus, um Unterschiede zu sehen",
+    "uploadFiles": "Dateien hochladen",
+    "fileInformation": "Dateiinformationen",
+    "original": "Original",
+    "modified": "Geändert",
+    "showDetails": "Details anzeigen",
+    "originalFile": "Originaldatei",
+    "modifiedFile": "Geänderte Datei",
+    "size": "Größe:",
+    "type": "Typ:",
+    "lastModified": "Geändert:",
+    "linesCount": "Zeilen:",
+    "comparisonStatistics": "Vergleichsstatistiken",
+    "similarity": "Ähnlichkeit",
+    "added": "Hinzugefügt",
+    "removed": "Entfernt",
+    "modifiedStat": "Geändert",
+    "unchanged": "Unverändert",
+    "viewMode": "Anzeigemodus",
+    "sideBySide": "Nebeneinander",
+    "unified": "Vereinheitlicht",
+    "newComparison": "Neuer Vergleich",
+    "differences": "Unterschiede"
+  },
+  "exportLabels": {
+    "comparisonReport": "BDiff Vergleichsbericht",
+    "generated": "Erstellt:",
+    "originalFile": "📄 Originaldatei",
+    "modifiedFile": "📄 Geänderte Datei",
+    "name": "Name:",
+    "size": "Größe:",
+    "lines": "Zeilen:",
+    "lastModified": "Geändert:",
+    "footerText": "Erstellt von BDiff - Dateivergleichstool",
+    "noDifferences": "Keine Unterschiede anzuzeigen",
+    "linesHidden": "⋯ {{count}} Zeilen ausgeblendet ⋯",
+    "original": "Original",
+    "modified": "Geändert",
+    "fileInformation": "Dateiinformationen",
+    "statistics": "Statistiken",
+    "diffContent": "Unterschiede",
+    "added": "Hinzugefügt",
+    "removed": "Entfernt",
+    "modifiedStat": "Geändert",
+    "unchanged": "Unverändert",
+    "similarityStat": "Ähnlichkeit",
+    "diffComparison": "Unterschiedsvergleich",
+    "statisticsLabel": "Statistiken:"
   }
 }
