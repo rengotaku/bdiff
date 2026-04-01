@@ -1,12 +1,13 @@
 <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
   <!-- 奥（緑） -->
-  <rect x="20" y="12" width="28" height="28" rx="8"
+  <rect x="22" y="10" width="28" height="28" rx="8"
         fill="none"
         stroke="rgb(22,101,52)"
-        stroke-width="6"/>
+        stroke-width="6"
+        stroke-opacity="0.8"/>
 
   <!-- 手前（赤） -->
-  <rect x="12" y="20" width="28" height="28" rx="8"
+  <rect x="10" y="22" width="28" height="28" rx="8"
         fill="none"
         stroke="rgb(153,27,27)"
         stroke-width="6"/>
