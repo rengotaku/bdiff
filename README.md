@@ -84,4 +84,4 @@ Issue や Pull Request は大歓迎です！
 
 ## 📄 ライセンス
 
-ISC License
+[MIT License](LICENSE)
