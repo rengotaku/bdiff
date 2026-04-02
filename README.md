@@ -61,6 +61,27 @@ npm run preview
    - **Build output directory**: `dist`
    - **Node.js version**: 18
 
+## 🤝 コントリビュート
+
+Issue や Pull Request は大歓迎です！
+
+### はじめかた
+
+1. リポジトリをフォーク
+2. ブランチを作成: `git checkout -b feat/your-feature`
+3. 開発サーバーで動作確認: `npm run dev`
+4. ビルドが通ることを確認: `npm run build`
+5. コミットしてプッシュ
+6. Pull Request を作成
+
+### 翻訳の追加・修正
+
+翻訳ファイルは `src/i18n/locales/` にあります。既存言語の修正や新しい言語の追加もお気軽にどうぞ。
+
+### バグ報告・機能提案
+
+[Issues](https://github.com/rengotaku/bdiff/issues) からお願いします。バグ報告の場合は再現手順を添えていただけると助かります。
+
 ## 📄 ライセンス
 
 ISC License
