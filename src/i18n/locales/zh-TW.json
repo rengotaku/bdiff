@@ -4,7 +4,8 @@
     "subtitle": "美觀地視覺化變更"
   },
   "header": {
-    "languageSelector": "語言"
+    "languageSelector": "語言",
+    "about": "關於"
   },
   "fileUpload": {
     "originalTitle": "原始文字",

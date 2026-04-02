@@ -4,7 +4,8 @@
     "subtitle": "Memvisualisasikan Perubahan dengan Indah"
   },
   "header": {
-    "languageSelector": "Bahasa"
+    "languageSelector": "Bahasa",
+    "about": "Tentang"
   },
   "fileUpload": {
     "originalTitle": "Teks Asli",

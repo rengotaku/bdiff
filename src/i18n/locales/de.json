@@ -4,7 +4,8 @@
     "subtitle": "Änderungen schön visualisieren"
   },
   "header": {
-    "languageSelector": "Sprache"
+    "languageSelector": "Sprache",
+    "about": "Über"
   },
   "fileUpload": {
     "originalTitle": "Originaltext",

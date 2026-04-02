@@ -1,4 +1,6 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { cn } from '../../utils/cn';
 import { Button } from '../ui/Button';
 import { LanguageSwitcher } from '../ui/LanguageSwitcher';
@@ -20,6 +22,11 @@ const Header: React.FC<HeaderProps> = ({
   className,
   sticky = false,
 }) => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { lang } = useParams<{ lang: string }>();
+  const currentLang = lang || 'ja';
+
   return (
     <header
       className={cn(
@@ -34,7 +41,13 @@ const Header: React.FC<HeaderProps> = ({
           {/* Left side - Logo and title */}
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center gap-3">
-              <img src="/logo.png" alt="BDiff" className="h-8" />
+              <button
+                onClick={() => navigate(`/${currentLang}/`)}
+                className="focus:outline-none"
+                aria-label="Home"
+              >
+                <img src="/logo.png" alt="BDiff" className="h-8 hover:opacity-80 transition-opacity" />
+              </button>
               {subtitle && (
                 <p className="text-xs text-gray-light self-end mb-0.5">{subtitle}</p>
               )}
@@ -51,6 +64,12 @@ const Header: React.FC<HeaderProps> = ({
           {/* Right side - Actions */}
           <div className="flex items-center space-x-3">
             {actions}
+            <button
+              onClick={() => navigate(`/${currentLang}/about`)}
+              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              {t('header.about')}
+            </button>
             <LanguageSwitcher />
             <a
               href="https://github.com/rengotaku/bdiff"
