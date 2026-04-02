@@ -160,12 +160,6 @@ export const HomePage: React.FC = () => {
     await calculateDiff();
   }, [calculateDiff]);
 
-  // Clear all files
-  const handleClearAll = useCallback(() => {
-    setOriginalFile(null);
-    setModifiedFile(null);
-    clearError();
-  }, [setOriginalFile, setModifiedFile, clearError]);
 
 
   // Simplified copy handler - only copy all
@@ -260,23 +254,13 @@ export const HomePage: React.FC = () => {
 
           {/* Comparison Options Block */}
           <div className="border border-gray-200 rounded-lg px-4 py-3 bg-gray-50">
-            <div className="flex items-center justify-between">
-              <ComparisonOptionsHorizontal
-                options={comparisonOptions}
-                onChange={setComparisonOptions}
-                disabled={isReading || isProcessing}
-                collapseUnchanged={collapseUnchanged}
-                onCollapseUnchangedChange={setCollapseUnchanged}
-              />
-              <button
-                onClick={handleClearAll}
-                disabled={(!originalFile && !modifiedFile) || isReading || isProcessing}
-                className="text-xs text-gray-400 hover:text-gray-600 underline disabled:opacity-30 disabled:cursor-not-allowed transition-opacity whitespace-nowrap ml-4 shrink-0"
-                aria-label={t('comparison.clearAll')}
-              >
-                {t('comparison.clearAll')}
-              </button>
-            </div>
+            <ComparisonOptionsHorizontal
+              options={comparisonOptions}
+              onChange={setComparisonOptions}
+              disabled={isReading || isProcessing}
+              collapseUnchanged={collapseUnchanged}
+              onCollapseUnchangedChange={setCollapseUnchanged}
+            />
           </div>
 
           {/* Compare Files Button */}
