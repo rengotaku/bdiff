@@ -4,7 +4,8 @@
     "subtitle": "Visualizing Changes, Beautifully"
   },
   "header": {
-    "languageSelector": "Language"
+    "languageSelector": "Language",
+    "about": "About"
   },
   "fileUpload": {
     "originalTitle": "Original Text",
@@ -217,5 +218,48 @@
     "similarityStat": "Similarity",
     "diffComparison": "Diff Comparison",
     "statisticsLabel": "Statistics:"
+  },
+  "about": {
+    "hero": {
+      "tagline": "Compare text and files, intuitively",
+      "description": "BDiff is a file comparison tool that runs entirely in your browser. Your data is never sent to any external server.",
+      "cta": "Start Comparing"
+    },
+    "privacy": {
+      "title": "Your data stays safe",
+      "description": "All processing happens in your browser. Your files and text are never uploaded or sent to any external server."
+    },
+    "features": {
+      "title": "Features",
+      "privacy": {
+        "title": "Privacy First",
+        "description": "Your data never leaves your browser. All comparison processing is done locally."
+      },
+      "browser": {
+        "title": "Fully Browser-Based",
+        "description": "No installation, no account required. Just open your browser and start comparing."
+      },
+      "viewModes": {
+        "title": "Two View Modes",
+        "description": "Compare differences in Side-by-side or Unified view mode."
+      },
+      "dragDrop": {
+        "title": "Drag & Drop",
+        "description": "Drop files directly or paste text to start comparing instantly."
+      },
+      "export": {
+        "title": "Export",
+        "description": "Export comparison results as HTML, Markdown, or plain text to share with others."
+      },
+      "i18n": {
+        "title": "8 Languages",
+        "description": "Available in Japanese, English, Korean, Chinese, Indonesian, French, and German."
+      }
+    },
+    "cta": {
+      "title": "Ready to compare files?",
+      "description": "Free to use, no registration required",
+      "button": "Open Comparison Tool"
+    }
   }
 }

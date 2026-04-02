@@ -4,7 +4,8 @@
     "subtitle": "美觀地視覺化變更"
   },
   "header": {
-    "languageSelector": "語言"
+    "languageSelector": "語言",
+    "about": "關於"
   },
   "fileUpload": {
     "originalTitle": "原始文字",
@@ -217,5 +218,48 @@
     "similarityStat": "相似度",
     "diffComparison": "差異比較",
     "statisticsLabel": "統計："
+  },
+  "about": {
+    "hero": {
+      "tagline": "直覺比較文字與檔案的差異",
+      "description": "BDiff是一款完全在瀏覽器中運行的檔案比較工具。您的資料不會被傳送到任何外部伺服器。",
+      "cta": "開始比較"
+    },
+    "privacy": {
+      "title": "您的資料是安全的",
+      "description": "所有處理都在瀏覽器中完成。檔案和文字不會被上傳或傳送到任何外部伺服器。"
+    },
+    "features": {
+      "title": "主要功能",
+      "privacy": {
+        "title": "隱私保護",
+        "description": "資料不會離開您的瀏覽器。所有比較處理都在本地完成。"
+      },
+      "browser": {
+        "title": "完全基於瀏覽器",
+        "description": "無需安裝，無需註冊。開啟瀏覽器即可使用。"
+      },
+      "viewModes": {
+        "title": "兩種顯示模式",
+        "description": "使用並排或統一檢視模式查看差異。"
+      },
+      "dragDrop": {
+        "title": "拖放操作",
+        "description": "拖放檔案或直接貼上文字即可開始比較。"
+      },
+      "export": {
+        "title": "匯出",
+        "description": "將比較結果匯出為HTML、Markdown或純文字格式進行分享。"
+      },
+      "i18n": {
+        "title": "支援8種語言",
+        "description": "支援日語、英語、韓語、中文、印尼語、法語和德語。"
+      }
+    },
+    "cta": {
+      "title": "準備好比較檔案了嗎？",
+      "description": "免費使用，無需註冊",
+      "button": "開啟比較工具"
+    }
   }
 }

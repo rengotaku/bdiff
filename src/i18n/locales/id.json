@@ -4,7 +4,8 @@
     "subtitle": "Memvisualisasikan Perubahan dengan Indah"
   },
   "header": {
-    "languageSelector": "Bahasa"
+    "languageSelector": "Bahasa",
+    "about": "Tentang"
   },
   "fileUpload": {
     "originalTitle": "Teks Asli",
@@ -217,5 +218,48 @@
     "similarityStat": "Kesamaan",
     "diffComparison": "Perbandingan Perbedaan",
     "statisticsLabel": "Statistik:"
+  },
+  "about": {
+    "hero": {
+      "tagline": "Bandingkan teks dan file secara intuitif",
+      "description": "BDiff adalah alat perbandingan file yang sepenuhnya berjalan di browser Anda. Data Anda tidak pernah dikirim ke server eksternal.",
+      "cta": "Mulai Membandingkan"
+    },
+    "privacy": {
+      "title": "Data Anda aman",
+      "description": "Semua pemrosesan dilakukan di browser Anda. File dan teks Anda tidak pernah diunggah atau dikirim ke server eksternal."
+    },
+    "features": {
+      "title": "Fitur Utama",
+      "privacy": {
+        "title": "Perlindungan Privasi",
+        "description": "Data Anda tidak pernah meninggalkan browser. Semua pemrosesan perbandingan dilakukan secara lokal."
+      },
+      "browser": {
+        "title": "Sepenuhnya Berbasis Browser",
+        "description": "Tanpa instalasi, tanpa registrasi. Buka browser dan langsung gunakan."
+      },
+      "viewModes": {
+        "title": "Dua Mode Tampilan",
+        "description": "Bandingkan perbedaan dalam mode Berdampingan atau Terpadu."
+      },
+      "dragDrop": {
+        "title": "Seret & Lepas",
+        "description": "Seret file langsung atau tempel teks untuk mulai membandingkan."
+      },
+      "export": {
+        "title": "Ekspor",
+        "description": "Ekspor hasil perbandingan sebagai HTML, Markdown, atau teks biasa untuk dibagikan."
+      },
+      "i18n": {
+        "title": "Mendukung 8 Bahasa",
+        "description": "Tersedia dalam Bahasa Jepang, Inggris, Korea, Cina, Indonesia, Prancis, dan Jerman."
+      }
+    },
+    "cta": {
+      "title": "Siap membandingkan file?",
+      "description": "Gratis, tanpa registrasi",
+      "button": "Buka Alat Perbandingan"
+    }
   }
 }

@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HomePage } from './pages/HomePage'
 import { DiffPage } from './pages/DiffPage'
+import { AboutPage } from './pages/AboutPage'
 import { DiffProvider } from './contexts/DiffContext'
 import { ToastProvider } from './components/common/Toast'
 import { ErrorBoundary } from './components/common/ErrorBoundary'
@@ -45,6 +46,7 @@ function App() {
                 <Route path="/:lang" element={<LanguageWrapper><HomePage /></LanguageWrapper>} />
                 <Route path="/:lang/" element={<LanguageWrapper><HomePage /></LanguageWrapper>} />
                 <Route path="/:lang/diff" element={<LanguageWrapper><DiffPage /></LanguageWrapper>} />
+                <Route path="/:lang/about" element={<LanguageWrapper><AboutPage /></LanguageWrapper>} />
               </Routes>
             </div>
           </DiffProvider>

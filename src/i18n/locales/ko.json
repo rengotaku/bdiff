@@ -4,7 +4,8 @@
     "subtitle": "변경 사항을 아름답게 시각화"
   },
   "header": {
-    "languageSelector": "언어"
+    "languageSelector": "언어",
+    "about": "소개"
   },
   "fileUpload": {
     "originalTitle": "원본 텍스트",
@@ -217,5 +218,48 @@
     "similarityStat": "유사도",
     "diffComparison": "차이점 비교",
     "statisticsLabel": "통계:"
+  },
+  "about": {
+    "hero": {
+      "tagline": "텍스트와 파일의 차이를 직관적으로 비교",
+      "description": "BDiff는 브라우저에서 완전히 작동하는 파일 비교 도구입니다. 데이터는 외부로 전송되지 않습니다.",
+      "cta": "지금 비교하기"
+    },
+    "privacy": {
+      "title": "데이터는 안전합니다",
+      "description": "모든 처리는 브라우저 내에서 완료됩니다. 파일이나 텍스트가 외부 서버로 전송되는 일은 없습니다."
+    },
+    "features": {
+      "title": "주요 기능",
+      "privacy": {
+        "title": "프라이버시 보호",
+        "description": "데이터가 외부로 전송되지 않습니다. 모든 비교 처리가 브라우저 내에서 완료됩니다."
+      },
+      "browser": {
+        "title": "완전한 브라우저 처리",
+        "description": "설치 불필요, 계정 등록 불필요. 브라우저를 열기만 하면 바로 사용할 수 있습니다."
+      },
+      "viewModes": {
+        "title": "2가지 보기 모드",
+        "description": "나란히 보기와 통합 보기의 2가지 모드로 차이점을 확인할 수 있습니다."
+      },
+      "dragDrop": {
+        "title": "드래그 앤 드롭",
+        "description": "파일을 드래그 앤 드롭하거나 텍스트를 직접 입력하여 비교할 수 있습니다."
+      },
+      "export": {
+        "title": "내보내기",
+        "description": "비교 결과를 HTML, Markdown, 텍스트 형식으로 내보내 공유할 수 있습니다."
+      },
+      "i18n": {
+        "title": "8개 언어 지원",
+        "description": "일본어, 영어, 한국어, 중국어, 인도네시아어, 프랑스어, 독일어를 지원합니다."
+      }
+    },
+    "cta": {
+      "title": "파일 비교를 시작하세요",
+      "description": "무료, 등록 불필요",
+      "button": "비교 도구 열기"
+    }
   }
 }
