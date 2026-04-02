@@ -1,0 +1,31 @@
+# BDiff
+
+> Browser-based diff viewer for comparing text and files. All processing happens locally — no data is sent to any server.
+
+BDiff is a privacy-first file comparison tool built with React and TypeScript. It runs entirely in the browser with no server-side processing. Users can paste text directly or drag-and-drop files to instantly see differences with character-level highlighting.
+
+## Features
+
+- Two view modes: Side-by-side and Unified
+- Character-level diff highlighting within changed lines
+- GitHub-style context collapsing (show only lines around changes, expandable)
+- Comparison options: ignore case, ignore whitespace, sort lines, ignore trailing newlines
+- Export to HTML, Markdown, or Plain Text
+- 8 languages: Japanese, English, Korean, Traditional Chinese, Simplified Chinese, Indonesian, French, German
+- URL-based language routing (e.g. /en/, /ja/, /ko/)
+- Drag-and-drop file upload
+- Statistics: additions, deletions, changes, similarity percentage
+- Fully responsive design
+
+## Links
+
+- [Live Site](https://bdiff.v41.me): The production BDiff application
+- [GitHub Repository](https://github.com/rengotaku/bdiff): Source code and issue tracker
+- [About Page](https://bdiff.v41.me/ja/about): Feature overview and privacy information
+
+## Tech Stack
+
+- React 19, TypeScript 5.9, Vite 7, Tailwind CSS 3.4
+- i18next for internationalization
+- Myers diff algorithm for accurate diff detection
+- Hosted on Cloudflare Pages
