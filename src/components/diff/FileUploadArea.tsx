@@ -113,8 +113,8 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = memo(({
               variant="ghost"
               size="sm"
               onClick={onClear}
-              disabled={disabled || (!value.length && !fileInfo)}
-              className={`text-gray-500 hover:text-gray-700 ${!(value.length || fileInfo) ? 'invisible' : ''}`}
+              disabled={disabled || !value.length}
+              className={`text-gray-500 hover:text-gray-700 ${!value.length ? 'invisible' : ''}`}
             >
               {t('fileUpload.clear')}
             </Button>
