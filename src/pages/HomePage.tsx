@@ -160,12 +160,6 @@ export const HomePage: React.FC = () => {
     await calculateDiff();
   }, [calculateDiff]);
 
-  // Clear all files
-  const handleClearAll = useCallback(() => {
-    setOriginalFile(null);
-    setModifiedFile(null);
-    clearError();
-  }, [setOriginalFile, setModifiedFile, clearError]);
 
 
   // Simplified copy handler - only copy all
@@ -238,6 +232,7 @@ export const HomePage: React.FC = () => {
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, 'original')}
               disabled={isReading || isProcessing}
+              onClear={() => { setOriginalFile(null); clearError(); }}
             />
 
             <FileUploadArea
@@ -253,6 +248,7 @@ export const HomePage: React.FC = () => {
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, 'modified')}
               disabled={isReading || isProcessing}
+              onClear={() => { setModifiedFile(null); clearError(); }}
             />
           </div>
 
@@ -267,24 +263,14 @@ export const HomePage: React.FC = () => {
             />
           </div>
 
-          {/* Compare Files Button with Clear Link */}
+          {/* Compare Files Button */}
           <div className="flex justify-center">
-            <div className="relative inline-flex items-center">
-              <DiffSettingsPanel
-                canCalculateDiff={canCalculateDiff}
-                isProcessing={isProcessing}
-                isReading={isReading}
-                onStartComparison={handleStartComparison}
-              />
-              <button
-                onClick={handleClearAll}
-                disabled={(!originalFile && !modifiedFile) || isReading || isProcessing}
-                className="absolute left-full ml-4 text-sm text-gray-600 hover:text-gray-900 underline disabled:opacity-30 disabled:cursor-not-allowed transition-opacity whitespace-nowrap"
-                aria-label={t('comparison.clearAll')}
-              >
-                {t('comparison.clearAll')}
-              </button>
-            </div>
+            <DiffSettingsPanel
+              canCalculateDiff={canCalculateDiff}
+              isProcessing={isProcessing}
+              isReading={isReading}
+              onStartComparison={handleStartComparison}
+            />
           </div>
         </div>
 

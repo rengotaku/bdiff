@@ -108,13 +108,13 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = memo(({
           <div className="flex items-center gap-2">
             <CardTitle id={labelId}>{title}</CardTitle>
           </div>
-          {onClear && (value || fileInfo) && (
+          {onClear && (
             <Button
               variant="ghost"
               size="sm"
               onClick={onClear}
-              disabled={disabled}
-              className="text-gray-500 hover:text-gray-700"
+              disabled={disabled || !value.length}
+              className={`text-gray-500 hover:text-gray-700 ${!value.length ? 'invisible' : ''}`}
             >
               {t('fileUpload.clear')}
             </Button>
