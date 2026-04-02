@@ -238,6 +238,7 @@ export const HomePage: React.FC = () => {
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, 'original')}
               disabled={isReading || isProcessing}
+              onClear={() => { setOriginalFile(null); clearError(); }}
             />
 
             <FileUploadArea
@@ -253,38 +254,39 @@ export const HomePage: React.FC = () => {
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, 'modified')}
               disabled={isReading || isProcessing}
+              onClear={() => { setModifiedFile(null); clearError(); }}
             />
           </div>
 
           {/* Comparison Options Block */}
           <div className="border border-gray-200 rounded-lg px-4 py-3 bg-gray-50">
-            <ComparisonOptionsHorizontal
-              options={comparisonOptions}
-              onChange={setComparisonOptions}
-              disabled={isReading || isProcessing}
-              collapseUnchanged={collapseUnchanged}
-              onCollapseUnchangedChange={setCollapseUnchanged}
-            />
-          </div>
-
-          {/* Compare Files Button with Clear Link */}
-          <div className="flex justify-center">
-            <div className="relative inline-flex items-center">
-              <DiffSettingsPanel
-                canCalculateDiff={canCalculateDiff}
-                isProcessing={isProcessing}
-                isReading={isReading}
-                onStartComparison={handleStartComparison}
+            <div className="flex items-center justify-between">
+              <ComparisonOptionsHorizontal
+                options={comparisonOptions}
+                onChange={setComparisonOptions}
+                disabled={isReading || isProcessing}
+                collapseUnchanged={collapseUnchanged}
+                onCollapseUnchangedChange={setCollapseUnchanged}
               />
               <button
                 onClick={handleClearAll}
                 disabled={(!originalFile && !modifiedFile) || isReading || isProcessing}
-                className="absolute left-full ml-4 text-sm text-gray-600 hover:text-gray-900 underline disabled:opacity-30 disabled:cursor-not-allowed transition-opacity whitespace-nowrap"
+                className="text-xs text-gray-400 hover:text-gray-600 underline disabled:opacity-30 disabled:cursor-not-allowed transition-opacity whitespace-nowrap ml-4 shrink-0"
                 aria-label={t('comparison.clearAll')}
               >
                 {t('comparison.clearAll')}
               </button>
             </div>
+          </div>
+
+          {/* Compare Files Button */}
+          <div className="flex justify-center">
+            <DiffSettingsPanel
+              canCalculateDiff={canCalculateDiff}
+              isProcessing={isProcessing}
+              isReading={isReading}
+              onStartComparison={handleStartComparison}
+            />
           </div>
         </div>
 
