@@ -217,5 +217,48 @@
     "similarityStat": "Similarité",
     "diffComparison": "Comparaison des différences",
     "statisticsLabel": "Statistiques :"
+  },
+  "about": {
+    "hero": {
+      "tagline": "Comparez vos textes et fichiers intuitivement",
+      "description": "BDiff est un outil de comparaison de fichiers qui fonctionne entièrement dans votre navigateur. Vos données ne sont jamais envoyées à un serveur externe.",
+      "cta": "Commencer à comparer"
+    },
+    "privacy": {
+      "title": "Vos données sont en sécurité",
+      "description": "Tout le traitement se fait dans votre navigateur. Vos fichiers et textes ne sont jamais téléchargés ni envoyés à un serveur externe."
+    },
+    "features": {
+      "title": "Fonctionnalités",
+      "privacy": {
+        "title": "Protection de la vie privée",
+        "description": "Vos données ne quittent jamais votre navigateur. Tout le traitement est effectué localement."
+      },
+      "browser": {
+        "title": "Entièrement dans le navigateur",
+        "description": "Aucune installation, aucun compte requis. Ouvrez votre navigateur et commencez."
+      },
+      "viewModes": {
+        "title": "Deux modes d'affichage",
+        "description": "Comparez les différences en mode Côte à côte ou Unifié."
+      },
+      "dragDrop": {
+        "title": "Glisser-déposer",
+        "description": "Déposez des fichiers ou collez du texte pour comparer instantanément."
+      },
+      "export": {
+        "title": "Exportation",
+        "description": "Exportez les résultats en HTML, Markdown ou texte brut pour les partager."
+      },
+      "i18n": {
+        "title": "8 langues",
+        "description": "Disponible en japonais, anglais, coréen, chinois, indonésien, français et allemand."
+      }
+    },
+    "cta": {
+      "title": "Prêt à comparer vos fichiers ?",
+      "description": "Gratuit, sans inscription",
+      "button": "Ouvrir l'outil de comparaison"
+    }
   }
 }

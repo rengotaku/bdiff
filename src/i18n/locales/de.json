@@ -217,5 +217,48 @@
     "similarityStat": "Ähnlichkeit",
     "diffComparison": "Unterschiedsvergleich",
     "statisticsLabel": "Statistiken:"
+  },
+  "about": {
+    "hero": {
+      "tagline": "Texte und Dateien intuitiv vergleichen",
+      "description": "BDiff ist ein Dateivergleichstool, das vollständig in Ihrem Browser läuft. Ihre Daten werden niemals an externe Server gesendet.",
+      "cta": "Jetzt vergleichen"
+    },
+    "privacy": {
+      "title": "Ihre Daten sind sicher",
+      "description": "Die gesamte Verarbeitung findet in Ihrem Browser statt. Dateien und Texte werden niemals hochgeladen oder an externe Server gesendet."
+    },
+    "features": {
+      "title": "Funktionen",
+      "privacy": {
+        "title": "Datenschutz",
+        "description": "Ihre Daten verlassen niemals den Browser. Die gesamte Verarbeitung erfolgt lokal."
+      },
+      "browser": {
+        "title": "Vollständig browserbasiert",
+        "description": "Keine Installation, keine Registrierung. Einfach Browser öffnen und loslegen."
+      },
+      "viewModes": {
+        "title": "Zwei Anzeigemodi",
+        "description": "Unterschiede in der Nebeneinander- oder vereinheitlichten Ansicht vergleichen."
+      },
+      "dragDrop": {
+        "title": "Drag & Drop",
+        "description": "Dateien per Drag & Drop ablegen oder Text einfügen, um sofort zu vergleichen."
+      },
+      "export": {
+        "title": "Exportieren",
+        "description": "Vergleichsergebnisse als HTML, Markdown oder Klartext exportieren und teilen."
+      },
+      "i18n": {
+        "title": "8 Sprachen",
+        "description": "Verfügbar in Japanisch, Englisch, Koreanisch, Chinesisch, Indonesisch, Französisch und Deutsch."
+      }
+    },
+    "cta": {
+      "title": "Bereit, Dateien zu vergleichen?",
+      "description": "Kostenlos, ohne Registrierung",
+      "button": "Vergleichstool öffnen"
+    }
   }
 }

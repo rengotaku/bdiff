@@ -217,5 +217,48 @@
     "similarityStat": "相似度",
     "diffComparison": "差异比较",
     "statisticsLabel": "统计："
+  },
+  "about": {
+    "hero": {
+      "tagline": "直观比较文本和文件的差异",
+      "description": "BDiff是一款完全在浏览器中运行的文件比较工具。您的数据不会被发送到任何外部服务器。",
+      "cta": "开始比较"
+    },
+    "privacy": {
+      "title": "您的数据是安全的",
+      "description": "所有处理都在浏览器中完成。文件和文本不会被上传或发送到任何外部服务器。"
+    },
+    "features": {
+      "title": "主要功能",
+      "privacy": {
+        "title": "隐私保护",
+        "description": "数据不会离开您的浏览器。所有比较处理都在本地完成。"
+      },
+      "browser": {
+        "title": "完全基于浏览器",
+        "description": "无需安装，无需注册。打开浏览器即可使用。"
+      },
+      "viewModes": {
+        "title": "两种显示模式",
+        "description": "使用并排或统一视图模式查看差异。"
+      },
+      "dragDrop": {
+        "title": "拖放操作",
+        "description": "拖放文件或直接粘贴文本即可开始比较。"
+      },
+      "export": {
+        "title": "导出",
+        "description": "将比较结果导出为HTML、Markdown或纯文本格式进行分享。"
+      },
+      "i18n": {
+        "title": "支持8种语言",
+        "description": "支持日语、英语、韩语、中文、印尼语、法语和德语。"
+      }
+    },
+    "cta": {
+      "title": "准备好比较文件了吗？",
+      "description": "免费使用，无需注册",
+      "button": "打开比较工具"
+    }
   }
 }
