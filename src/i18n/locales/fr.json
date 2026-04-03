@@ -6,7 +6,7 @@
   "header": {
     "languageSelector": "Langue",
     "about": "À propos",
-    "privacyBadge": "Aucun envoi de données"
+    "privacyBadge": "Aucun envoi au serveur"
   },
   "fileUpload": {
     "originalTitle": "Texte original",
