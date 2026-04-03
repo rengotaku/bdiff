@@ -149,10 +149,10 @@ const SideBySidePairRow = memo<{
   index: number;
 }>(({ pair, index }) => (
   <div className="grid grid-cols-2 items-stretch">
-    <div className="border-r border-gray-200 min-h-full overflow-x-auto">
+    <div className="border-r border-gray-200 min-h-full">
       <SideBySideCell item={pair.original} index={index} side="original" />
     </div>
-    <div className="min-h-full overflow-x-auto">
+    <div className="min-h-full">
       <SideBySideCell item={pair.modified} index={index} side="modified" />
     </div>
   </div>
@@ -214,23 +214,25 @@ const SideBySideView = memo<{
       </div>
     </div>
     {/* Line pairs */}
-    <div className="overflow-visible">
-      {rows.map((row, index) =>
-        isCollapsedBlock(row) ? (
-          <CollapsedLinesRow
-            key={`collapsed-${row.originalStartLine}`}
-            onExpand={() => onExpandBlock(row.originalStartLine)}
-            collapsedText={collapsedLinesText(row.count)}
-            expandLabel={expandLinesText(row.count)}
-          />
-        ) : (
-          <SideBySidePairRow
-            key={`pair-${index}`}
-            pair={row}
-            index={index}
-          />
-        )
-      )}
+    <div className="overflow-x-auto">
+      <div className="min-w-fit">
+        {rows.map((row, index) =>
+          isCollapsedBlock(row) ? (
+            <CollapsedLinesRow
+              key={`collapsed-${row.originalStartLine}`}
+              onExpand={() => onExpandBlock(row.originalStartLine)}
+              collapsedText={collapsedLinesText(row.count)}
+              expandLabel={expandLinesText(row.count)}
+            />
+          ) : (
+            <SideBySidePairRow
+              key={`pair-${index}`}
+              pair={row}
+              index={index}
+            />
+          )
+        )}
+      </div>
     </div>
   </div>
 ));
