@@ -114,6 +114,63 @@ export const AboutPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Privacy Proof Section */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-12">
+          {t('about.privacyProof.title')}
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[
+            {
+              icon: (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+              ),
+              title: t('about.privacyProof.csp.title'),
+              description: t('about.privacyProof.csp.description'),
+            },
+            {
+              icon: (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" />
+                </svg>
+              ),
+              title: t('about.privacyProof.selfHosted.title'),
+              description: t('about.privacyProof.selfHosted.description'),
+            },
+            {
+              icon: (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+              ),
+              title: t('about.privacyProof.openSource.title'),
+              description: t('about.privacyProof.openSource.description'),
+            },
+            {
+              icon: (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              ),
+              title: t('about.privacyProof.verify.title'),
+              description: t('about.privacyProof.verify.description'),
+            },
+          ].map((item, index) => (
+            <div key={index} className="flex gap-4 p-5 rounded-lg bg-gray-50 border border-gray-200">
+              <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-700">
+                {item.icon}
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-1">{item.title}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{item.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Features Grid */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-12">

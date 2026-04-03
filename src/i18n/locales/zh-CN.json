@@ -256,6 +256,25 @@
         "description": "支持日语、英语、韩语、中文、印尼语、法语和德语。"
       }
     },
+    "privacyProof": {
+      "title": "技术验证的隐私保护",
+      "csp": {
+        "title": "阻止外部连接",
+        "description": "内容安全策略（CSP）头在浏览器级别从技术上阻止所有与外部服务器的通信。"
+      },
+      "selfHosted": {
+        "title": "无外部资源",
+        "description": "包括字体在内的所有资源均为自托管。不会向外部 CDN 发送任何请求。"
+      },
+      "openSource": {
+        "title": "开源",
+        "description": "源代码在 GitHub 上完全公开。自 2018 年前身项目以来一贯的隐私优先设计，任何人都可以验证。"
+      },
+      "verify": {
+        "title": "自行验证",
+        "description": "打开浏览器开发者工具（F12）→ 网络标签页，然后运行差异比较。您可以确认完全没有外部请求。"
+      }
+    },
     "cta": {
       "title": "准备好比较文件了吗？",
       "description": "免费使用，无需注册",
