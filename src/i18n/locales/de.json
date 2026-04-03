@@ -5,7 +5,8 @@
   },
   "header": {
     "languageSelector": "Sprache",
-    "about": "Über"
+    "about": "Über",
+    "privacyBadge": "Kein Server-Upload"
   },
   "fileUpload": {
     "originalTitle": "Originaltext",
@@ -254,6 +255,25 @@
       "i18n": {
         "title": "8 Sprachen",
         "description": "Verfügbar in Japanisch, Englisch, Koreanisch, Chinesisch, Indonesisch, Französisch und Deutsch."
+      }
+    },
+    "privacyProof": {
+      "title": "Technisch nachgewiesener Datenschutz",
+      "csp": {
+        "title": "Externe Verbindungen blockiert",
+        "description": "Content-Security-Policy-Header (CSP) blockieren technisch jegliche Kommunikation mit externen Servern auf Browserebene."
+      },
+      "selfHosted": {
+        "title": "Keine externen Ressourcen",
+        "description": "Alle Ressourcen einschließlich Schriftarten werden selbst gehostet. Es werden keine Anfragen an externe CDNs gestellt."
+      },
+      "openSource": {
+        "title": "Open Source",
+        "description": "Der Quellcode ist vollständig öffentlich auf GitHub. Unser konsequentes Privacy-First-Design seit dem Vorgängerprojekt 2018 ist von jedem überprüfbar."
+      },
+      "verify": {
+        "title": "Selbst überprüfen",
+        "description": "Öffnen Sie die Browser-Entwicklertools (F12) → Netzwerk-Tab und führen Sie einen Diff-Vergleich durch. Sie können bestätigen, dass keinerlei externe Anfragen gestellt werden."
       }
     },
     "cta": {

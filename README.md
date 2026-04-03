@@ -82,6 +82,10 @@ Issue や Pull Request は大歓迎です！
 
 [Issues](https://github.com/rengotaku/bdiff/issues) からお願いします。バグ報告の場合は再現手順を添えていただけると助かります。
 
+## 📜 前身プロジェクト
+
+BDiff は [web_diff](https://github.com/rengotaku/web_diff)（2018年〜）を前身とし、同じ「通信を行わずにブラウザ内で安全にdiff確認」という設計思想を継承してゼロから再構築したプロジェクトです。
+
 ## 📄 ライセンス
 
 [MIT License](LICENSE)

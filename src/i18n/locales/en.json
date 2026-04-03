@@ -5,7 +5,8 @@
   },
   "header": {
     "languageSelector": "Language",
-    "about": "About"
+    "about": "About",
+    "privacyBadge": "No server upload"
   },
   "fileUpload": {
     "originalTitle": "Original Text",
@@ -254,6 +255,25 @@
       "i18n": {
         "title": "8 Languages",
         "description": "Available in Japanese, English, Korean, Chinese, Indonesian, French, and German."
+      }
+    },
+    "privacyProof": {
+      "title": "Privacy, Technically Proven",
+      "csp": {
+        "title": "External Connections Blocked",
+        "description": "Content Security Policy (CSP) headers technically block all communication to external servers at the browser level."
+      },
+      "selfHosted": {
+        "title": "No External Resources",
+        "description": "All resources including fonts are self-hosted. No requests are made to external CDNs."
+      },
+      "openSource": {
+        "title": "Open Source",
+        "description": "Source code is fully public on GitHub. Our consistent privacy-first design since the 2018 predecessor project is verifiable by anyone."
+      },
+      "verify": {
+        "title": "Verify It Yourself",
+        "description": "Open your browser DevTools (F12) → Network tab, then run a diff comparison. You can confirm that zero external requests are made."
       }
     },
     "cta": {

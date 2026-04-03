@@ -5,7 +5,8 @@
   },
   "header": {
     "languageSelector": "言語",
-    "about": "BDiffについて"
+    "about": "BDiffについて",
+    "privacyBadge": "サーバー送信なし"
   },
   "fileUpload": {
     "originalTitle": "元のテキスト",
@@ -254,6 +255,25 @@
       "i18n": {
         "title": "8言語対応",
         "description": "日本語、英語、韓国語、中国語、インドネシア語、フランス語、ドイツ語に対応しています。"
+      }
+    },
+    "privacyProof": {
+      "title": "プライバシーの技術的裏付け",
+      "csp": {
+        "title": "外部通信のブロック",
+        "description": "Content Security Policy（CSP）ヘッダーにより、ブラウザレベルで外部サーバーへの通信を技術的にブロックしています。"
+      },
+      "selfHosted": {
+        "title": "外部リソースなし",
+        "description": "フォントを含むすべてのリソースをサイト内でホスティング。外部CDNへのリクエストは発生しません。"
+      },
+      "openSource": {
+        "title": "オープンソース",
+        "description": "ソースコードはGitHubで完全公開。2018年の前身プロジェクトから一貫したプライバシー設計を誰でも検証できます。"
+      },
+      "verify": {
+        "title": "ご自身で確認できます",
+        "description": "ブラウザのDevTools（F12）→ Networkタブを開き、差分比較を実行してください。外部への通信が一切ないことを確認できます。"
       }
     },
     "cta": {

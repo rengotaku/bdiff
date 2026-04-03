@@ -5,7 +5,8 @@
   },
   "header": {
     "languageSelector": "語言",
-    "about": "關於"
+    "about": "關於",
+    "privacyBadge": "不上傳至伺服器"
   },
   "fileUpload": {
     "originalTitle": "原始文字",
@@ -254,6 +255,25 @@
       "i18n": {
         "title": "支援8種語言",
         "description": "支援日語、英語、韓語、中文、印尼語、法語和德語。"
+      }
+    },
+    "privacyProof": {
+      "title": "技術驗證的隱私保護",
+      "csp": {
+        "title": "封鎖外部連線",
+        "description": "內容安全策略（CSP）標頭在瀏覽器層級技術性地封鎖所有與外部伺服器的通訊。"
+      },
+      "selfHosted": {
+        "title": "無外部資源",
+        "description": "包括字型在內的所有資源均為自託管。不會向外部 CDN 發送任何請求。"
+      },
+      "openSource": {
+        "title": "開源",
+        "description": "原始碼在 GitHub 上完全公開。自 2018 年前身專案以來一貫的隱私優先設計，任何人都可以驗證。"
+      },
+      "verify": {
+        "title": "自行驗證",
+        "description": "開啟瀏覽器開發者工具（F12）→ 網路分頁，然後執行差異比較。您可以確認完全沒有外部請求。"
       }
     },
     "cta": {

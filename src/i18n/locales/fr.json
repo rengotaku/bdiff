@@ -5,7 +5,8 @@
   },
   "header": {
     "languageSelector": "Langue",
-    "about": "À propos"
+    "about": "À propos",
+    "privacyBadge": "Aucun envoi au serveur"
   },
   "fileUpload": {
     "originalTitle": "Texte original",
@@ -254,6 +255,25 @@
       "i18n": {
         "title": "8 langues",
         "description": "Disponible en japonais, anglais, coréen, chinois, indonésien, français et allemand."
+      }
+    },
+    "privacyProof": {
+      "title": "Confidentialité techniquement prouvée",
+      "csp": {
+        "title": "Connexions externes bloquées",
+        "description": "Les en-têtes Content Security Policy (CSP) bloquent techniquement toute communication vers des serveurs externes au niveau du navigateur."
+      },
+      "selfHosted": {
+        "title": "Aucune ressource externe",
+        "description": "Toutes les ressources, y compris les polices, sont auto-hébergées. Aucune requête n'est envoyée vers des CDN externes."
+      },
+      "openSource": {
+        "title": "Open source",
+        "description": "Le code source est entièrement public sur GitHub. Notre conception axée sur la confidentialité, constante depuis le projet précurseur de 2018, est vérifiable par tous."
+      },
+      "verify": {
+        "title": "Vérifiez par vous-même",
+        "description": "Ouvrez les outils de développement de votre navigateur (F12) → onglet Réseau, puis lancez une comparaison. Vous pourrez constater qu'aucune requête externe n'est effectuée."
       }
     },
     "cta": {

@@ -5,7 +5,8 @@
   },
   "header": {
     "languageSelector": "Bahasa",
-    "about": "Tentang"
+    "about": "Tentang",
+    "privacyBadge": "Tanpa upload ke server"
   },
   "fileUpload": {
     "originalTitle": "Teks Asli",
@@ -254,6 +255,25 @@
       "i18n": {
         "title": "Mendukung 8 Bahasa",
         "description": "Tersedia dalam Bahasa Jepang, Inggris, Korea, Cina, Indonesia, Prancis, dan Jerman."
+      }
+    },
+    "privacyProof": {
+      "title": "Privasi yang Terbukti Secara Teknis",
+      "csp": {
+        "title": "Koneksi Eksternal Diblokir",
+        "description": "Header Content Security Policy (CSP) secara teknis memblokir semua komunikasi ke server eksternal di tingkat browser."
+      },
+      "selfHosted": {
+        "title": "Tanpa Sumber Daya Eksternal",
+        "description": "Semua sumber daya termasuk font di-host sendiri. Tidak ada permintaan yang dibuat ke CDN eksternal."
+      },
+      "openSource": {
+        "title": "Sumber Terbuka",
+        "description": "Kode sumber sepenuhnya terbuka di GitHub. Desain yang mengutamakan privasi secara konsisten sejak proyek pendahulu tahun 2018 dapat diverifikasi oleh siapa saja."
+      },
+      "verify": {
+        "title": "Verifikasi Sendiri",
+        "description": "Buka DevTools browser Anda (F12) → tab Network, lalu jalankan perbandingan diff. Anda dapat mengonfirmasi bahwa tidak ada permintaan eksternal yang dibuat."
       }
     },
     "cta": {
