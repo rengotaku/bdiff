@@ -213,7 +213,6 @@ export const HomePage: React.FC = () => {
   return (
     <ContentLayout
       title={t('app.title')}
-      subtitle={t('app.subtitle')}
     >
       <div className="space-y-8">
         {/* File Upload Areas */}
