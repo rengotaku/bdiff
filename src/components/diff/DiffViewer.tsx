@@ -1,7 +1,7 @@
 import React, { useMemo, memo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getLineClassName, getPrefixSymbol } from '../../utils/diffRendering';
-import type { DiffLine, ViewMode, CharSegment, LineWithSegments, LinePair, SideBySideRow, UnifiedRow } from '../../types/types';
+import type { DiffLine, ViewMode, CharSegment, LineWithSegments, SideBySideRow, UnifiedRow } from '../../types/types';
 import { isCollapsedBlock, isUnifiedCollapsedBlock } from '../../types/types';
 import { LinePairingService } from '../../services/linePairingService';
 
@@ -144,56 +144,33 @@ SideBySideCell.displayName = 'SideBySideCell';
  * Side-by-side pair row component
  * Renders original and modified lines in the same grid row for height synchronization
  */
-const SideBySidePairRow = memo<{
-  pair: LinePair;
-  index: number;
-}>(({ pair, index }) => (
-  <div className="grid grid-cols-2 items-stretch">
-    <div className="border-r border-gray-200 min-h-full">
-      <SideBySideCell item={pair.original} index={index} side="original" />
-    </div>
-    <div className="min-h-full">
-      <SideBySideCell item={pair.modified} index={index} side="modified" />
-    </div>
-  </div>
-));
-
-SideBySidePairRow.displayName = 'SideBySidePairRow';
-
 /**
- * Collapsed lines row component (GitHub-style)
- * Shows a clickable row that expands to reveal hidden lines
+ * Collapsed line placeholder for one side of a collapsed row
  */
-const CollapsedLinesRow = memo<{
-  onExpand: () => void;
+const CollapsedLineCell = memo<{
   collapsedText: string;
   expandLabel: string;
-}>(({ onExpand, collapsedText, expandLabel }) => (
+  onExpand: () => void;
+  hasBorderRight?: boolean;
+}>(({ collapsedText, expandLabel, onExpand, hasBorderRight }) => (
   <div
-    className="grid grid-cols-2 cursor-pointer hover:bg-blue-50 transition-colors"
+    className={`bg-gray-100 py-1 px-4 text-center cursor-pointer hover:bg-blue-50 transition-colors ${hasBorderRight ? 'border-r border-gray-200' : ''}`}
     onClick={onExpand}
     role="button"
     tabIndex={0}
     onKeyDown={(e) => e.key === 'Enter' && onExpand()}
     aria-label={expandLabel}
   >
-    <div className="border-r border-gray-200 bg-gray-100 py-1 px-4 text-center">
-      <span className="text-xs text-gray-500">
-        {collapsedText}
-      </span>
-    </div>
-    <div className="bg-gray-100 py-1 px-4 text-center">
-      <span className="text-xs text-gray-500">
-        {collapsedText}
-      </span>
-    </div>
+    <span className="text-xs text-gray-500">
+      {collapsedText}
+    </span>
   </div>
 ));
 
-CollapsedLinesRow.displayName = 'CollapsedLinesRow';
+CollapsedLineCell.displayName = 'CollapsedLineCell';
 
 /**
- * Side-by-side view with synchronized line heights
+ * Side-by-side view with independent horizontal scrolling per column
  */
 const SideBySideView = memo<{
   rows: SideBySideRow[];
@@ -203,34 +180,62 @@ const SideBySideView = memo<{
   collapsedLinesText: (count: number) => string;
   expandLinesText: (count: number) => string;
 }>(({ rows, onExpandBlock, headerOriginal, headerModified, collapsedLinesText, expandLinesText }) => (
-  <div role="main" aria-label="Side-by-side diff view">
-    {/* Header row */}
-    <div className="grid grid-cols-2 mb-2">
-      <div className="px-4">
-        <div className="font-medium text-sm text-gray-700">{headerOriginal}</div>
+  <div role="main" aria-label="Side-by-side diff view" className="side-by-side-view">
+    <div className="grid grid-cols-2">
+      {/* Left column (Original) */}
+      <div className="border-r border-gray-200">
+        <div className="px-4 mb-2">
+          <div className="font-medium text-sm text-gray-700">{headerOriginal}</div>
+        </div>
+        <div className="overflow-x-auto">
+          <div className="min-w-fit">
+            {rows.map((row, index) =>
+              isCollapsedBlock(row) ? (
+                <CollapsedLineCell
+                  key={`collapsed-l-${row.originalStartLine}`}
+                  collapsedText={collapsedLinesText(row.count)}
+                  expandLabel={expandLinesText(row.count)}
+                  onExpand={() => onExpandBlock(row.originalStartLine)}
+                />
+              ) : (
+                <SideBySideCell
+                  key={`pair-l-${index}`}
+                  item={row.original}
+                  index={index}
+                  side="original"
+                />
+              )
+            )}
+          </div>
+        </div>
       </div>
-      <div className="px-4">
-        <div className="font-medium text-sm text-gray-700">{headerModified}</div>
+      {/* Right column (Modified) */}
+      <div>
+        <div className="px-4 mb-2">
+          <div className="font-medium text-sm text-gray-700">{headerModified}</div>
+        </div>
+        <div className="overflow-x-auto">
+          <div className="min-w-fit">
+            {rows.map((row, index) =>
+              isCollapsedBlock(row) ? (
+                <CollapsedLineCell
+                  key={`collapsed-r-${row.originalStartLine}`}
+                  collapsedText={collapsedLinesText(row.count)}
+                  expandLabel={expandLinesText(row.count)}
+                  onExpand={() => onExpandBlock(row.originalStartLine)}
+                />
+              ) : (
+                <SideBySideCell
+                  key={`pair-r-${index}`}
+                  item={row.modified}
+                  index={index}
+                  side="modified"
+                />
+              )
+            )}
+          </div>
+        </div>
       </div>
-    </div>
-    {/* Line pairs */}
-    <div className="overflow-visible">
-      {rows.map((row, index) =>
-        isCollapsedBlock(row) ? (
-          <CollapsedLinesRow
-            key={`collapsed-${row.originalStartLine}`}
-            onExpand={() => onExpandBlock(row.originalStartLine)}
-            collapsedText={collapsedLinesText(row.count)}
-            expandLabel={expandLinesText(row.count)}
-          />
-        ) : (
-          <SideBySidePairRow
-            key={`pair-${index}`}
-            pair={row}
-            index={index}
-          />
-        )
-      )}
     </div>
   </div>
 ));
