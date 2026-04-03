@@ -1,12 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { PageLayout } from '../components/layout/PageLayout';
 
 export const AboutPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { lang } = useParams<{ lang: string }>();
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      const el = document.querySelector(hash);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [hash]);
 
   const handleStartComparing = () => {
     navigate(`/${lang || 'ja'}/`);
@@ -115,7 +125,7 @@ export const AboutPage: React.FC = () => {
       </div>
 
       {/* Privacy Proof Section */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+      <div id="privacy-proof" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-12">
           {t('about.privacyProof.title')}
         </h2>

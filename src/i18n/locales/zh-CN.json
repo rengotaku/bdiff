@@ -6,7 +6,7 @@
   "header": {
     "languageSelector": "语言",
     "about": "关于",
-    "privacyBadge": "浏览器内处理"
+    "privacyBadge": "不发送数据"
   },
   "fileUpload": {
     "originalTitle": "原始文本",
