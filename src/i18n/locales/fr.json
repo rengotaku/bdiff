@@ -5,7 +5,8 @@
   },
   "header": {
     "languageSelector": "Langue",
-    "about": "À propos"
+    "about": "À propos",
+    "privacyBadge": "Traitement local"
   },
   "fileUpload": {
     "originalTitle": "Texte original",

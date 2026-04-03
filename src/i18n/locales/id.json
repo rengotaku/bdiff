@@ -5,7 +5,8 @@
   },
   "header": {
     "languageSelector": "Bahasa",
-    "about": "Tentang"
+    "about": "Tentang",
+    "privacyBadge": "Hanya browser"
   },
   "fileUpload": {
     "originalTitle": "Teks Asli",

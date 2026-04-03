@@ -5,7 +5,8 @@
   },
   "header": {
     "languageSelector": "語言",
-    "about": "關於"
+    "about": "關於",
+    "privacyBadge": "瀏覽器內處理"
   },
   "fileUpload": {
     "originalTitle": "原始文字",

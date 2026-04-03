@@ -5,7 +5,8 @@
   },
   "header": {
     "languageSelector": "言語",
-    "about": "BDiffについて"
+    "about": "BDiffについて",
+    "privacyBadge": "ブラウザ内処理"
   },
   "fileUpload": {
     "originalTitle": "元のテキスト",

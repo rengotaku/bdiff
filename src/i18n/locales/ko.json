@@ -5,7 +5,8 @@
   },
   "header": {
     "languageSelector": "언어",
-    "about": "소개"
+    "about": "소개",
+    "privacyBadge": "브라우저 전용"
   },
   "fileUpload": {
     "originalTitle": "원본 텍스트",
