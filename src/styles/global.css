@@ -35,9 +35,17 @@
     @apply mx-auto px-4 sm:px-6 lg:px-8;
   }
 
-  /* Diff text wrapping - single comprehensive rule */
+  /* Diff text wrapping - default rule for unified view */
   .diff-line-text {
     overflow-wrap: anywhere;
     word-break: break-all;
+  }
+
+  /* Side-by-side view: no wrapping, horizontal scroll instead */
+  .side-by-side-view .diff-line-text,
+  .side-by-side-view .font-mono {
+    white-space: pre;
+    overflow-wrap: normal;
+    word-break: normal;
   }
 }

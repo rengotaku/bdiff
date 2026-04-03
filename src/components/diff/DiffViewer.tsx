@@ -149,10 +149,10 @@ const SideBySidePairRow = memo<{
   index: number;
 }>(({ pair, index }) => (
   <div className="grid grid-cols-2 items-stretch">
-    <div className="border-r border-gray-200 min-h-full">
+    <div className="border-r border-gray-200 min-h-full overflow-x-auto">
       <SideBySideCell item={pair.original} index={index} side="original" />
     </div>
-    <div className="min-h-full">
+    <div className="min-h-full overflow-x-auto">
       <SideBySideCell item={pair.modified} index={index} side="modified" />
     </div>
   </div>
@@ -203,7 +203,7 @@ const SideBySideView = memo<{
   collapsedLinesText: (count: number) => string;
   expandLinesText: (count: number) => string;
 }>(({ rows, onExpandBlock, headerOriginal, headerModified, collapsedLinesText, expandLinesText }) => (
-  <div role="main" aria-label="Side-by-side diff view">
+  <div role="main" aria-label="Side-by-side diff view" className="side-by-side-view">
     {/* Header row */}
     <div className="grid grid-cols-2 mb-2">
       <div className="px-4">
