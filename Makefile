@@ -1,7 +1,7 @@
 # Makefile for bdiff project
 # Development and build automation
 
-.PHONY: help install dev dev-bg dev-stop build preview clean test lint typecheck kill-port setup deps-update deps-audit security-check docker-build docker-run git-status commit i18n-check
+.PHONY: help install dev dev-bg dev-stop build preview clean test test-e2e test-e2e-update lint typecheck kill-port setup deps-update deps-audit security-check docker-build docker-run git-status commit i18n-check
 
 # Default port for development server
 PORT := 14000
@@ -69,9 +69,18 @@ lint: ## Run linting (if available)
 	@echo "$(COLOR_YELLOW)No lint script configured$(COLOR_RESET)"
 	@echo "Consider adding ESLint: npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin"
 
-test: ## Run tests
-	@echo "$(COLOR_YELLOW)Running tests...$(COLOR_RESET)"
+test: ## Run unit tests
+	@echo "$(COLOR_YELLOW)Running unit tests...$(COLOR_RESET)"
 	@$(NPM) test
+
+test-e2e: build ## Run visual regression tests (requires build)
+	@echo "$(COLOR_YELLOW)Running visual regression tests...$(COLOR_RESET)"
+	@npx playwright test --project=chromium-desktop
+
+test-e2e-update: build ## Update visual regression baseline screenshots
+	@echo "$(COLOR_YELLOW)Updating visual regression baselines...$(COLOR_RESET)"
+	@npx playwright test --project=chromium-desktop --update-snapshots
+	@echo "$(COLOR_GREEN)Baselines updated! Review and commit the new snapshots.$(COLOR_RESET)"
 
 i18n-check: ## Check i18n locale key consistency across all languages
 	@echo "$(COLOR_BLUE)Checking i18n locale key consistency...$(COLOR_RESET)"
