@@ -82,6 +82,11 @@ test-results.xml
 .nyc_output/
 */.nyc_output/
 
+# Playwright
+playwright-report/
+test-results/
+blob-report/
+
 # TypeScript incremental build info
 tsconfig.tsbuildinfo
 */tsconfig.tsbuildinfo
