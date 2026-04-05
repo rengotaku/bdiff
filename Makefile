@@ -73,13 +73,17 @@ test: ## Run unit tests
 	@echo "$(COLOR_YELLOW)Running unit tests...$(COLOR_RESET)"
 	@$(NPM) test
 
-test-e2e: build ## Run visual regression tests (requires build)
-	@echo "$(COLOR_YELLOW)Running visual regression tests...$(COLOR_RESET)"
-	@npx playwright test --project=chromium-desktop
+PLAYWRIGHT_IMAGE := mcr.microsoft.com/playwright:v1.59.1-noble
 
-test-e2e-update: build ## Update visual regression baseline screenshots
-	@echo "$(COLOR_YELLOW)Updating visual regression baselines...$(COLOR_RESET)"
-	@npx playwright test --project=chromium-desktop --update-snapshots
+test-e2e: build ## Run visual regression tests in Docker (matches CI environment)
+	@echo "$(COLOR_YELLOW)Running visual regression tests in Docker...$(COLOR_RESET)"
+	@docker run --rm --ipc=host -v $(PWD):/work -w /work $(PLAYWRIGHT_IMAGE) \
+		npx playwright test --project=chromium-desktop
+
+test-e2e-update: build ## Update visual regression baselines in Docker (matches CI environment)
+	@echo "$(COLOR_YELLOW)Updating visual regression baselines in Docker...$(COLOR_RESET)"
+	@docker run --rm --ipc=host -v $(PWD):/work -w /work $(PLAYWRIGHT_IMAGE) \
+		npx playwright test --project=chromium-desktop --update-snapshots
 	@echo "$(COLOR_GREEN)Baselines updated! Review and commit the new snapshots.$(COLOR_RESET)"
 
 i18n-check: ## Check i18n locale key consistency across all languages
