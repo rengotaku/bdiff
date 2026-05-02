@@ -1,5 +1,6 @@
 import type { DiffResult, DiffLine, DiffStats, DiffType, ComparisonOptions } from '../types/types'
 import { TextPreprocessor } from '../utils/textPreprocessor'
+import { CharDiffService } from './charDiffService'
 import { diffLines, type Change } from 'diff'
 
 interface Edit {
@@ -59,11 +60,16 @@ export class DiffService {
     // Select algorithm
     const algorithm = options?.algorithm ?? this.currentAlgorithm;
 
-    if (algorithm === 'jsdiff') {
-      return this.calculateDiffWithJsDiff(processedOriginal, processedModified);
-    } else {
-      return this.calculateDiffWithBuiltin(processedOriginal, processedModified);
+    const result = algorithm === 'jsdiff'
+      ? this.calculateDiffWithJsDiff(processedOriginal, processedModified)
+      : this.calculateDiffWithBuiltin(processedOriginal, processedModified);
+
+    if (options?.enableCharDiff) {
+      const adjustedStats = this.adjustStatsForCharDiff(result.lines, result.stats);
+      return { ...result, stats: adjustedStats };
     }
+
+    return result;
   }
 
   /**
@@ -304,6 +310,56 @@ export class DiffService {
     }
 
     return stats
+  }
+
+  /**
+   * Adjust stats to count char-diff pairs as `modified` instead of separate removed+added.
+   * Scans consecutive change blocks (removed→added or added→removed) and uses positional
+   * pairing to detect which pairs qualify for char-level diff.
+   * Note: uses positional pairing as an approximation; the rendering layer may pair lines
+   * differently via content-similarity matching.
+   */
+  private static adjustStatsForCharDiff(lines: DiffLine[], stats: DiffStats): DiffStats {
+    let modifiedCount = 0;
+    let i = 0;
+
+    while (i < lines.length) {
+      const type = lines[i].type;
+      if (type !== 'removed' && type !== 'added') {
+        i++;
+        continue;
+      }
+
+      // Collect the first run (removed or added)
+      const firstType = type;
+      const secondType = firstType === 'removed' ? 'added' : 'removed';
+
+      const firstStart = i;
+      while (i < lines.length && lines[i].type === firstType) i++;
+      const firstBlock = lines.slice(firstStart, i);
+
+      const secondStart = i;
+      while (i < lines.length && lines[i].type === secondType) i++;
+      const secondBlock = lines.slice(secondStart, i);
+
+      // Normalize to removed/added order for the similarity check
+      const removedBlock = firstType === 'removed' ? firstBlock : secondBlock;
+      const addedBlock = firstType === 'removed' ? secondBlock : firstBlock;
+
+      const minLen = Math.min(removedBlock.length, addedBlock.length);
+      for (let j = 0; j < minLen; j++) {
+        if (CharDiffService.shouldShowCharDiff(removedBlock[j].content, addedBlock[j].content)) {
+          modifiedCount++;
+        }
+      }
+    }
+
+    return {
+      ...stats,
+      removed: stats.removed - modifiedCount,
+      added: stats.added - modifiedCount,
+      modified: modifiedCount,
+    };
   }
 
   /**

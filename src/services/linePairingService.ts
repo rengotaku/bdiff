@@ -43,6 +43,17 @@ export class LinePairingService {
     return this.similarityThreshold;
   }
   /**
+   * Returns true for lines that carry no meaningful context on their own
+   * (blank lines, single structural characters like braces, semicolons).
+   * These should not anchor cross-block remote matching.
+   */
+  private static isContextlessLine(content: string): boolean {
+    const trimmed = content.trim();
+    if (trimmed.length === 0) return true;
+    return /^[{}()\[\];,]+$/.test(trimmed);
+  }
+
+  /**
    * Calculate similarity between two strings (0-1 scale)
    * Uses Levenshtein distance normalized by max length
    */
@@ -85,10 +96,12 @@ export class LinePairingService {
       return [];
     }
 
-    // Calculate similarity matrix
+    // Calculate similarity matrix (skip context-less lines as match anchors)
     const scores: { removedIdx: number; addedIdx: number; score: number }[] = [];
     for (let i = 0; i < removedLines.length; i++) {
+      if (this.isContextlessLine(removedLines[i].content)) continue;
       for (let j = 0; j < addedLines.length; j++) {
+        if (this.isContextlessLine(addedLines[j].content)) continue;
         const score = this.calculateSimilarity(
           removedLines[i].content,
           addedLines[j].content
@@ -148,13 +161,15 @@ export class LinePairingService {
       return [];
     }
 
-    // Find the best matching pair
+    // Find the best matching pair (skip context-less lines as match anchors)
     let bestScore = this.similarityThreshold;
     let bestI = -1;
     let bestJ = -1;
 
     for (let i = 0; i < removedLines.length; i++) {
+      if (this.isContextlessLine(removedLines[i].content)) continue;
       for (let j = 0; j < addedLines.length; j++) {
+        if (this.isContextlessLine(addedLines[j].content)) continue;
         const score = this.calculateSimilarity(
           removedLines[i].content,
           addedLines[j].content
@@ -453,15 +468,17 @@ export class LinePairingService {
     pairs: LinePair[],
     enableCharDiff: boolean
   ): LinePair[] {
-    // Find indices of unmatched lines
+    // Find indices of unmatched lines, excluding context-less lines from remote matching
     const unmatchedRemovedIndices: number[] = [];
     const unmatchedAddedIndices: number[] = [];
 
     pairs.forEach((pair, index) => {
-      if (pair.original && !pair.modified && pair.original.line.type === 'removed') {
+      if (pair.original && !pair.modified && pair.original.line.type === 'removed' &&
+          !this.isContextlessLine(pair.original.line.content)) {
         unmatchedRemovedIndices.push(index);
       }
-      if (pair.modified && !pair.original && pair.modified.line.type === 'added') {
+      if (pair.modified && !pair.original && pair.modified.line.type === 'added' &&
+          !this.isContextlessLine(pair.modified.line.content)) {
         unmatchedAddedIndices.push(index);
       }
     });

@@ -423,7 +423,85 @@ describe('LinePairingService', () => {
     });
 
     // ========================================
-    // F. パフォーマンス考慮
+    // F. コンテキストレス行の遠隔マッチング防止（issue #97）
+    // ========================================
+    describe('コンテキストレス行の遠隔マッチング防止', () => {
+      it('空行は遠隔マッチングの候補にならない', () => {
+        // removed block: 有意なテキスト行 + 空行（純粋な削除ブロック）
+        // added block: 別箇所の空行（純粋な追加ブロック）
+        // unchanged で区切られた2つのブロックを模擬
+        const lines: DiffLine[] = [
+          createLine('削除される有意な行', 'removed', 1),
+          createLine('', 'removed', 2),  // 空行
+          createLine('変更なし行', 'unchanged', 3),
+          createLine('', 'added', 4),    // 別箇所の空行 - 遠隔マッチングされてはいけない
+          createLine('追加される有意な行', 'added', 5),
+        ];
+        const result = LinePairingService.pairLinesForSideBySide(lines, false);
+
+        // 空行のremoved（index 1）は空行のadded（index 3）と遠隔マッチングされてはいけない
+        const emptyRemovedPair = result.find(
+          p => p.original?.line.content === '' && p.original?.line.type === 'removed'
+        );
+        // 空行は単独（modified=null）のままであるべき
+        expect(emptyRemovedPair?.modified).toBeNull();
+      });
+
+      it('閉じ括弧 } は遠隔マッチングの候補にならない', () => {
+        const lines: DiffLine[] = [
+          createLine('削除されるコードブロック', 'removed', 1),
+          createLine('}', 'removed', 2),  // 閉じ括弧
+          createLine('変更なし行', 'unchanged', 3),
+          createLine('}', 'added', 4),    // 別箇所の閉じ括弧 - 遠隔マッチングされてはいけない
+          createLine('追加されるコードブロック', 'added', 5),
+        ];
+        const result = LinePairingService.pairLinesForSideBySide(lines, false);
+
+        // }のremoved は }のadded と遠隔マッチングされてはいけない
+        const braceRemovedPair = result.find(
+          p => p.original?.line.content === '}' && p.original?.line.type === 'removed'
+        );
+        expect(braceRemovedPair?.modified).toBeNull();
+      });
+
+      it('有意なテキスト行は引き続き遠隔マッチングされる', () => {
+        const lines: DiffLine[] = [
+          createLine('マッチすべき有意なテキスト', 'removed', 1),
+          createLine('変更なし行', 'unchanged', 2),
+          createLine('マッチすべき有意なテキスト', 'added', 3),
+        ];
+        const result = LinePairingService.pairLinesForSideBySide(lines, false);
+
+        // 有意なテキストは遠隔マッチングされるべき
+        const matchedPair = result.find(
+          p => p.original?.line.content === 'マッチすべき有意なテキスト' &&
+               p.modified?.line.content === 'マッチすべき有意なテキスト'
+        );
+        expect(matchedPair).toBeDefined();
+      });
+
+      it('同一ブロック内の空行は位置ベースでペアリングされる', () => {
+        // ブロック内の空行は位置ベースで処理される（遠隔マッチングではない）
+        const lines: DiffLine[] = [
+          createLine('テキスト行1', 'removed', 1),
+          createLine('', 'removed', 2),
+          createLine('テキスト行1', 'added', 3),
+          createLine('', 'added', 4),
+        ];
+        const result = LinePairingService.pairLinesForSideBySide(lines, false);
+
+        // ブロック内の場合: テキスト行はマッチ、空行は位置ベースでペアになる
+        expect(result).toHaveLength(2);
+        const textPair = result.find(p => p.original?.line.content === 'テキスト行1');
+        expect(textPair?.modified?.line.content).toBe('テキスト行1');
+        const emptyPair = result.find(p => p.original?.line.content === '');
+        // 同一ブロック内の空行は位置ベースでペアになる（修正後は fallback で paired）
+        expect(emptyPair).toBeDefined();
+      });
+    });
+
+    // ========================================
+    // G. パフォーマンス考慮
     // ========================================
     describe('パフォーマンス', () => {
       it('大量の行でも処理が完了する', () => {
