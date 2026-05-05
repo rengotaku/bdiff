@@ -56,6 +56,11 @@ export const ComparisonOptionsHorizontal: React.FC<ComparisonOptionsHorizontalPr
       key: 'enableCharDiff' as const,
       label: t('comparisonOptions.enableCharDiffLabel'),
       description: t('comparisonOptions.enableCharDiffTooltip')
+    },
+    {
+      key: 'indentHeuristic' as const,
+      label: t('comparisonOptions.indentHeuristicLabel'),
+      description: t('comparisonOptions.indentHeuristicTooltip')
     }
   ];
 

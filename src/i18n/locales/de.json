@@ -48,7 +48,10 @@
     "enableCharDiffTooltip": "Geänderte Zeichen in Zeilen hervorheben",
     "collapseUnchanged": "Unveränderte Zeilen ausblenden",
     "collapseUnchangedLabel": "Unveränderte Zeilen ausblenden",
-    "collapseUnchangedTooltip": "Nur Kontext um Änderungen anzeigen (GitHub-Stil)"
+    "collapseUnchangedTooltip": "Nur Kontext um Änderungen anzeigen (GitHub-Stil)",
+    "indentHeuristic": "Einrückungs-Heuristik",
+    "indentHeuristicLabel": "Einrückungs-Heuristik",
+    "indentHeuristicTooltip": "Diff-Blöcke zu weniger eingerückten Positionen verschieben (git-kompatibel)"
   },
   "diffViewer": {
     "viewMode": {

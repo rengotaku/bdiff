@@ -60,9 +60,14 @@ export class DiffService {
     // Select algorithm
     const algorithm = options?.algorithm ?? this.currentAlgorithm;
 
-    const result = algorithm === 'jsdiff'
+    let result = algorithm === 'jsdiff'
       ? this.calculateDiffWithJsDiff(processedOriginal, processedModified)
       : this.calculateDiffWithBuiltin(processedOriginal, processedModified);
+
+    if (options?.indentHeuristic) {
+      const slidedLines = this.applyIndentHeuristic(result.lines);
+      result = { ...result, lines: slidedLines, stats: this.calculateStats(slidedLines) };
+    }
 
     if (options?.enableCharDiff) {
       const adjustedStats = this.adjustStatsForCharDiff(result.lines, result.stats);
@@ -360,6 +365,123 @@ export class DiffService {
       added: stats.added - modifiedCount,
       modified: modifiedCount,
     };
+  }
+
+  /**
+   * Count leading whitespace (tabs = 4 spaces) for indent scoring
+   */
+  private static getIndentLevel(line: string): number {
+    let indent = 0;
+    for (const ch of line) {
+      if (ch === ' ') indent++;
+      else if (ch === '\t') indent += 4;
+      else break;
+    }
+    return indent;
+  }
+
+  /**
+   * Slide each removed/added block to the position with the lowest boundary indentation.
+   * This is a post-processing step compatible with git's --indent-heuristic.
+   */
+  static applyIndentHeuristic(lines: DiffLine[]): DiffLine[] {
+    type SlimLine = { content: string; type: DiffType };
+    const result: SlimLine[] = lines.map(l => ({ content: l.content, type: l.type }));
+
+    let i = 0;
+    while (i < result.length) {
+      if (result[i].type !== 'removed' && result[i].type !== 'added') {
+        i++;
+        continue;
+      }
+
+      const blockType = result[i].type as 'removed' | 'added';
+      const blockStart = i;
+      while (i < result.length && result[i].type === blockType) i++;
+      const blockEnd = i;
+
+      // How far the block can slide down: result[blockEnd+k].content must equal result[blockStart+k].content
+      let maxDown = 0;
+      while (
+        blockEnd + maxDown < result.length &&
+        result[blockEnd + maxDown].type === 'unchanged' &&
+        result[blockEnd + maxDown].content === result[blockStart + maxDown].content
+      ) maxDown++;
+
+      // How far the block can slide up: result[blockStart-k-1].content must equal result[blockEnd-k-1].content
+      let maxUp = 0;
+      while (
+        blockStart - maxUp - 1 >= 0 &&
+        result[blockStart - maxUp - 1].type === 'unchanged' &&
+        result[blockStart - maxUp - 1].content === result[blockEnd - maxUp - 1].content
+      ) maxUp++;
+
+      if (maxDown === 0 && maxUp === 0) continue;
+
+      // Score each candidate slide position; prefer the one with lowest boundary indentation.
+      // At slide k: block occupies [blockStart+k, blockEnd+k). Boundary lines are at indices
+      // blockStart+k-1 (before) and blockEnd+k (after), both accessible in the original array
+      // because sliding only rearranges lines whose content matches the block.
+      let bestScore = Infinity;
+      let bestSlide = 0;
+
+      for (let slide = -maxUp; slide <= maxDown; slide++) {
+        const beforeIdx = blockStart + slide - 1;
+        const afterIdx = blockEnd + slide;
+        const beforeIndent = beforeIdx >= 0 ? this.getIndentLevel(result[beforeIdx].content) : 0;
+        const afterIndent = afterIdx < result.length ? this.getIndentLevel(result[afterIdx].content) : 0;
+        const score = beforeIndent + afterIndent;
+        if (score < bestScore) {
+          bestScore = score;
+          bestSlide = slide;
+        }
+      }
+
+      if (bestSlide > 0) {
+        for (let j = 0; j < bestSlide; j++) {
+          result[blockStart + j].type = 'unchanged';
+          result[blockEnd + j].type = blockType;
+        }
+      } else if (bestSlide < 0) {
+        for (let j = 0; j < -bestSlide; j++) {
+          result[blockStart - j - 1].type = blockType;
+          result[blockEnd - j - 1].type = 'unchanged';
+        }
+      }
+    }
+
+    // Rebuild DiffLine[] with correct sequential line numbers
+    const rebuilt: DiffLine[] = [];
+    let origNum = 1;
+    let modNum = 1;
+    let globalNum = 1;
+
+    for (const line of result) {
+      let origLineNum: number | undefined;
+      let modLineNum: number | undefined;
+
+      if (line.type === 'unchanged') {
+        origLineNum = origNum++;
+        modLineNum = modNum++;
+      } else if (line.type === 'removed') {
+        origLineNum = origNum++;
+      } else if (line.type === 'added') {
+        modLineNum = modNum++;
+      } else {
+        origLineNum = origNum++;
+        modLineNum = modNum++;
+      }
+
+      rebuilt.push({
+        lineNumber: globalNum++,
+        content: line.content,
+        type: line.type,
+        originalLineNumber: origLineNum,
+        newLineNumber: modLineNum,
+      });
+    }
+
+    return rebuilt;
   }
 
   /**

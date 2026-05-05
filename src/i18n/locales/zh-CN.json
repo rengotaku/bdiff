@@ -48,7 +48,10 @@
     "enableCharDiffTooltip": "在行内高亮显示变更的字符",
     "collapseUnchanged": "折叠未更改行",
     "collapseUnchangedLabel": "折叠未更改行",
-    "collapseUnchangedTooltip": "仅显示变更周围的内容（GitHub 风格）"
+    "collapseUnchangedTooltip": "仅显示变更周围的内容（GitHub 风格）",
+    "indentHeuristic": "缩进启发式",
+    "indentHeuristicLabel": "缩进启发式",
+    "indentHeuristicTooltip": "将差异块移至缩进较少的位置（与 git 兼容）"
   },
   "diffViewer": {
     "viewMode": {

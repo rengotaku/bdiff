@@ -48,7 +48,10 @@
     "enableCharDiffTooltip": "줄 내에서 변경된 문자를 하이라이트",
     "collapseUnchanged": "변경 없는 행 접기",
     "collapseUnchangedLabel": "변경 없는 행 접기",
-    "collapseUnchangedTooltip": "변경 주변의 컨텍스트만 표시 (GitHub 스타일)"
+    "collapseUnchangedTooltip": "변경 주변의 컨텍스트만 표시 (GitHub 스타일)",
+    "indentHeuristic": "들여쓰기 휴리스틱",
+    "indentHeuristicLabel": "들여쓰기 휴리스틱",
+    "indentHeuristicTooltip": "차이 블록을 들여쓰기가 낮은 위치로 이동 (git 호환)"
   },
   "diffViewer": {
     "viewMode": {

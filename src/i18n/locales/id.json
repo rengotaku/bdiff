@@ -48,7 +48,10 @@
     "enableCharDiffTooltip": "Sorot karakter yang berubah dalam baris",
     "collapseUnchanged": "Sembunyikan baris tidak berubah",
     "collapseUnchangedLabel": "Sembunyikan baris tidak berubah",
-    "collapseUnchangedTooltip": "Tampilkan hanya konteks di sekitar perubahan (gaya GitHub)"
+    "collapseUnchangedTooltip": "Tampilkan hanya konteks di sekitar perubahan (gaya GitHub)",
+    "indentHeuristic": "Heuristik indentasi",
+    "indentHeuristicLabel": "Heuristik indentasi",
+    "indentHeuristicTooltip": "Geser blok perbedaan ke posisi indentasi lebih rendah (kompatibel git)"
   },
   "diffViewer": {
     "viewMode": {
