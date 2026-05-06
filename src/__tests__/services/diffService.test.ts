@@ -8,7 +8,6 @@ const defaultOptions: ComparisonOptions = {
   ignoreWhitespace: false,
   ignoreTrailingNewlines: false,
   enableCharDiff: false,
-  indentHeuristic: false,
 };
 
 describe('DiffService', () => {
