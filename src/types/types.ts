@@ -145,6 +145,8 @@ export interface ComparisonOptions {
   ignoreTrailingNewlines: boolean;
   /** Enable character-level inline diff highlighting */
   enableCharDiff: boolean;
+  /** Apply git-compatible indent heuristic to improve diff readability */
+  indentHeuristic: boolean;
 }
 
 /**

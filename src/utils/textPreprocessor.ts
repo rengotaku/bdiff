@@ -122,8 +122,9 @@ export class TextPreprocessor {
       sortLines: false,
       ignoreCase: false,
       ignoreWhitespace: false,
-      ignoreTrailingNewlines: true,  // Default checked
-      enableCharDiff: true  // Default enabled for inline character highlighting
+      ignoreTrailingNewlines: true,
+      enableCharDiff: true,
+      indentHeuristic: true
     };
   }
   

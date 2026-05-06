@@ -60,9 +60,14 @@ export class DiffService {
     // Select algorithm
     const algorithm = options?.algorithm ?? this.currentAlgorithm;
 
-    const result = algorithm === 'jsdiff'
+    let result = algorithm === 'jsdiff'
       ? this.calculateDiffWithJsDiff(processedOriginal, processedModified)
       : this.calculateDiffWithBuiltin(processedOriginal, processedModified);
+
+    if (options?.indentHeuristic) {
+      const slidLines = this.applyIndentHeuristic(result.lines);
+      result = { ...result, lines: slidLines };
+    }
 
     if (options?.enableCharDiff) {
       const adjustedStats = this.adjustStatsForCharDiff(result.lines, result.stats);
@@ -272,6 +277,150 @@ export class DiffService {
     }
 
     return lines
+  }
+
+  /**
+   * Count leading whitespace characters (tab = 4 spaces).
+   */
+  private static getIndentLevel(content: string): number {
+    let indent = 0;
+    for (const ch of content) {
+      if (ch === ' ') indent++;
+      else if (ch === '\t') indent += 4;
+      else break;
+    }
+    return indent;
+  }
+
+  /**
+   * Score for placing a change block at `blockStart`.
+   * Lower score = better: prefer positions after less-indented lines.
+   */
+  private static scorePosition(lines: DiffLine[], blockStart: number): number {
+    if (blockStart > 0 && lines[blockStart - 1].type === 'unchanged') {
+      return this.getIndentLevel(lines[blockStart - 1].content);
+    }
+    return 0;
+  }
+
+  /**
+   * Try to slide a contiguous block of `type` lines within unchanged context.
+   * Modifies `lines` in-place by swapping type between changed and unchanged lines.
+   */
+  private static slideBlock(
+    lines: DiffLine[],
+    blockStart: number,
+    blockEnd: number,
+    type: 'removed' | 'added'
+  ): void {
+    const blockLen = blockEnd - blockStart;
+
+    let bestScore = this.scorePosition(lines, blockStart);
+    let bestPos = blockStart;
+
+    // Try sliding up: line before block must match last line of block
+    let pos = blockStart;
+    while (
+      pos > 0 &&
+      lines[pos - 1].type === 'unchanged' &&
+      lines[pos - 1].content === lines[pos + blockLen - 1].content
+    ) {
+      pos--;
+      const score = this.scorePosition(lines, pos);
+      if (score < bestScore) {
+        bestScore = score;
+        bestPos = pos;
+      }
+    }
+
+    // Try sliding down: line after block must match first line of block
+    pos = blockStart;
+    while (
+      pos + blockLen < lines.length &&
+      lines[pos + blockLen].type === 'unchanged' &&
+      lines[pos + blockLen].content === lines[pos].content
+    ) {
+      pos++;
+      const score = this.scorePosition(lines, pos);
+      if (score < bestScore) {
+        bestScore = score;
+        bestPos = pos;
+      }
+    }
+
+    if (bestPos === blockStart) return;
+
+    if (bestPos < blockStart) {
+      // Slide up by (blockStart - bestPos) positions
+      const shift = blockStart - bestPos;
+      for (let j = 0; j < shift; j++) {
+        const unchangedIdx = blockStart - 1 - j;
+        const changedIdx = blockEnd - 1 - j;
+        lines[unchangedIdx] = { ...lines[unchangedIdx], type };
+        lines[changedIdx] = { ...lines[changedIdx], type: 'unchanged' };
+      }
+    } else {
+      // Slide down by (bestPos - blockStart) positions
+      const shift = bestPos - blockStart;
+      for (let j = 0; j < shift; j++) {
+        const changedIdx = blockStart + j;
+        const unchangedIdx = blockEnd + j;
+        lines[changedIdx] = { ...lines[changedIdx], type: 'unchanged' };
+        lines[unchangedIdx] = { ...lines[unchangedIdx], type };
+      }
+    }
+  }
+
+  /**
+   * Recalculate sequential line numbers after a slide operation.
+   */
+  private static recalculateLineNumbers(lines: DiffLine[]): DiffLine[] {
+    let origNum = 1;
+    let newNum = 1;
+    let globalNum = 1;
+    return lines.map(line => {
+      const updated = { ...line, lineNumber: globalNum++ };
+      if (line.type === 'removed') {
+        updated.originalLineNumber = origNum++;
+        updated.newLineNumber = undefined;
+      } else if (line.type === 'added') {
+        updated.originalLineNumber = undefined;
+        updated.newLineNumber = newNum++;
+      } else {
+        updated.originalLineNumber = origNum++;
+        updated.newLineNumber = newNum++;
+      }
+      return updated;
+    });
+  }
+
+  /**
+   * Apply git-compatible indent heuristic as post-processing.
+   * Slides removed and added blocks to positions with lower indent context
+   * for improved readability (matches git diff --indent-heuristic behavior).
+   */
+  private static applyIndentHeuristic(lines: DiffLine[]): DiffLine[] {
+    const result = lines.map(l => ({ ...l }));
+
+    // Process removed blocks
+    let i = 0;
+    while (i < result.length) {
+      if (result[i].type !== 'removed') { i++; continue; }
+      const start = i;
+      while (i < result.length && result[i].type === 'removed') i++;
+      this.slideBlock(result, start, i, 'removed');
+    }
+
+    // Process added blocks
+    i = 0;
+    while (i < result.length) {
+      if (result[i].type !== 'added') { i++; continue; }
+      const start = i;
+      while (i < result.length && result[i].type === 'added') i++;
+      this.slideBlock(result, start, i, 'added');
+    }
+
+    return this.recalculateLineNumbers(result);
   }
 
   /**
