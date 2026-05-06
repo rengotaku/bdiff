@@ -47,6 +47,9 @@
     "enableCharDiff": "字符级高亮",
     "enableCharDiffLabel": "字符级高亮",
     "enableCharDiffTooltip": "在行内高亮显示变更的字符",
+    "indentHeuristic": "缩进启发式",
+    "indentHeuristicLabel": "缩进启发式",
+    "indentHeuristicTooltip": "git 兼容差异显示（将差异块移动到缩进较少的位置）",
     "collapseUnchanged": "折叠未更改行",
     "collapseUnchangedLabel": "折叠未更改行",
     "collapseUnchangedTooltip": "仅显示变更周围的内容（GitHub 风格）"

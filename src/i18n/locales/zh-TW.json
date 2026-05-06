@@ -47,6 +47,9 @@
     "enableCharDiff": "字元級標示",
     "enableCharDiffLabel": "字元級標示",
     "enableCharDiffTooltip": "在行內標示變更的字元",
+    "indentHeuristic": "縮排啟發式",
+    "indentHeuristicLabel": "縮排啟發式",
+    "indentHeuristicTooltip": "git 相容差異顯示（將差異區塊移至縮排較少的位置）",
     "collapseUnchanged": "摺疊未變更行",
     "collapseUnchangedLabel": "摺疊未變更行",
     "collapseUnchangedTooltip": "僅顯示變更周圍的內容（GitHub 風格）"
