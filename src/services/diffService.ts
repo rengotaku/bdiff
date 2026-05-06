@@ -65,8 +65,9 @@ export class DiffService {
       : this.calculateDiffWithBuiltin(processedOriginal, processedModified);
 
     if (options?.indentHeuristic) {
-      const slidLines = this.applyIndentHeuristic(result.lines);
-      result = { ...result, lines: slidLines };
+      const heuristicLines = this.applyIndentHeuristic(result.lines);
+      const heuristicStats = this.calculateStats(heuristicLines);
+      result = { ...result, lines: heuristicLines, stats: heuristicStats };
     }
 
     if (options?.enableCharDiff) {
@@ -280,150 +281,6 @@ export class DiffService {
   }
 
   /**
-   * Count leading whitespace characters (tab = 4 spaces).
-   */
-  private static getIndentLevel(content: string): number {
-    let indent = 0;
-    for (const ch of content) {
-      if (ch === ' ') indent++;
-      else if (ch === '\t') indent += 4;
-      else break;
-    }
-    return indent;
-  }
-
-  /**
-   * Score for placing a change block at `blockStart`.
-   * Lower score = better: prefer positions after less-indented lines.
-   */
-  private static scorePosition(lines: DiffLine[], blockStart: number): number {
-    if (blockStart > 0 && lines[blockStart - 1].type === 'unchanged') {
-      return this.getIndentLevel(lines[blockStart - 1].content);
-    }
-    return 0;
-  }
-
-  /**
-   * Try to slide a contiguous block of `type` lines within unchanged context.
-   * Modifies `lines` in-place by swapping type between changed and unchanged lines.
-   */
-  private static slideBlock(
-    lines: DiffLine[],
-    blockStart: number,
-    blockEnd: number,
-    type: 'removed' | 'added'
-  ): void {
-    const blockLen = blockEnd - blockStart;
-
-    let bestScore = this.scorePosition(lines, blockStart);
-    let bestPos = blockStart;
-
-    // Try sliding up: line before block must match last line of block
-    let pos = blockStart;
-    while (
-      pos > 0 &&
-      lines[pos - 1].type === 'unchanged' &&
-      lines[pos - 1].content === lines[pos + blockLen - 1].content
-    ) {
-      pos--;
-      const score = this.scorePosition(lines, pos);
-      if (score < bestScore) {
-        bestScore = score;
-        bestPos = pos;
-      }
-    }
-
-    // Try sliding down: line after block must match first line of block
-    pos = blockStart;
-    while (
-      pos + blockLen < lines.length &&
-      lines[pos + blockLen].type === 'unchanged' &&
-      lines[pos + blockLen].content === lines[pos].content
-    ) {
-      pos++;
-      const score = this.scorePosition(lines, pos);
-      if (score < bestScore) {
-        bestScore = score;
-        bestPos = pos;
-      }
-    }
-
-    if (bestPos === blockStart) return;
-
-    if (bestPos < blockStart) {
-      // Slide up by (blockStart - bestPos) positions
-      const shift = blockStart - bestPos;
-      for (let j = 0; j < shift; j++) {
-        const unchangedIdx = blockStart - 1 - j;
-        const changedIdx = blockEnd - 1 - j;
-        lines[unchangedIdx] = { ...lines[unchangedIdx], type };
-        lines[changedIdx] = { ...lines[changedIdx], type: 'unchanged' };
-      }
-    } else {
-      // Slide down by (bestPos - blockStart) positions
-      const shift = bestPos - blockStart;
-      for (let j = 0; j < shift; j++) {
-        const changedIdx = blockStart + j;
-        const unchangedIdx = blockEnd + j;
-        lines[changedIdx] = { ...lines[changedIdx], type: 'unchanged' };
-        lines[unchangedIdx] = { ...lines[unchangedIdx], type };
-      }
-    }
-  }
-
-  /**
-   * Recalculate sequential line numbers after a slide operation.
-   */
-  private static recalculateLineNumbers(lines: DiffLine[]): DiffLine[] {
-    let origNum = 1;
-    let newNum = 1;
-    let globalNum = 1;
-    return lines.map(line => {
-      const updated = { ...line, lineNumber: globalNum++ };
-      if (line.type === 'removed') {
-        updated.originalLineNumber = origNum++;
-        updated.newLineNumber = undefined;
-      } else if (line.type === 'added') {
-        updated.originalLineNumber = undefined;
-        updated.newLineNumber = newNum++;
-      } else {
-        updated.originalLineNumber = origNum++;
-        updated.newLineNumber = newNum++;
-      }
-      return updated;
-    });
-  }
-
-  /**
-   * Apply git-compatible indent heuristic as post-processing.
-   * Slides removed and added blocks to positions with lower indent context
-   * for improved readability (matches git diff --indent-heuristic behavior).
-   */
-  private static applyIndentHeuristic(lines: DiffLine[]): DiffLine[] {
-    const result = lines.map(l => ({ ...l }));
-
-    // Process removed blocks
-    let i = 0;
-    while (i < result.length) {
-      if (result[i].type !== 'removed') { i++; continue; }
-      const start = i;
-      while (i < result.length && result[i].type === 'removed') i++;
-      this.slideBlock(result, start, i, 'removed');
-    }
-
-    // Process added blocks
-    i = 0;
-    while (i < result.length) {
-      if (result[i].type !== 'added') { i++; continue; }
-      const start = i;
-      while (i < result.length && result[i].type === 'added') i++;
-      this.slideBlock(result, start, i, 'added');
-    }
-
-    return this.recalculateLineNumbers(result);
-  }
-
-  /**
    * 差分統計を計算
    */
   private static calculateStats(lines: DiffLine[]): DiffStats {
@@ -510,6 +367,203 @@ export class DiffService {
       modified: modifiedCount,
     };
   }
+
+  // ── Indent Heuristic ──────────────────────────────────────────────────────
+
+  /**
+   * Entry point: apply indent heuristic to a DiffLine array.
+   * Step 1 – fix jsdiff boundary noise (common prefix of removed+added blocks)
+   * Step 2 – git-style indent sliding (prefer lower-indent split points)
+   * Step 3 – reassign sequential line numbers
+   */
+  private static applyIndentHeuristic(lines: DiffLine[]): DiffLine[] {
+    const step1 = this.fixBoundaryNoise(lines);
+    const step2 = this.slideRemovedBlocks(step1);
+    return this.reassignLineNumbers(step2);
+  }
+
+  /**
+   * Fix jsdiff boundary noise: when a removed block is immediately followed by
+   * an added block, and their leading lines share the same content, those shared
+   * lines should be unchanged (not removed+added).
+   */
+  private static fixBoundaryNoise(lines: DiffLine[]): DiffLine[] {
+    const result: DiffLine[] = [];
+    let i = 0;
+
+    while (i < lines.length) {
+      if (lines[i].type !== 'removed') {
+        result.push(lines[i++]);
+        continue;
+      }
+
+      const removedBlock: DiffLine[] = [];
+      while (i < lines.length && lines[i].type === 'removed') removedBlock.push(lines[i++]);
+
+      const addedBlock: DiffLine[] = [];
+      while (i < lines.length && lines[i].type === 'added') addedBlock.push(lines[i++]);
+
+      // Count common prefix lines (same content in both blocks)
+      let k = 0;
+      const minLen = Math.min(removedBlock.length, addedBlock.length);
+      while (k < minLen && removedBlock[k].content === addedBlock[k].content) k++;
+
+      // Convert prefix to unchanged (orig from removed side, new from added side)
+      for (let j = 0; j < k; j++) {
+        result.push({
+          ...removedBlock[j],
+          type: 'unchanged',
+          newLineNumber: addedBlock[j].newLineNumber,
+        });
+      }
+      for (let j = k; j < removedBlock.length; j++) result.push(removedBlock[j]);
+      for (let j = k; j < addedBlock.length; j++) result.push(addedBlock[j]);
+    }
+
+    return result;
+  }
+
+  /**
+   * Git-style indent sliding for removed blocks.
+   * For each removed block, slide to the position where pre-context + post-context
+   * indentation is minimised (most natural split point in the code).
+   */
+  private static slideRemovedBlocks(lines: DiffLine[]): DiffLine[] {
+    const result = lines.map(l => ({ ...l }));
+    const len = result.length;
+    let i = 0;
+
+    while (i < len) {
+      if (result[i].type !== 'removed') { i++; continue; }
+
+      const blockStart = i;
+      while (i < len && result[i].type === 'removed') i++;
+      const blockEnd = i;
+
+      // Skip blocks immediately followed by added (fixBoundaryNoise handles those)
+      if (i < len && result[i].type === 'added') continue;
+
+      // Slide backward as far as the content matches preceding unchanged lines
+      let start = blockStart;
+      let end = blockEnd;
+      while (
+        start > 0 &&
+        result[start - 1].type === 'unchanged' &&
+        result[start - 1].content === result[end - 1].content
+      ) { start--; end--; }
+
+      // Scan forward from backward-most position to find minimum indent score
+      let bestStart = start;
+      let bestScore = this.indentScore(result, start, end, len);
+      let s = start;
+      let e = end;
+
+      while (
+        e < len &&
+        result[e].type === 'unchanged' &&
+        result[s].content === result[e].content
+      ) {
+        s++; e++;
+        const score = this.indentScore(result, s, e, len);
+        if (score < bestScore) { bestScore = score; bestStart = s; }
+      }
+
+      if (bestStart !== blockStart) {
+        this.applySlide(result, blockStart, blockEnd, bestStart);
+      }
+    }
+
+    return result;
+  }
+
+  /** pre-indent + post-indent score for a removed block at [start, end). */
+  private static indentScore(lines: DiffLine[], start: number, end: number, len: number): number {
+    const pre  = start > 0   ? this.lineIndent(lines[start - 1].content) : 0;
+    const post = end   < len ? this.lineIndent(lines[end].content)       : 0;
+    return pre + post;
+  }
+
+  /** Count leading whitespace characters (tabs treated as 4 spaces). */
+  private static lineIndent(content: string): number {
+    let n = 0;
+    for (const ch of content) {
+      if (ch === ' ')  n++;
+      else if (ch === '\t') n += 4;
+      else break;
+    }
+    return n;
+  }
+
+  /**
+   * Physically apply the slide: swap types between the original Myers position
+   * [fromStart, fromEnd) and the new best position starting at toStart.
+   * toStart can be < fromStart (backward) or > fromStart (forward).
+   */
+  private static applySlide(
+    lines: DiffLine[],
+    fromStart: number,
+    fromEnd: number,
+    toStart: number,
+  ): void {
+    const blockSize = fromEnd - fromStart;
+    const toEnd = toStart + blockSize;
+
+    if (toStart < fromStart) {
+      // Backward slide: [toStart, fromStart) unchanged→removed; [toEnd, fromEnd) removed→unchanged
+      const shift = fromStart - toStart;
+      const savedNews = Array.from({ length: shift }, (_, j) => lines[toStart + j].newLineNumber);
+      for (let j = 0; j < shift; j++) {
+        lines[toStart + j]  = { ...lines[toStart + j],  type: 'removed',   newLineNumber: undefined };
+        lines[toEnd   + j]  = { ...lines[toEnd   + j],  type: 'unchanged', newLineNumber: savedNews[j] };
+      }
+    } else {
+      // Forward slide: [fromEnd, toEnd) unchanged→removed; [fromStart, toStart) removed→unchanged
+      const shift = toStart - fromStart;
+      const savedNews = Array.from({ length: shift }, (_, j) => lines[fromEnd + j].newLineNumber);
+      for (let j = 0; j < shift; j++) {
+        lines[fromEnd   + j] = { ...lines[fromEnd   + j], type: 'removed',   newLineNumber: undefined };
+        lines[fromStart + j] = { ...lines[fromStart + j], type: 'unchanged', newLineNumber: savedNews[j] };
+      }
+    }
+  }
+
+  /**
+   * Reassign originalLineNumber, newLineNumber, and lineNumber after heuristic
+   * transformations may have changed which lines are removed/unchanged/added.
+   */
+  private static reassignLineNumbers(lines: DiffLine[]): DiffLine[] {
+    let origNum = 1;
+    let newNum  = 1;
+    let globalNum = 1;
+
+    return lines.map(l => {
+      let originalLineNumber: number | undefined;
+      let newLineNumber: number | undefined;
+
+      switch (l.type) {
+        case 'unchanged':
+          originalLineNumber = origNum++;
+          newLineNumber      = newNum++;
+          break;
+        case 'removed':
+          originalLineNumber = origNum++;
+          newLineNumber      = undefined;
+          break;
+        case 'added':
+          originalLineNumber = undefined;
+          newLineNumber      = newNum++;
+          break;
+        case 'modified':
+          originalLineNumber = origNum++;
+          newLineNumber      = newNum++;
+          break;
+      }
+
+      return { ...l, lineNumber: globalNum++, originalLineNumber, newLineNumber };
+    });
+  }
+
+  // ── End Indent Heuristic ─────────────────────────────────────────────────
 
   /**
    * 差分があるかどうかを判定
