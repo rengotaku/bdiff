@@ -18,6 +18,8 @@ export interface DiffFormatOptions {
   selectedTypes?: DiffType[];
   /** Number of context lines to include around changes */
   contextLines?: number;
+  /** User-visible message for the "no differences" case; callers should pass a translated string */
+  noDifferencesMessage?: string;
 }
 
 /**
@@ -79,16 +81,11 @@ export class DiffExporter {
       return '';
     }
     
-    try {
-      const filteredLines = DiffParser.filterByType(lines, selectedTypes);
-      
-      return filteredLines.map(line => 
-        this.formatLine(line, false, includeLineNumbers)
-      ).join('\n');
-    } catch (error) {
-      console.error('Error formatting plain text:', error);
-      return '';
-    }
+    const filteredLines = DiffParser.filterByType(lines, selectedTypes);
+
+    return filteredLines.map(line =>
+      this.formatLine(line, false, includeLineNumbers)
+    ).join('\n');
   }
 
   /**
@@ -107,16 +104,11 @@ export class DiffExporter {
       return '';
     }
     
-    try {
-      const filteredLines = DiffParser.filterByType(lines, selectedTypes);
-      
-      return filteredLines.map(line => 
-        this.formatLine(line, true, includeLineNumbers)
-      ).join('\n');
-    } catch (error) {
-      console.error('Error formatting diff format:', error);
-      return '';
-    }
+    const filteredLines = DiffParser.filterByType(lines, selectedTypes);
+
+    return filteredLines.map(line =>
+      this.formatLine(line, true, includeLineNumbers)
+    ).join('\n');
   }
 
   /**
@@ -135,24 +127,20 @@ export class DiffExporter {
       return '';
     }
 
-    try {
-      const filteredLines = DiffParser.filterByType(lines, selectedTypes);
-      
-      if (filteredLines.length === 0) {
-        return '```\nNo differences to display\n```';
-      }
+    const filteredLines = DiffParser.filterByType(lines, selectedTypes);
 
-      const markdownLines = ['```diff'];
-      filteredLines.forEach(line => {
-        markdownLines.push(this.formatLine(line, true, includeLineNumbers));
-      });
-      markdownLines.push('```');
-      
-      return markdownLines.join('\n');
-    } catch (error) {
-      console.error('Error formatting markdown:', error);
-      return '```\nError formatting diff\n```';
+    if (filteredLines.length === 0) {
+      const msg = options.noDifferencesMessage;
+      return msg ? `\`\`\`\n${msg}\n\`\`\`` : '';
     }
+
+    const markdownLines = ['```diff'];
+    filteredLines.forEach(line => {
+      markdownLines.push(this.formatLine(line, true, includeLineNumbers));
+    });
+    markdownLines.push('```');
+
+    return markdownLines.join('\n');
   }
 
   /**
@@ -168,44 +156,40 @@ export class DiffExporter {
     } = options;
     
     if (!lines || lines.length === 0) {
-      return '<div class="diff-container empty">No differences to display</div>';
+      const msg = options.noDifferencesMessage ?? '';
+      return `<div class="diff-container empty">${escapeHtml(msg)}</div>`;
     }
 
-    try {
-      const filteredLines = DiffParser.filterByType(lines, selectedTypes);
-      
-      if (filteredLines.length === 0) {
-        return '<div class="diff-container empty">No differences to display</div>';
-      }
+    const filteredLines = DiffParser.filterByType(lines, selectedTypes);
 
-      const htmlLines = ['<div class="border rounded-md overflow-visible" role="region" aria-label="Unified Diff">'];
-
-      filteredLines.forEach((line, index) => {
-        const className = getLineClassName(line.type);
-        const symbol = escapeHtml(getPrefixSymbol(line.type));
-        const content = escapeHtml(line.content || '\n');
-        const lineId = `line-${index + 1}`;
-
-        // Matching actual application Unified view structure with Tailwind classes
-        htmlLines.push(
-          `<div class="flex items-start hover:bg-gray-25 transition-colors duration-150" id="${lineId}">` +
-          (includeLineNumbers ? `<div class="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none">${line.lineNumber}</div>` : '') +
-          `<div class="flex-1 min-w-0">` +
-          `<div class="${className}">` +
-          `<span class="text-gray-400 select-none mr-2" aria-hidden="true">${symbol}</span>` +
-          `<span class="font-mono text-sm whitespace-pre-wrap diff-line-text">${content}</span>` +
-          '</div>' +
-          '</div>' +
-          '</div>'
-        );
-      });
-
-      htmlLines.push('</div>');
-      return htmlLines.join('\n');
-    } catch (error) {
-      console.error('Error formatting HTML:', error);
-      return '<div class="diff-container error">Error formatting diff</div>';
+    if (filteredLines.length === 0) {
+      const msg = options.noDifferencesMessage ?? '';
+      return `<div class="diff-container empty">${escapeHtml(msg)}</div>`;
     }
+
+    const htmlLines = ['<div class="border rounded-md overflow-visible" role="region" aria-label="Unified Diff">'];
+
+    filteredLines.forEach((line, index) => {
+      const className = getLineClassName(line.type);
+      const symbol = escapeHtml(getPrefixSymbol(line.type));
+      const content = escapeHtml(line.content || '\n');
+      const lineId = `line-${index + 1}`;
+
+      htmlLines.push(
+        `<div class="flex items-start hover:bg-gray-25 transition-colors duration-150" id="${lineId}">` +
+        (includeLineNumbers ? `<div class="flex-shrink-0 w-16 px-2 py-1 text-xs text-gray-500 bg-gray-50 border-r select-none">${line.lineNumber}</div>` : '') +
+        `<div class="flex-1 min-w-0">` +
+        `<div class="${className}">` +
+        `<span class="text-gray-400 select-none mr-2" aria-hidden="true">${symbol}</span>` +
+        `<span class="font-mono text-sm whitespace-pre-wrap diff-line-text">${content}</span>` +
+        '</div>' +
+        '</div>' +
+        '</div>'
+      );
+    });
+
+    htmlLines.push('</div>');
+    return htmlLines.join('\n');
   }
 
   /**
@@ -249,52 +233,47 @@ export class DiffExporter {
       return this.format(lines, options);
     }
 
-    try {
-      const summary = DiffParser.getDiffSummary(lines);
-      const content = this.format(lines, options);
-      const timestamp = new Date().toISOString();
+    const summary = DiffParser.getDiffSummary(lines);
+    const content = this.format(lines, options);
+    const timestamp = new Date().toISOString();
 
-      switch (format) {
-        case 'markdown':
-          return [
-            `## ${filename}`,
-            '',
-            `**Changes:** ${summary}`,
-            `**Generated:** ${timestamp}`,
-            '',
-            content
-          ].join('\n');
+    switch (format) {
+      case 'markdown':
+        return [
+          `## ${filename}`,
+          '',
+          `**Changes:** ${summary}`,
+          `**Generated:** ${timestamp}`,
+          '',
+          content
+        ].join('\n');
 
-        case 'html':
-          return [
-            '<div class="diff-header">',
-            `<h3>${escapeHtml(filename)}</h3>`,
-            `<p><strong>Changes:</strong> ${escapeHtml(summary)}</p>`,
-            `<p><strong>Generated:</strong> ${timestamp}</p>`,
-            '</div>',
-            content
-          ].join('\n');
+      case 'html':
+        return [
+          '<div class="diff-header">',
+          `<h3>${escapeHtml(filename)}</h3>`,
+          `<p><strong>Changes:</strong> ${escapeHtml(summary)}</p>`,
+          `<p><strong>Generated:</strong> ${timestamp}</p>`,
+          '</div>',
+          content
+        ].join('\n');
 
-        case 'diff':
-          return [
-            `--- ${originalFilename}`,
-            `+++ ${modifiedFilename}`,
-            `@@ Changes: ${summary} @@`,
-            content
-          ].join('\n');
+      case 'diff':
+        return [
+          `--- ${originalFilename}`,
+          `+++ ${modifiedFilename}`,
+          `@@ Changes: ${summary} @@`,
+          content
+        ].join('\n');
 
-        case 'plain':
-        default:
-          return [
-            `${filename} (${summary})`,
-            `Generated: ${timestamp}`,
-            '',
-            content
-          ].join('\n');
-      }
-    } catch (error) {
-      console.error('Error formatting with header:', error);
-      return this.format(lines, options);
+      case 'plain':
+      default:
+        return [
+          `${filename} (${summary})`,
+          `Generated: ${timestamp}`,
+          '',
+          content
+        ].join('\n');
     }
   }
 
