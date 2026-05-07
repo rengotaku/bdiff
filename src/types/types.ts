@@ -2,7 +2,7 @@
 export type DiffType = 'added' | 'removed' | 'unchanged' | 'modified';
 
 // 表示モード - Union type for diff viewer display modes
-export type ViewMode = 'side-by-side' | 'unified' | 'split';
+export type ViewMode = 'side-by-side' | 'unified';
 
 // 入力タイプ - Union type for input methods
 export type InputType = 'file' | 'text';

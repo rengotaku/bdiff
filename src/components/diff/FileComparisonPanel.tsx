@@ -95,9 +95,9 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
             />
             <div className="flex items-center gap-1 bg-gray-100 rounded-md">
               <button
-                onClick={() => onViewModeChange('split')}
+                onClick={() => onViewModeChange('side-by-side')}
                 className={`p-2 rounded transition-colors ${
-                  viewMode === 'split'
+                  viewMode === 'side-by-side'
                     ? 'bg-white shadow-sm text-primary'
                     : 'text-gray-light hover:text-gray'
                 }`}
@@ -135,7 +135,7 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
           <div className="max-h-[80vh] overflow-auto border rounded-md">
             <DiffViewer
               lines={diffResult.lines}
-              viewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
+              viewMode={viewMode}
               enableCharDiff={enableCharDiff}
               contextLines={collapseUnchanged ? 3 : undefined}
             />
