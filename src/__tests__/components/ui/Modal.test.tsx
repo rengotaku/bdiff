@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
 import { Modal } from '../../../components/ui/Modal';
 
 vi.mock('react-i18next', () => ({
@@ -64,7 +64,6 @@ describe('Modal', () => {
 
       fireEvent.keyDown(document.activeElement!, { key: 'Tab', shiftKey: false });
 
-      // フォーカストラップにより先頭要素（閉じるボタンまたはFirstボタン）に戻る
       const dialog = screen.getByRole('dialog');
       expect(dialog.contains(document.activeElement)).toBe(true);
       expect(document.activeElement).toBe(buttons[0]);
@@ -133,7 +132,6 @@ describe('Modal', () => {
     it('閉じるボタンの aria-label は翻訳キーを通じて取得される（英語ハードコードでない）', async () => {
       renderModal();
       await act(async () => {});
-      // タイトルがある場合、閉じるボタンが表示される
       const closeButton = screen.getByLabelText('Close modal');
       expect(closeButton).toBeTruthy();
     });
@@ -166,5 +164,91 @@ describe('Modal', () => {
       const dialog = screen.getByRole('dialog');
       expect(dialog.getAttribute('aria-labelledby')).toBe('modal-title');
     });
+  });
+});
+
+describe('Modal - body overflow management', () => {
+  beforeEach(() => {
+    document.body.style.overflow = '';
+    delete document.body.dataset.scrollLockCount;
+    delete document.body.dataset.scrollLockOriginalOverflow;
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('モーダルが閉じている間、body.style.overflow は変化しない', () => {
+    render(<Modal isOpen={false} onClose={() => {}}>content</Modal>);
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  it('モーダルを開くと body.style.overflow が hidden になる', () => {
+    const { rerender } = render(
+      <Modal isOpen={false} onClose={() => {}}>content</Modal>
+    );
+    rerender(<Modal isOpen={true} onClose={() => {}}>content</Modal>);
+    expect(document.body.style.overflow).toBe('hidden');
+  });
+
+  it('モーダルを閉じると body.style.overflow が元の空文字列に戻る（unset ではない）', () => {
+    const { rerender } = render(
+      <Modal isOpen={true} onClose={() => {}}>content</Modal>
+    );
+    expect(document.body.style.overflow).toBe('hidden');
+
+    rerender(<Modal isOpen={false} onClose={() => {}}>content</Modal>);
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  it('body に独自の overflow が指定されていた場合、モーダルを閉じると元の値に戻る', () => {
+    document.body.style.overflow = 'scroll';
+
+    const { rerender } = render(
+      <Modal isOpen={true} onClose={() => {}}>content</Modal>
+    );
+    expect(document.body.style.overflow).toBe('hidden');
+
+    rerender(<Modal isOpen={false} onClose={() => {}}>content</Modal>);
+    expect(document.body.style.overflow).toBe('scroll');
+  });
+
+  it('アンマウント時に body.style.overflow が元の値に戻る', () => {
+    document.body.style.overflow = 'auto';
+
+    const { unmount } = render(
+      <Modal isOpen={true} onClose={() => {}}>content</Modal>
+    );
+    expect(document.body.style.overflow).toBe('hidden');
+
+    unmount();
+    expect(document.body.style.overflow).toBe('auto');
+  });
+
+  it('複数モーダルが開いている場合、1つが閉じてもスクロールはロックされたまま', () => {
+    const { rerender: rerender1 } = render(
+      <Modal isOpen={true} onClose={() => {}}>modal 1</Modal>
+    );
+    render(<Modal isOpen={true} onClose={() => {}}>modal 2</Modal>);
+
+    expect(document.body.style.overflow).toBe('hidden');
+
+    rerender1(<Modal isOpen={false} onClose={() => {}}>modal 1</Modal>);
+
+    expect(document.body.style.overflow).toBe('hidden');
+  });
+
+  it('最後のモーダルが閉じるとスクロールが解放される', () => {
+    const { rerender: rerender1 } = render(
+      <Modal isOpen={true} onClose={() => {}}>modal 1</Modal>
+    );
+    const { rerender: rerender2 } = render(
+      <Modal isOpen={true} onClose={() => {}}>modal 2</Modal>
+    );
+
+    rerender1(<Modal isOpen={false} onClose={() => {}}>modal 1</Modal>);
+    rerender2(<Modal isOpen={false} onClose={() => {}}>modal 2</Modal>);
+
+    expect(document.body.style.overflow).toBe('');
   });
 });
