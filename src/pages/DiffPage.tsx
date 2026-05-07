@@ -275,7 +275,7 @@ export const DiffPage: React.FC = () => {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('diffPage.viewMode')}</h3>
                   <ToggleSwitch
-                    value={viewMode === 'split' ? 'side-by-side' : viewMode}
+                    value={viewMode}
                     options={[
                       { value: 'side-by-side', label: t('diffPage.sideBySide') },
                       { value: 'unified', label: t('diffPage.unified') }
@@ -329,7 +329,7 @@ export const DiffPage: React.FC = () => {
               <div className="overflow-auto">
                 <DiffViewer
                   lines={diffResult.lines}
-                  viewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
+                  viewMode={viewMode}
                 />
               </div>
             )}

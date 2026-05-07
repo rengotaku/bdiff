@@ -189,7 +189,7 @@ export const HTMLExportButton: React.FC<HTMLExportButtonProps> = ({
         onPreview={handlePreview}
         isExporting={isExporting}
         suggestedFilename={suggestedFilename}
-        initialViewMode={viewMode === 'split' ? 'side-by-side' : viewMode}
+        initialViewMode={viewMode}
       />
     </>
   );
