@@ -42,13 +42,6 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
   const [hasPermission, setHasPermission] = useState<boolean | null>(null)
   const [isSupported] = useState(() => ClipboardService.isClipboardSupported())
 
-  // Check permission on mount
-  useEffect(() => {
-    if (isSupported) {
-      checkPermission()
-    }
-  }, [isSupported])
-
   const clearError = useCallback(() => {
     setError(null)
   }, [])
@@ -64,6 +57,13 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
       return false
     }
   }, [])
+
+  // Check permission on mount
+  useEffect(() => {
+    if (isSupported) {
+      checkPermission()
+    }
+  }, [isSupported, checkPermission])
 
   const handleError = useCallback((error: unknown) => {
     const errorMessage = ClipboardService.getErrorMessage(error)
@@ -133,7 +133,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
       handleError(error)
       throw error
     }
-  }, [copyText, handleSuccess, handleError])
+  }, [copyText, handleError])
 
   const copyAddedLines = useCallback(async (
     lines: DiffLine[],
@@ -155,7 +155,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
 
     await copyDiff(addedLines, options)
     // handleSuccess() is already called inside copyDiff() -> copyText()
-  }, [copyDiff, handleSuccess, handleError])
+  }, [copyDiff, handleError])
 
   const copyRemovedLines = useCallback(async (
     lines: DiffLine[],
@@ -177,7 +177,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
 
     await copyDiff(removedLines, options)
     // handleSuccess() is already called inside copyDiff() -> copyText()
-  }, [copyDiff, handleSuccess, handleError])
+  }, [copyDiff, handleError])
 
   const copyChangedLines = useCallback(async (
     lines: DiffLine[],
@@ -199,7 +199,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
 
     await copyDiff(changedLines, options)
     // handleSuccess() is already called inside copyDiff() -> copyText()
-  }, [copyDiff, handleSuccess, handleError])
+  }, [copyDiff, handleError])
 
   return {
     isSupported,
