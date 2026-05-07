@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -25,6 +27,9 @@ const Modal: React.FC<ModalProps> = ({
   children,
   className,
 }) => {
+  const { t } = useTranslation();
+  const modalRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!closeOnEscape) return;
 
@@ -49,6 +54,8 @@ const Modal: React.FC<ModalProps> = ({
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
+
+  useFocusTrap(modalRef, isOpen);
 
   if (!isOpen) return null;
 
@@ -76,6 +83,7 @@ const Modal: React.FC<ModalProps> = ({
       
       {/* Modal */}
       <div
+        ref={modalRef}
         className={cn(
           'relative bg-white rounded-lg shadow-xl mx-4 max-h-[90vh] overflow-hidden',
           'animate-in fade-in-0 zoom-in-95 duration-300',
@@ -114,7 +122,7 @@ const Modal: React.FC<ModalProps> = ({
                 type="button"
                 className="ml-4 rounded-md text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors"
                 onClick={onClose}
-                aria-label="Close modal"
+                aria-label={t('modal.closeModal')}
               >
                 <svg
                   className="h-6 w-6"

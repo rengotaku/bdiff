@@ -227,6 +227,9 @@
     "retry": "다시 시도",
     "reload": "페이지 새로고침"
   },
+  "modal": {
+    "closeModal": "모달 닫기"
+  },
   "about": {
     "hero": {
       "tagline": "텍스트와 파일의 차이를 직관적으로 비교",

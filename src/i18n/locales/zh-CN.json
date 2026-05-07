@@ -227,6 +227,9 @@
     "retry": "重试",
     "reload": "刷新页面"
   },
+  "modal": {
+    "closeModal": "关闭对话框"
+  },
   "about": {
     "hero": {
       "tagline": "直观比较文本和文件的差异",
