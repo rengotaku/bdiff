@@ -1,12 +1,15 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { withTranslation, WithTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 
-interface Props {
+interface OwnProps {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }
+
+type Props = OwnProps & WithTranslation;
 
 interface State {
   hasError: boolean;
@@ -14,7 +17,7 @@ interface State {
   errorInfo?: ErrorInfo;
 }
 
-class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundaryInner extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false };
@@ -33,12 +36,10 @@ class ErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // Call the optional error handler
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
 
-    // Log error to console in development
     if (process.env.NODE_ENV === 'development') {
       console.error('ErrorBoundary caught an error:', error, errorInfo);
     }
@@ -53,13 +54,13 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   render() {
+    const { t } = this.props;
+
     if (this.state.hasError) {
-      // Custom fallback UI
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
-      // Default error UI
       return (
         <div className="min-h-[400px] flex items-center justify-center p-4">
           <Card className="max-w-md w-full">
@@ -79,18 +80,18 @@ class ErrorBoundary extends Component<Props, State> {
                   />
                 </svg>
               </div>
-              <CardTitle>Something went wrong</CardTitle>
+              <CardTitle>{t('errorBoundary.title')}</CardTitle>
             </CardHeader>
-            
+
             <CardContent className="text-center space-y-4">
               <p className="text-sm text-gray-600">
-                We encountered an unexpected error. This has been logged and will be investigated.
+                {t('errorBoundary.description')}
               </p>
-              
+
               {process.env.NODE_ENV === 'development' && this.state.error && (
                 <details className="text-left">
                   <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700 mb-2">
-                    Error Details (Development)
+                    {t('errorBoundary.errorDetails')}
                   </summary>
                   <div className="bg-gray-50 rounded-md p-3 text-xs font-mono text-gray-800 whitespace-pre-wrap border overflow-auto max-h-32">
                     {this.state.error.toString()}
@@ -98,16 +99,16 @@ class ErrorBoundary extends Component<Props, State> {
                   </div>
                 </details>
               )}
-              
+
               <div className="flex flex-col sm:flex-row gap-2 justify-center">
                 <Button variant="primary" onClick={this.handleRetry}>
-                  Try Again
+                  {t('errorBoundary.retry')}
                 </Button>
-                <Button 
-                  variant="secondary" 
+                <Button
+                  variant="secondary"
                   onClick={() => window.location.reload()}
                 >
-                  Reload Page
+                  {t('errorBoundary.reload')}
                 </Button>
               </div>
             </CardContent>
@@ -120,10 +121,12 @@ class ErrorBoundary extends Component<Props, State> {
   }
 }
 
+const ErrorBoundary = withTranslation()(ErrorBoundaryInner);
+
 // HOC wrapper for functional components
 function withErrorBoundary<P extends object>(
   WrappedComponent: React.ComponentType<P>,
-  errorBoundaryProps?: Omit<Props, 'children'>
+  errorBoundaryProps?: Omit<OwnProps, 'children'>
 ) {
   const WithErrorBoundaryComponent = (props: P) => (
     <ErrorBoundary {...errorBoundaryProps}>
@@ -141,11 +144,8 @@ function withErrorBoundary<P extends object>(
 // Hook for error reporting from functional components
 function useErrorHandler() {
   return (error: Error, errorInfo?: ErrorInfo) => {
-    // In a real app, you would send this to your error reporting service
     console.error('Error caught by useErrorHandler:', error, errorInfo);
-    
-    // You could also trigger a toast notification here
-    throw error; // Re-throw to trigger error boundary
+    throw error;
   };
 }
 

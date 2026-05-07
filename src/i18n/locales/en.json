@@ -220,6 +220,13 @@
     "diffComparison": "Diff Comparison",
     "statisticsLabel": "Statistics:"
   },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "We encountered an unexpected error. This has been logged and will be investigated.",
+    "errorDetails": "Error Details (Development)",
+    "retry": "Try Again",
+    "reload": "Reload Page"
+  },
   "about": {
     "hero": {
       "tagline": "Compare text and files, intuitively",

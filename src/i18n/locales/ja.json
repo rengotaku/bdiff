@@ -220,6 +220,13 @@
     "diffComparison": "差分比較",
     "statisticsLabel": "統計:"
   },
+  "errorBoundary": {
+    "title": "問題が発生しました",
+    "description": "予期しないエラーが発生しました。このエラーは記録され、調査されます。",
+    "errorDetails": "エラー詳細（開発用）",
+    "retry": "再試行",
+    "reload": "ページを再読み込み"
+  },
   "about": {
     "hero": {
       "tagline": "テキスト・ファイルの差分を、直感的に比較",

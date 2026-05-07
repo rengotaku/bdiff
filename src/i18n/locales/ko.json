@@ -220,6 +220,13 @@
     "diffComparison": "차이점 비교",
     "statisticsLabel": "통계:"
   },
+  "errorBoundary": {
+    "title": "문제가 발생했습니다",
+    "description": "예기치 않은 오류가 발생했습니다. 이 오류는 기록되어 조사될 것입니다.",
+    "errorDetails": "오류 세부 정보 (개발용)",
+    "retry": "다시 시도",
+    "reload": "페이지 새로고침"
+  },
   "about": {
     "hero": {
       "tagline": "텍스트와 파일의 차이를 직관적으로 비교",

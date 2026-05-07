@@ -220,6 +220,13 @@
     "diffComparison": "Perbandingan Perbedaan",
     "statisticsLabel": "Statistik:"
   },
+  "errorBoundary": {
+    "title": "Terjadi kesalahan",
+    "description": "Kami menemukan kesalahan yang tidak terduga. Ini telah dicatat dan akan diselidiki.",
+    "errorDetails": "Detail Kesalahan (Pengembangan)",
+    "retry": "Coba Lagi",
+    "reload": "Muat Ulang Halaman"
+  },
   "about": {
     "hero": {
       "tagline": "Bandingkan teks dan file secara intuitif",
