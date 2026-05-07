@@ -220,6 +220,13 @@
     "diffComparison": "Comparaison des différences",
     "statisticsLabel": "Statistiques :"
   },
+  "errorBoundary": {
+    "title": "Une erreur s'est produite",
+    "description": "Nous avons rencontré une erreur inattendue. Elle a été enregistrée et sera examinée.",
+    "errorDetails": "Détails de l'erreur (Développement)",
+    "retry": "Réessayer",
+    "reload": "Recharger la page"
+  },
   "about": {
     "hero": {
       "tagline": "Comparez vos textes et fichiers intuitivement",

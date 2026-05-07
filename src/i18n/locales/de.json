@@ -220,6 +220,13 @@
     "diffComparison": "Unterschiedsvergleich",
     "statisticsLabel": "Statistiken:"
   },
+  "errorBoundary": {
+    "title": "Etwas ist schiefgelaufen",
+    "description": "Ein unerwarteter Fehler ist aufgetreten. Dieser wurde protokolliert und wird untersucht.",
+    "errorDetails": "Fehlerdetails (Entwicklung)",
+    "retry": "Erneut versuchen",
+    "reload": "Seite neu laden"
+  },
   "about": {
     "hero": {
       "tagline": "Texte und Dateien intuitiv vergleichen",

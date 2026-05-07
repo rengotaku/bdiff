@@ -220,6 +220,13 @@
     "diffComparison": "差异比较",
     "statisticsLabel": "统计："
   },
+  "errorBoundary": {
+    "title": "发生错误",
+    "description": "遇到了意外错误，此错误已被记录并将进行调查。",
+    "errorDetails": "错误详情（开发环境）",
+    "retry": "重试",
+    "reload": "刷新页面"
+  },
   "about": {
     "hero": {
       "tagline": "直观比较文本和文件的差异",

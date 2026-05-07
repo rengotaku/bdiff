@@ -220,6 +220,13 @@
     "diffComparison": "差異比較",
     "statisticsLabel": "統計："
   },
+  "errorBoundary": {
+    "title": "發生錯誤",
+    "description": "遇到了意外錯誤，此錯誤已被記錄並將進行調查。",
+    "errorDetails": "錯誤詳情（開發環境）",
+    "retry": "重試",
+    "reload": "重新整理頁面"
+  },
   "about": {
     "hero": {
       "tagline": "直覺比較文字與檔案的差異",
