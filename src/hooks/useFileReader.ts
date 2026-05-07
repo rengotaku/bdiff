@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { FileInfo } from '../types/types'
-import { FileService } from '../services/fileService'
+import { FileService, FileServiceError } from '../services/fileService'
 
 interface UseFileReaderState {
   isReading: boolean
@@ -16,6 +17,7 @@ interface UseFileReaderActions {
 export interface UseFileReaderReturn extends UseFileReaderState, UseFileReaderActions {}
 
 export function useFileReader(): UseFileReaderReturn {
+  const { t } = useTranslation()
   const [state, setState] = useState<UseFileReaderState>({
     isReading: false,
     error: null
@@ -25,6 +27,13 @@ export function useFileReader(): UseFileReaderReturn {
     setState(prev => ({ ...prev, error: null }))
   }, [])
 
+  const getErrorMessage = useCallback((error: unknown): string => {
+    if (error instanceof FileServiceError) {
+      return t(`errors.${error.code}`, error.params ?? {})
+    }
+    return t('errors.fileReadFailed')
+  }, [t])
+
   const readFile = useCallback(async (file: File): Promise<FileInfo | null> => {
     setState(prev => ({ ...prev, isReading: true, error: null }))
 
@@ -33,15 +42,14 @@ export function useFileReader(): UseFileReaderReturn {
       setState(prev => ({ ...prev, isReading: false }))
       return fileInfo
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'ファイルの読み込みに失敗しました'
-      setState(prev => ({ 
-        ...prev, 
-        isReading: false, 
-        error: errorMessage 
+      setState(prev => ({
+        ...prev,
+        isReading: false,
+        error: getErrorMessage(error)
       }))
       return null
     }
-  }, [])
+  }, [getErrorMessage])
 
   const readFiles = useCallback(async (files: File[]): Promise<FileInfo[] | null> => {
     setState(prev => ({ ...prev, isReading: true, error: null }))
@@ -51,15 +59,14 @@ export function useFileReader(): UseFileReaderReturn {
       setState(prev => ({ ...prev, isReading: false }))
       return fileInfos
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'ファイルの読み込みに失敗しました'
-      setState(prev => ({ 
-        ...prev, 
-        isReading: false, 
-        error: errorMessage 
+      setState(prev => ({
+        ...prev,
+        isReading: false,
+        error: getErrorMessage(error)
       }))
       return null
     }
-  }, [])
+  }, [getErrorMessage])
 
   return {
     ...state,

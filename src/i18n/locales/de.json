@@ -141,7 +141,10 @@
     "title": "Fehler",
     "copyFailed": "Kopieren fehlgeschlagen",
     "exportFailed": "Export fehlgeschlagen",
-    "fileReadError": "Datei konnte nicht gelesen werden",
+    "fileReadFailed": "Datei konnte nicht gelesen werden",
+    "fileReadError": "Beim Lesen der Datei ist ein Fehler aufgetreten",
+    "fileSizeExceeded": "Die Dateigröße überschreitet das Limit ({{maxSize}})",
+    "unsupportedFileType": "Nicht unterstütztes Dateiformat. Es können nur Textdateien hochgeladen werden.",
     "noFilesSelected": "Bitte wählen Sie beide Dateien oder Texte zum Vergleichen aus",
     "diffCalculationFailed": "Differenzberechnung fehlgeschlagen"
   },

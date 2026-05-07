@@ -141,7 +141,10 @@
     "title": "Erreur",
     "copyFailed": "Échec de la copie",
     "exportFailed": "Échec de l'exportation",
-    "fileReadError": "Échec de la lecture du fichier",
+    "fileReadFailed": "Échec de la lecture du fichier",
+    "fileReadError": "Une erreur s'est produite lors de la lecture du fichier",
+    "fileSizeExceeded": "La taille du fichier dépasse la limite ({{maxSize}})",
+    "unsupportedFileType": "Format de fichier non pris en charge. Seuls les fichiers texte peuvent être téléchargés.",
     "noFilesSelected": "Veuillez sélectionner les deux fichiers ou textes à comparer",
     "diffCalculationFailed": "Échec du calcul des différences"
   },

@@ -141,7 +141,10 @@
     "title": "Kesalahan",
     "copyFailed": "Penyalinan Gagal",
     "exportFailed": "Ekspor Gagal",
-    "fileReadError": "Gagal membaca file",
+    "fileReadFailed": "Gagal membaca file",
+    "fileReadError": "Terjadi kesalahan saat membaca file",
+    "fileSizeExceeded": "Ukuran file melebihi batas ({{maxSize}})",
+    "unsupportedFileType": "Format file tidak didukung. Hanya file teks yang dapat diunggah.",
     "noFilesSelected": "Harap pilih kedua file atau teks untuk dibandingkan",
     "diffCalculationFailed": "Gagal menghitung perbedaan"
   },

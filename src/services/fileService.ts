@@ -1,8 +1,25 @@
 import type { FileInfo } from '../types/types'
 
+export type FileErrorCode =
+  | 'fileReadFailed'
+  | 'fileReadError'
+  | 'fileSizeExceeded'
+  | 'unsupportedFileType'
+
+export class FileServiceError extends Error {
+  constructor(
+    public readonly code: FileErrorCode,
+    public readonly params?: Record<string, string>
+  ) {
+    super(code)
+    this.name = 'FileServiceError'
+  }
+}
+
 export interface ValidationResult {
   isValid: boolean
-  error?: string
+  errorCode?: FileErrorCode
+  errorParams?: Record<string, string>
 }
 
 export class FileService {
@@ -23,15 +40,14 @@ export class FileService {
    * ファイルを読み込んでFileInfo形式に変換
    */
   static async readFile(file: File): Promise<FileInfo> {
-    // ファイルバリデーション
     const validation = this.validateFile(file)
     if (!validation.isValid) {
-      throw new Error(validation.error)
+      throw new FileServiceError(validation.errorCode!, validation.errorParams)
     }
 
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
-      
+
       reader.onload = (event) => {
         try {
           const content = event.target?.result as string
@@ -42,15 +58,15 @@ export class FileService {
             lastModified: new Date(file.lastModified)
           }
           resolve(fileInfo)
-        } catch (error) {
-          reject(new Error('ファイルの読み込みに失敗しました'))
+        } catch {
+          reject(new FileServiceError('fileReadFailed'))
         }
       }
-      
+
       reader.onerror = () => {
-        reject(new Error('ファイルの読み込み中にエラーが発生しました'))
+        reject(new FileServiceError('fileReadError'))
       }
-      
+
       reader.readAsText(file, 'UTF-8')
     })
   }
@@ -67,19 +83,18 @@ export class FileService {
    * ファイルのバリデーション
    */
   static validateFile(file: File): ValidationResult {
-    // ファイルサイズチェック
     if (file.size > this.MAX_FILE_SIZE) {
       return {
         isValid: false,
-        error: `ファイルサイズが上限（${this.formatFileSize(this.MAX_FILE_SIZE)}）を超えています`
+        errorCode: 'fileSizeExceeded',
+        errorParams: { maxSize: this.formatFileSize(this.MAX_FILE_SIZE) }
       }
     }
 
-    // ファイルタイプチェック
     if (!this.isTextFile(file)) {
       return {
         isValid: false,
-        error: 'サポートされていないファイル形式です。テキストファイルのみアップロード可能です'
+        errorCode: 'unsupportedFileType'
       }
     }
 

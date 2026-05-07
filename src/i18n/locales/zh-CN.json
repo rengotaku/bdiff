@@ -141,7 +141,10 @@
     "title": "错误",
     "copyFailed": "复制失败",
     "exportFailed": "导出失败",
-    "fileReadError": "读取文件失败",
+    "fileReadFailed": "读取文件失败",
+    "fileReadError": "读取文件时发生错误",
+    "fileSizeExceeded": "文件大小超过限制（{{maxSize}}）",
+    "unsupportedFileType": "不支持的文件格式。仅可上传文本文件。",
     "noFilesSelected": "请选择两个要比较的文件或文本",
     "diffCalculationFailed": "差异计算失败"
   },
