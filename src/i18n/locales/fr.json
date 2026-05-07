@@ -19,7 +19,8 @@
     "clear": "Effacer",
     "browseFile": "Parcourir",
     "loaded": "Chargé :",
-    "processing": "Traitement en cours... Veuillez patienter."
+    "processing": "Traitement en cours... Veuillez patienter.",
+    "fileInputHelp": "Sélectionnez un fichier texte à comparer. Formats pris en charge : .txt, .js, .jsx, .ts, .tsx, .json, .md, .html, .css, et plus."
   },
   "comparison": {
     "compareButton": "Comparer les fichiers",

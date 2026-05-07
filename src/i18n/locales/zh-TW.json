@@ -19,7 +19,8 @@
     "clear": "清除",
     "browseFile": "瀏覽檔案",
     "loaded": "已載入:",
-    "processing": "處理中...請稍候。"
+    "processing": "處理中...請稍候。",
+    "fileInputHelp": "選擇要比較的文字檔案。支援格式：.txt、.js、.jsx、.ts、.tsx、.json、.md、.html、.css 等。"
   },
   "comparison": {
     "compareButton": "比較檔案",

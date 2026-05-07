@@ -193,7 +193,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = memo(({
               </label>
               
               <div id={`${fileInputId}-help`} className="sr-only">
-                Select a text file to upload. Supported formats include .txt, .js, .jsx, .ts, .tsx, .json, .md, .html, .css, and more.
+                {t('fileUpload.fileInputHelp')}
               </div>
             </div>
           </div>

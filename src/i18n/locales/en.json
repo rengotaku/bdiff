@@ -19,7 +19,8 @@
     "clear": "Clear",
     "browseFile": "Browse file",
     "loaded": "Loaded:",
-    "processing": "Processing... Please wait."
+    "processing": "Processing... Please wait.",
+    "fileInputHelp": "Select a text file to compare. Supported formats: .txt, .js, .jsx, .ts, .tsx, .json, .md, .html, .css, and more."
   },
   "comparison": {
     "compareButton": "Compare Files",

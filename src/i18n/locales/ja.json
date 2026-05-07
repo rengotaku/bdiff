@@ -19,7 +19,8 @@
     "clear": "クリア",
     "browseFile": "ファイルを参照",
     "loaded": "読み込み済み:",
-    "processing": "処理中...お待ちください。"
+    "processing": "処理中...お待ちください。",
+    "fileInputHelp": "比較するテキストファイルを選択してください。対応形式: .txt, .js, .jsx, .ts, .tsx, .json, .md, .html, .css など。"
   },
   "comparison": {
     "compareButton": "ファイルを比較",

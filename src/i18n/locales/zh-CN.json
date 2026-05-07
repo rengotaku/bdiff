@@ -19,7 +19,8 @@
     "clear": "清除",
     "browseFile": "浏览文件",
     "loaded": "已加载:",
-    "processing": "处理中...请稍候。"
+    "processing": "处理中...请稍候。",
+    "fileInputHelp": "选择要比较的文本文件。支持格式：.txt、.js、.jsx、.ts、.tsx、.json、.md、.html、.css 等。"
   },
   "comparison": {
     "compareButton": "比较文件",
