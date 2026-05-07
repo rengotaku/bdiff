@@ -1,16 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
+import { type KeyboardShortcut, formatShortcut } from '../../hooks/useKeyboardShortcuts';
 
-export interface KeyboardShortcut {
-  key: string;
-  ctrlKey?: boolean;
-  shiftKey?: boolean;
-  altKey?: boolean;
-  description: string;
-}
+type DisplayShortcut = Omit<KeyboardShortcut, 'action' | 'preventDefault'>;
 
 export interface KeyboardShortcutsHelpProps {
-  shortcuts: KeyboardShortcut[];
+  shortcuts: DisplayShortcut[];
   className?: string;
 }
 
@@ -18,14 +14,7 @@ export const KeyboardShortcutsHelp: React.FC<KeyboardShortcutsHelpProps> = ({
   shortcuts,
   className = ''
 }) => {
-  const formatShortcut = (shortcut: KeyboardShortcut) => {
-    const keys = [];
-    if (shortcut.ctrlKey) keys.push('Ctrl');
-    if (shortcut.shiftKey) keys.push('Shift');
-    if (shortcut.altKey) keys.push('Alt');
-    keys.push(shortcut.key.toUpperCase());
-    return keys.join(' + ');
-  };
+  const { t } = useTranslation();
 
   if (shortcuts.length === 0) {
     return null;
@@ -34,7 +23,7 @@ export const KeyboardShortcutsHelp: React.FC<KeyboardShortcutsHelpProps> = ({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>Keyboard Shortcuts</CardTitle>
+        <CardTitle>{t('keyboard.title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
