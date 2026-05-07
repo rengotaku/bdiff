@@ -19,7 +19,8 @@
     "clear": "Hapus",
     "browseFile": "Telusuri file",
     "loaded": "Dimuat:",
-    "processing": "Memproses... Harap tunggu."
+    "processing": "Memproses... Harap tunggu.",
+    "fileInputHelp": "Pilih file teks untuk dibandingkan. Format yang didukung: .txt, .js, .jsx, .ts, .tsx, .json, .md, .html, .css, dan lainnya."
   },
   "comparison": {
     "compareButton": "Bandingkan File",
