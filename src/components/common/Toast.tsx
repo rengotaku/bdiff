@@ -128,10 +128,14 @@ interface ToastComponentProps {
 const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
   const [isRemoving, setIsRemoving] = useState(false);
 
+  useEffect(() => {
+    if (!isRemoving) return;
+    const timeoutId = setTimeout(() => onRemove(toast.id), 300);
+    return () => clearTimeout(timeoutId);
+  }, [isRemoving, onRemove, toast.id]);
+
   const handleRemove = () => {
     setIsRemoving(true);
-    // Delay actual removal to allow exit animation
-    setTimeout(() => onRemove(toast.id), 300);
   };
 
   const typeStyles = {
