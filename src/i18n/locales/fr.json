@@ -227,6 +227,9 @@
     "retry": "Réessayer",
     "reload": "Recharger la page"
   },
+  "modal": {
+    "closeModal": "Fermer la boîte de dialogue"
+  },
   "about": {
     "hero": {
       "tagline": "Comparez vos textes et fichiers intuitivement",

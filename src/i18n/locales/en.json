@@ -227,6 +227,9 @@
     "retry": "Try Again",
     "reload": "Reload Page"
   },
+  "modal": {
+    "closeModal": "Close modal"
+  },
   "about": {
     "hero": {
       "tagline": "Compare text and files, intuitively",
