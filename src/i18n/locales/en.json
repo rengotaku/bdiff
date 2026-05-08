@@ -141,7 +141,10 @@
     "title": "Error",
     "copyFailed": "Copy Failed",
     "exportFailed": "Export Failed",
-    "fileReadError": "Failed to read file",
+    "fileReadFailed": "Failed to read file",
+    "fileReadError": "An error occurred while reading the file",
+    "fileSizeExceeded": "File size exceeds the limit ({{maxSize}})",
+    "unsupportedFileType": "Unsupported file type. Only text files can be uploaded.",
     "noFilesSelected": "Please select both files or text to compare",
     "diffCalculationFailed": "Failed to calculate differences"
   },

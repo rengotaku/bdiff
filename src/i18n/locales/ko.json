@@ -141,7 +141,10 @@
     "title": "오류",
     "copyFailed": "복사 실패",
     "exportFailed": "내보내기 실패",
-    "fileReadError": "파일 읽기 실패",
+    "fileReadFailed": "파일 읽기에 실패했습니다",
+    "fileReadError": "파일을 읽는 중 오류가 발생했습니다",
+    "fileSizeExceeded": "파일 크기가 한도({{maxSize}})를 초과합니다",
+    "unsupportedFileType": "지원하지 않는 파일 형식입니다. 텍스트 파일만 업로드 가능합니다.",
     "noFilesSelected": "비교할 파일 또는 텍스트를 모두 선택해 주세요",
     "diffCalculationFailed": "차이 계산에 실패했습니다"
   },
