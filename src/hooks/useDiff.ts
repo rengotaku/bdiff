@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { FileInfo, DiffResult, DiffLine, ViewMode, InputType, ComparisonOptions } from '../types/types'
 import { DiffService } from '../services/diffService'
 import { TextPreprocessor } from '../utils/textPreprocessor'
@@ -35,6 +36,7 @@ export interface UseDiffReturn extends UseDiffState, UseDiffActions {
 }
 
 export function useDiff(): UseDiffReturn {
+  const { t } = useTranslation()
   const [state, setState] = useState<UseDiffState>({
     originalFile: null,
     modifiedFile: null,
@@ -93,9 +95,9 @@ export function useDiff(): UseDiffReturn {
 
   const calculateDiff = useCallback(async () => {
     if (!state.originalFile || !state.modifiedFile) {
-      setState(prev => ({ 
-        ...prev, 
-        error: '比較するファイルまたはテキストを両方選択してください' 
+      setState(prev => ({
+        ...prev,
+        error: t('errors.noFilesSelected')
       }))
       return
     }
@@ -112,19 +114,19 @@ export function useDiff(): UseDiffReturn {
         state.comparisonOptions
       )
 
-      setState(prev => ({ 
-        ...prev, 
-        diffResult: result, 
-        isProcessing: false 
+      setState(prev => ({
+        ...prev,
+        diffResult: result,
+        isProcessing: false
       }))
     } catch (error) {
-      setState(prev => ({ 
-        ...prev, 
-        error: error instanceof Error ? error.message : '差分の計算に失敗しました',
-        isProcessing: false 
+      setState(prev => ({
+        ...prev,
+        error: t('errors.diffCalculationFailed'),
+        isProcessing: false
       }))
     }
-  }, [state.originalFile, state.modifiedFile, state.comparisonOptions])
+  }, [state.originalFile, state.modifiedFile, state.comparisonOptions, t])
 
   const clearAll = useCallback(() => {
     setState({

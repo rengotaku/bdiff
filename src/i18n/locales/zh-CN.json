@@ -141,7 +141,9 @@
     "title": "错误",
     "copyFailed": "复制失败",
     "exportFailed": "导出失败",
-    "fileReadError": "读取文件失败"
+    "fileReadError": "读取文件失败",
+    "noFilesSelected": "请选择两个要比较的文件或文本",
+    "diffCalculationFailed": "差异计算失败"
   },
   "toast": {
     "copyComplete": "复制完成",
