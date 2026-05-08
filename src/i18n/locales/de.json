@@ -141,7 +141,9 @@
     "title": "Fehler",
     "copyFailed": "Kopieren fehlgeschlagen",
     "exportFailed": "Export fehlgeschlagen",
-    "fileReadError": "Datei konnte nicht gelesen werden"
+    "fileReadError": "Datei konnte nicht gelesen werden",
+    "noFilesSelected": "Bitte wählen Sie beide Dateien oder Texte zum Vergleichen aus",
+    "diffCalculationFailed": "Differenzberechnung fehlgeschlagen"
   },
   "toast": {
     "copyComplete": "Kopieren abgeschlossen",

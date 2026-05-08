@@ -141,7 +141,9 @@
     "title": "Erreur",
     "copyFailed": "Échec de la copie",
     "exportFailed": "Échec de l'exportation",
-    "fileReadError": "Échec de la lecture du fichier"
+    "fileReadError": "Échec de la lecture du fichier",
+    "noFilesSelected": "Veuillez sélectionner les deux fichiers ou textes à comparer",
+    "diffCalculationFailed": "Échec du calcul des différences"
   },
   "toast": {
     "copyComplete": "Copie terminée",

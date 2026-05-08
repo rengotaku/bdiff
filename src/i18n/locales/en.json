@@ -141,7 +141,9 @@
     "title": "Error",
     "copyFailed": "Copy Failed",
     "exportFailed": "Export Failed",
-    "fileReadError": "Failed to read file"
+    "fileReadError": "Failed to read file",
+    "noFilesSelected": "Please select both files or text to compare",
+    "diffCalculationFailed": "Failed to calculate differences"
   },
   "toast": {
     "copyComplete": "Copy Complete",

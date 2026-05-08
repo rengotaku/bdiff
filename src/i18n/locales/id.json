@@ -141,7 +141,9 @@
     "title": "Kesalahan",
     "copyFailed": "Penyalinan Gagal",
     "exportFailed": "Ekspor Gagal",
-    "fileReadError": "Gagal membaca file"
+    "fileReadError": "Gagal membaca file",
+    "noFilesSelected": "Harap pilih kedua file atau teks untuk dibandingkan",
+    "diffCalculationFailed": "Gagal menghitung perbedaan"
   },
   "toast": {
     "copyComplete": "Penyalinan Selesai",

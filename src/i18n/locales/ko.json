@@ -141,7 +141,9 @@
     "title": "오류",
     "copyFailed": "복사 실패",
     "exportFailed": "내보내기 실패",
-    "fileReadError": "파일 읽기 실패"
+    "fileReadError": "파일 읽기 실패",
+    "noFilesSelected": "비교할 파일 또는 텍스트를 모두 선택해 주세요",
+    "diffCalculationFailed": "차이 계산에 실패했습니다"
   },
   "toast": {
     "copyComplete": "복사 완료",

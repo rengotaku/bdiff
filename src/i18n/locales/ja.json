@@ -141,7 +141,9 @@
     "title": "エラー",
     "copyFailed": "コピー失敗",
     "exportFailed": "エクスポート失敗",
-    "fileReadError": "ファイルの読み込みに失敗しました"
+    "fileReadError": "ファイルの読み込みに失敗しました",
+    "noFilesSelected": "比較するファイルまたはテキストを両方選択してください",
+    "diffCalculationFailed": "差分の計算に失敗しました"
   },
   "toast": {
     "copyComplete": "コピー完了",
