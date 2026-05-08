@@ -3,17 +3,20 @@
  * Generates standalone HTML documents from diff results
  */
 
-import type { DiffLine, CharSegment, LineWithSegments } from '../../../types/types';
+import type { DiffLine, CharSegment, LineWithSegments, FileInfo } from '../../../types/types';
 import { isCollapsedBlock, isUnifiedCollapsedBlock } from '../../../types/types';
 import type { HtmlExportOptions, ExportLabels } from '../types';
 import { BaseRenderer } from './BaseRenderer';
 import { TAILWIND_CSS } from '../../tailwindEmbedded';
 import { LinePairingService } from '../../linePairingService';
 
+type HtmlRenderOptions = Required<Omit<HtmlExportOptions, 'filename' | 'originalFile' | 'modifiedFile' | 'labels'>> &
+  Pick<HtmlExportOptions, 'filename' | 'originalFile' | 'modifiedFile' | 'labels'>;
+
 /**
  * Default HTML export options
  */
-const DEFAULT_OPTIONS: Required<HtmlExportOptions> = {
+const DEFAULT_OPTIONS: HtmlRenderOptions = {
   includeLineNumbers: true,
   includeHeader: true,
   includeStats: true,
@@ -21,11 +24,7 @@ const DEFAULT_OPTIONS: Required<HtmlExportOptions> = {
   differencesOnly: false,
   viewMode: 'unified',
   title: 'BDiff Comparison Report',
-  filename: undefined as any,
-  originalFile: undefined as any,
-  modifiedFile: undefined as any,
   collapseUnchanged: false,
-  labels: undefined as any,
 };
 
 /**
@@ -38,7 +37,7 @@ export class HTMLRenderer extends BaseRenderer {
    * Render diff lines to standalone HTML document
    */
   render(lines: DiffLine[], options: HtmlExportOptions = {}): string {
-    const opts = { ...DEFAULT_OPTIONS, ...options };
+    const opts = { ...DEFAULT_OPTIONS, ...options } as HtmlRenderOptions;
     this.hasCharHighlighting = false; // Reset for each render
 
     // Filter lines if differences-only mode is enabled
@@ -74,7 +73,7 @@ export class HTMLRenderer extends BaseRenderer {
    */
   private generateHtmlDocument(
     diffHtml: string,
-    opts: Required<HtmlExportOptions>,
+    opts: HtmlRenderOptions,
     timestamp: string,
     linesToRender: DiffLine[]
   ): string {
@@ -108,8 +107,8 @@ ${this.getEmbeddedCSS(opts.theme)}
    * Generate HTML header section with file metadata
    */
   private generateHeader(
-    originalFile: any,
-    modifiedFile: any,
+    originalFile: FileInfo,
+    modifiedFile: FileInfo,
     timestamp: string,
     labels?: ExportLabels
   ): string {
@@ -216,7 +215,7 @@ ${this.getEmbeddedCSS(opts.theme)}
    */
   private generateUnifiedView(
     lines: DiffLine[],
-    options: Required<HtmlExportOptions>
+    options: HtmlRenderOptions
   ): string {
     if (lines.length === 0) {
       const noDiffText = options.labels?.noDifferences ?? 'No differences to display';
@@ -260,7 +259,7 @@ ${this.getEmbeddedCSS(opts.theme)}
    */
   private generateSideBySideView(
     lines: DiffLine[],
-    options: Required<HtmlExportOptions>
+    options: HtmlRenderOptions
   ): string {
     if (lines.length === 0) {
       const noDiffText = options.labels?.noDifferences ?? 'No differences to display';
@@ -313,7 +312,7 @@ ${this.getEmbeddedCSS(opts.theme)}
    */
   private renderSideBySideCell(
     item: LineWithSegments | null,
-    options: Required<HtmlExportOptions>,
+    options: HtmlRenderOptions,
     side: 'original' | 'modified'
   ): string {
     if (!item) {
@@ -351,7 +350,7 @@ ${this.getEmbeddedCSS(opts.theme)}
    */
   private renderDiffLineWithSegments(
     lineWithSegments: LineWithSegments,
-    options: Required<HtmlExportOptions>
+    options: HtmlRenderOptions
   ): string {
     const { line, segments } = lineWithSegments;
     const typeClass = `diff-line-${line.type}`;

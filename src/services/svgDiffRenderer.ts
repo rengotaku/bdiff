@@ -252,7 +252,7 @@ export class SvgDiffRenderer {
     colorScheme: SvgColorScheme
   ): string {
     const colors = this.getLineColors(line.type, colorScheme);
-    const symbol = getPrefixSymbol(line.type as any);
+    const symbol = getPrefixSymbol(line.type);
 
     // Layout constants
     const borderWidth = 4;

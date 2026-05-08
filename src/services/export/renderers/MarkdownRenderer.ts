@@ -3,25 +3,24 @@
  * Generates Markdown-formatted output from diff results
  */
 
-import type { DiffLine } from '../../../types/types';
+import type { DiffLine, FileInfo } from '../../../types/types';
 import type { MarkdownExportOptions, ExportLabels } from '../types';
 import { BaseRenderer } from './BaseRenderer';
+
+type MarkdownRenderOptions = Required<Omit<MarkdownExportOptions, 'filename' | 'originalFile' | 'modifiedFile' | 'labels'>> &
+  Pick<MarkdownExportOptions, 'filename' | 'originalFile' | 'modifiedFile' | 'labels'>;
 
 /**
  * Default markdown export options
  */
-const DEFAULT_OPTIONS: Required<MarkdownExportOptions> = {
+const DEFAULT_OPTIONS: MarkdownRenderOptions = {
   useCodeBlocks: true,
   includeDiffSymbols: true,
-  includeLineNumbers: false, // Less useful in markdown
+  includeLineNumbers: false,
   includeStats: true,
   includeHeader: true,
   title: 'Diff Comparison',
-  filename: undefined as any,
-  originalFile: undefined as any,
-  modifiedFile: undefined as any,
   collapseUnchanged: false,
-  labels: undefined as any,
 };
 
 /**
@@ -32,7 +31,7 @@ export class MarkdownRenderer extends BaseRenderer {
    * Render diff lines to Markdown
    */
   render(lines: DiffLine[], options: MarkdownExportOptions = {}): string {
-    const opts = { ...DEFAULT_OPTIONS, ...options };
+    const opts = { ...DEFAULT_OPTIONS, ...options } as MarkdownRenderOptions;
     const sections: string[] = [];
 
     // Add title
@@ -43,7 +42,7 @@ export class MarkdownRenderer extends BaseRenderer {
 
     // Add header if requested
     if (opts.includeHeader && opts.originalFile && opts.modifiedFile) {
-      sections.push(this.generateHeader(opts));
+      sections.push(this.generateHeader(opts, opts.originalFile, opts.modifiedFile));
       sections.push('');
     }
 
@@ -78,7 +77,7 @@ export class MarkdownRenderer extends BaseRenderer {
   /**
    * Generate header section
    */
-  private generateHeader(opts: Required<MarkdownExportOptions>): string {
+  private generateHeader(opts: MarkdownRenderOptions, originalFile: FileInfo, modifiedFile: FileInfo): string {
     const l = opts.labels ?? {};
     const lines: string[] = [];
 
@@ -88,8 +87,8 @@ export class MarkdownRenderer extends BaseRenderer {
     lines.push('');
     lines.push('| File | Name | Size |');
     lines.push('|------|------|------|');
-    lines.push(`| ${l.original ?? 'Original'} | \`${opts.originalFile.name}\` | ${opts.originalFile.size} bytes |`);
-    lines.push(`| ${l.modified ?? 'Modified'} | \`${opts.modifiedFile.name}\` | ${opts.modifiedFile.size} bytes |`);
+    lines.push(`| ${l.original ?? 'Original'} | \`${originalFile.name}\` | ${originalFile.size} bytes |`);
+    lines.push(`| ${l.modified ?? 'Modified'} | \`${modifiedFile.name}\` | ${modifiedFile.size} bytes |`);
 
     return lines.join('\n');
   }
@@ -122,7 +121,7 @@ export class MarkdownRenderer extends BaseRenderer {
    */
   private generateDiffContent(
     lines: DiffLine[],
-    opts: Required<MarkdownExportOptions>
+    opts: MarkdownRenderOptions
   ): string {
     if (opts.useCodeBlocks) {
       return this.generateCodeBlockDiff(lines, opts);
@@ -136,7 +135,7 @@ export class MarkdownRenderer extends BaseRenderer {
    */
   private generateCodeBlockDiff(
     lines: DiffLine[],
-    opts: Required<MarkdownExportOptions>
+    opts: MarkdownRenderOptions
   ): string {
     const content = lines
       .map(line => {
@@ -154,7 +153,7 @@ export class MarkdownRenderer extends BaseRenderer {
    */
   private generateInlineDiff(
     lines: DiffLine[],
-    opts: Required<MarkdownExportOptions>
+    opts: MarkdownRenderOptions
   ): string {
     return lines
       .map(line => this.formatInlineLine(line, opts))
@@ -164,7 +163,7 @@ export class MarkdownRenderer extends BaseRenderer {
   /**
    * Format a single diff line for inline display
    */
-  private formatInlineLine(line: DiffLine, opts: Required<MarkdownExportOptions>): string {
+  private formatInlineLine(line: DiffLine, opts: MarkdownRenderOptions): string {
     const symbol = opts.includeDiffSymbols ? this.getPrefixSymbol(line.type) : '';
     const content = line.content || '';
 

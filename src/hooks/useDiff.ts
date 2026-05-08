@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
-import type { FileInfo, DiffResult, ViewMode, InputType, ComparisonOptions } from '../types/types'
+import type { FileInfo, DiffResult, DiffLine, ViewMode, InputType, ComparisonOptions } from '../types/types'
 import { DiffService } from '../services/diffService'
 import { TextPreprocessor } from '../utils/textPreprocessor'
 
@@ -31,7 +31,7 @@ interface UseDiffActions {
 
 export interface UseDiffReturn extends UseDiffState, UseDiffActions {
   canCalculateDiff: boolean
-  formattedDiff: { original: any[]; modified: any[] } | null
+  formattedDiff: { original: DiffLine[]; modified: DiffLine[] } | null
 }
 
 export function useDiff(): UseDiffReturn {
