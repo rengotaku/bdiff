@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { useScrollLock } from '../../hooks/useScrollLock';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -43,17 +44,7 @@ const Modal: React.FC<ModalProps> = ({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose, closeOnEscape]);
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
+  useScrollLock(isOpen);
 
   useFocusTrap(modalRef, isOpen);
 
