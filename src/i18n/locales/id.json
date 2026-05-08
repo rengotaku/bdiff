@@ -227,6 +227,9 @@
     "retry": "Coba Lagi",
     "reload": "Muat Ulang Halaman"
   },
+  "modal": {
+    "closeModal": "Tutup modal"
+  },
   "about": {
     "hero": {
       "tagline": "Bandingkan teks dan file secara intuitif",

@@ -227,6 +227,9 @@
     "retry": "重試",
     "reload": "重新整理頁面"
   },
+  "modal": {
+    "closeModal": "關閉對話框"
+  },
   "about": {
     "hero": {
       "tagline": "直覺比較文字與檔案的差異",

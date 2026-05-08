@@ -227,6 +227,9 @@
     "retry": "Erneut versuchen",
     "reload": "Seite neu laden"
   },
+  "modal": {
+    "closeModal": "Dialog schließen"
+  },
   "about": {
     "hero": {
       "tagline": "Texte und Dateien intuitiv vergleichen",
