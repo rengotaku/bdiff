@@ -47,6 +47,9 @@
     "enableCharDiff": "Surlignage des caractères",
     "enableCharDiffLabel": "Surlignage des caractères",
     "enableCharDiffTooltip": "Surligner les caractères modifiés dans les lignes",
+    "indentHeuristic": "Heuristique d'indentation",
+    "indentHeuristicLabel": "Heuristique d'indentation",
+    "indentHeuristicTooltip": "Affichage diff compatible git (déplace les blocs vers des positions moins indentées)",
     "collapseUnchanged": "Réduire les lignes inchangées",
     "collapseUnchangedLabel": "Réduire les lignes inchangées",
     "collapseUnchangedTooltip": "Afficher uniquement le contexte autour des modifications (style GitHub)"

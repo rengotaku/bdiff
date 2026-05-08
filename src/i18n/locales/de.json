@@ -47,6 +47,9 @@
     "enableCharDiff": "Zeichenhervorhebung",
     "enableCharDiffLabel": "Zeichenhervorhebung",
     "enableCharDiffTooltip": "Geänderte Zeichen in Zeilen hervorheben",
+    "indentHeuristic": "Einrückungs-Heuristik",
+    "indentHeuristicLabel": "Einrückungs-Heuristik",
+    "indentHeuristicTooltip": "Git-kompatible Diff-Anzeige (Diff-Blöcke an weniger eingerückte Positionen verschieben)",
     "collapseUnchanged": "Unveränderte Zeilen ausblenden",
     "collapseUnchangedLabel": "Unveränderte Zeilen ausblenden",
     "collapseUnchangedTooltip": "Nur Kontext um Änderungen anzeigen (GitHub-Stil)"

@@ -47,6 +47,9 @@
     "enableCharDiff": "Character highlighting",
     "enableCharDiffLabel": "Character highlighting",
     "enableCharDiffTooltip": "Highlight changed characters within lines",
+    "indentHeuristic": "Indent heuristic",
+    "indentHeuristicLabel": "Indent heuristic",
+    "indentHeuristicTooltip": "Git-compatible diff display (slide diff blocks to lower-indent positions)",
     "collapseUnchanged": "Collapse unchanged",
     "collapseUnchangedLabel": "Collapse unchanged",
     "collapseUnchangedTooltip": "Show only context around changes (GitHub-style)"

@@ -47,6 +47,9 @@
     "enableCharDiff": "Sorotan karakter",
     "enableCharDiffLabel": "Sorotan karakter",
     "enableCharDiffTooltip": "Sorot karakter yang berubah dalam baris",
+    "indentHeuristic": "Heuristik indentasi",
+    "indentHeuristicLabel": "Heuristik indentasi",
+    "indentHeuristicTooltip": "Tampilan diff kompatibel git (geser blok diff ke posisi indentasi lebih rendah)",
     "collapseUnchanged": "Sembunyikan baris tidak berubah",
     "collapseUnchangedLabel": "Sembunyikan baris tidak berubah",
     "collapseUnchangedTooltip": "Tampilkan hanya konteks di sekitar perubahan (gaya GitHub)"
