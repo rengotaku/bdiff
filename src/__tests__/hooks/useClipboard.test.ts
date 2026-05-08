@@ -115,7 +115,7 @@ describe('useClipboard', () => {
       const onSuccess = vi.fn()
       const { result } = renderHook(() => useClipboard({ onSuccess }))
 
-      const lines = [{ type: 'added' as const, content: 'new line', lineNumber: { modified: 1 } }]
+      const lines = [{ type: 'added' as const, content: 'new line', lineNumber: 1 }]
 
       await act(async () => {
         await result.current.copyDiff(lines)
@@ -151,7 +151,7 @@ describe('useClipboard', () => {
       const onSuccess2 = vi.fn()
       rerender({ onSuccess: onSuccess2 })
 
-      const lines = [{ type: 'added' as const, content: 'new line', lineNumber: { modified: 1 } }]
+      const lines = [{ type: 'added' as const, content: 'new line', lineNumber: 1 }]
 
       await act(async () => {
         await result.current.copyDiff(lines)
