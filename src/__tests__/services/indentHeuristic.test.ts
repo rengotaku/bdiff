@@ -23,6 +23,7 @@ const base: DiffCalculationOptions = {
   ignoreWhitespace: false,
   ignoreTrailingNewlines: false,
   enableCharDiff: false,
+  indentHeuristic: false,
 };
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -198,6 +199,86 @@ describe('indentHeuristic – Category B: indent sliding (builtin)', () => {
     expect(withH.stats.removed).toBe(1);
     const removedLine = withH.lines.find(l => l.type === 'removed');
     expect(removedLine?.originalLineNumber).toBe(2);
+  });
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Category B (forward slide): white-box test for applySlide forward branch
+//
+// The forward branch of applySlide (toStart > fromStart) handles the case where
+// the optimal split point is to the right of the original Myers position.
+// Forward slides arise when slideRemovedBlocks first slides backward to the
+// leftmost position, then forward scanning finds a lower-indent position
+// further to the right.
+//
+// We exercise that branch directly by invoking the private applySlide method
+// with explicit before/after positions, so the algorithm is verified
+// regardless of which positions the Myers implementation happens to choose.
+// ──────────────────────────────────────────────────────────────────────────────
+
+describe('indentHeuristic – Category B: applySlide forward branch (white-box)', () => {
+  type LineLike = {
+    lineNumber: number;
+    content: string;
+    type: 'unchanged' | 'removed' | 'added';
+    originalLineNumber?: number;
+    newLineNumber?: number;
+  };
+
+  // Access private method for white-box testing.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const applySlide = (DiffService as any).applySlide.bind(DiffService) as (
+    lines: LineLike[],
+    fromStart: number,
+    fromEnd: number,
+    toStart: number,
+  ) => void;
+
+  it('forward slide: removed block at [0,1) shifts to [1,2) (size=1)', () => {
+    // Before: removed(X), unchanged(X) → After: unchanged(X), removed(X)
+    const lines: LineLike[] = [
+      { lineNumber: 1, content: 'X', type: 'removed',   originalLineNumber: 1 },
+      { lineNumber: 2, content: 'X', type: 'unchanged', originalLineNumber: 2, newLineNumber: 1 },
+    ];
+
+    applySlide(lines, 0, 1, 1);
+
+    expect(lines[0].type).toBe('unchanged');
+    expect(lines[1].type).toBe('removed');
+    expect(lines[0].content).toBe('X');
+    expect(lines[1].content).toBe('X');
+  });
+
+  it('forward slide: removed block at [0,2) shifts to [2,4) (size=2, shift=2)', () => {
+    // Before: removed(Y), removed(Y), unchanged(Y), unchanged(Y)
+    // After:  unchanged(Y), unchanged(Y), removed(Y), removed(Y)
+    const lines: LineLike[] = [
+      { lineNumber: 1, content: 'Y', type: 'removed',   originalLineNumber: 1 },
+      { lineNumber: 2, content: 'Y', type: 'removed',   originalLineNumber: 2 },
+      { lineNumber: 3, content: 'Y', type: 'unchanged', originalLineNumber: 3, newLineNumber: 1 },
+      { lineNumber: 4, content: 'Y', type: 'unchanged', originalLineNumber: 4, newLineNumber: 2 },
+    ];
+
+    applySlide(lines, 0, 2, 2);
+
+    expect(lines.map(l => l.type)).toEqual(['unchanged', 'unchanged', 'removed', 'removed']);
+  });
+
+  it('forward slide: shift=1 within larger array preserves surrounding lines', () => {
+    // Surrounding unchanged context must remain untouched.
+    const lines: LineLike[] = [
+      { lineNumber: 1, content: 'a', type: 'unchanged', originalLineNumber: 1, newLineNumber: 1 },
+      { lineNumber: 2, content: 'X', type: 'removed',   originalLineNumber: 2 },
+      { lineNumber: 3, content: 'X', type: 'unchanged', originalLineNumber: 3, newLineNumber: 2 },
+      { lineNumber: 4, content: 'b', type: 'unchanged', originalLineNumber: 4, newLineNumber: 3 },
+    ];
+
+    applySlide(lines, 1, 2, 2);
+
+    // [1] removed→unchanged, [2] unchanged→removed; surrounding [0] and [3] unchanged
+    expect(lines.map(l => l.type)).toEqual(['unchanged', 'unchanged', 'removed', 'unchanged']);
+    expect(lines[0].content).toBe('a');
+    expect(lines[3].content).toBe('b');
   });
 });
 

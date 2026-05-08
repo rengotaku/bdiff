@@ -123,7 +123,8 @@ export class TextPreprocessor {
       ignoreCase: false,
       ignoreWhitespace: false,
       ignoreTrailingNewlines: true,  // Default checked
-      enableCharDiff: true  // Default enabled for inline character highlighting
+      enableCharDiff: true,  // Default enabled for inline character highlighting
+      indentHeuristic: true  // Default enabled for git-compatible diff display
     };
   }
   

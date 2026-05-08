@@ -498,6 +498,8 @@ export class DiffService {
    * Physically apply the slide: swap types between the original Myers position
    * [fromStart, fromEnd) and the new best position starting at toStart.
    * toStart can be < fromStart (backward) or > fromStart (forward).
+   * Line numbers are reassigned afterwards by reassignLineNumbers,
+   * so only the type field needs updating here.
    */
   private static applySlide(
     lines: DiffLine[],
@@ -511,18 +513,16 @@ export class DiffService {
     if (toStart < fromStart) {
       // Backward slide: [toStart, fromStart) unchanged→removed; [toEnd, fromEnd) removed→unchanged
       const shift = fromStart - toStart;
-      const savedNews = Array.from({ length: shift }, (_, j) => lines[toStart + j].newLineNumber);
       for (let j = 0; j < shift; j++) {
-        lines[toStart + j]  = { ...lines[toStart + j],  type: 'removed',   newLineNumber: undefined };
-        lines[toEnd   + j]  = { ...lines[toEnd   + j],  type: 'unchanged', newLineNumber: savedNews[j] };
+        lines[toStart + j] = { ...lines[toStart + j], type: 'removed' };
+        lines[toEnd   + j] = { ...lines[toEnd   + j], type: 'unchanged' };
       }
     } else {
       // Forward slide: [fromEnd, toEnd) unchanged→removed; [fromStart, toStart) removed→unchanged
       const shift = toStart - fromStart;
-      const savedNews = Array.from({ length: shift }, (_, j) => lines[fromEnd + j].newLineNumber);
       for (let j = 0; j < shift; j++) {
-        lines[fromEnd   + j] = { ...lines[fromEnd   + j], type: 'removed',   newLineNumber: undefined };
-        lines[fromStart + j] = { ...lines[fromStart + j], type: 'unchanged', newLineNumber: savedNews[j] };
+        lines[fromEnd   + j] = { ...lines[fromEnd   + j], type: 'removed' };
+        lines[fromStart + j] = { ...lines[fromStart + j], type: 'unchanged' };
       }
     }
   }
