@@ -3,25 +3,24 @@
  * Generates plain text output from diff results
  */
 
-import type { DiffLine } from '../../../types/types';
+import type { DiffLine, FileInfo } from '../../../types/types';
 import type { PlainTextExportOptions, ExportLabels } from '../types';
 import { BaseRenderer } from './BaseRenderer';
+
+type PlainTextRenderOptions = Required<Omit<PlainTextExportOptions, 'filename' | 'originalFile' | 'modifiedFile' | 'labels'>> &
+  Pick<PlainTextExportOptions, 'filename' | 'originalFile' | 'modifiedFile' | 'labels'>;
 
 /**
  * Default plain text export options
  */
-const DEFAULT_OPTIONS: Required<PlainTextExportOptions> = {
+const DEFAULT_OPTIONS: PlainTextRenderOptions = {
   includeDiffSymbols: true,
   includeLineNumbers: true,
   includeStats: true,
   includeHeader: true,
   columnWidth: 80,
   title: 'Diff Comparison',
-  filename: undefined as any,
-  originalFile: undefined as any,
-  modifiedFile: undefined as any,
   collapseUnchanged: false,
-  labels: undefined as any,
 };
 
 /**
@@ -32,12 +31,12 @@ export class PlainTextRenderer extends BaseRenderer {
    * Render diff lines to plain text
    */
   render(lines: DiffLine[], options: PlainTextExportOptions = {}): string {
-    const opts = { ...DEFAULT_OPTIONS, ...options };
+    const opts = { ...DEFAULT_OPTIONS, ...options } as PlainTextRenderOptions;
     const sections: string[] = [];
 
     // Add header if requested
     if (opts.includeHeader && opts.originalFile && opts.modifiedFile) {
-      sections.push(this.generateHeader(opts));
+      sections.push(this.generateHeader(opts, opts.originalFile, opts.modifiedFile));
       sections.push(''); // Empty line
     }
 
@@ -74,7 +73,7 @@ export class PlainTextRenderer extends BaseRenderer {
   /**
    * Generate header section
    */
-  private generateHeader(opts: Required<PlainTextExportOptions>): string {
+  private generateHeader(opts: PlainTextRenderOptions, originalFile: FileInfo, modifiedFile: FileInfo): string {
     const l = opts.labels ?? {};
     const lines: string[] = [];
     const title = opts.title || l.diffComparison || 'Diff Comparison';
@@ -84,8 +83,8 @@ export class PlainTextRenderer extends BaseRenderer {
     lines.push('');
     lines.push(`${l.generated ?? 'Generated:'} ${this.formatDate(new Date())}`);
     lines.push('');
-    lines.push(`${l.original ?? 'Original'}:  ${opts.originalFile.name} (${opts.originalFile.size} bytes)`);
-    lines.push(`${l.modified ?? 'Modified'}:  ${opts.modifiedFile.name} (${opts.modifiedFile.size} bytes)`);
+    lines.push(`${l.original ?? 'Original'}:  ${originalFile.name} (${originalFile.size} bytes)`);
+    lines.push(`${l.modified ?? 'Modified'}:  ${modifiedFile.name} (${modifiedFile.size} bytes)`);
 
     return lines.join('\n');
   }
@@ -114,7 +113,7 @@ export class PlainTextRenderer extends BaseRenderer {
    */
   private generateDiffContent(
     lines: DiffLine[],
-    opts: Required<PlainTextExportOptions>
+    opts: PlainTextRenderOptions
   ): string {
     return lines
       .map(line => this.formatLine(line, opts))
@@ -124,7 +123,7 @@ export class PlainTextRenderer extends BaseRenderer {
   /**
    * Format a single diff line
    */
-  private formatLine(line: DiffLine, opts: Required<PlainTextExportOptions>): string {
+  private formatLine(line: DiffLine, opts: PlainTextRenderOptions): string {
     const parts: string[] = [];
 
     // Line number (if enabled)

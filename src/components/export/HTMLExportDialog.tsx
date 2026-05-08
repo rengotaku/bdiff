@@ -7,7 +7,7 @@ import type { HtmlExportOptions } from '../../services/export';
 /**
  * Default HTML export options
  */
-const DEFAULT_HTML_EXPORT_OPTIONS: Required<HtmlExportOptions> = {
+const DEFAULT_HTML_EXPORT_OPTIONS: HtmlExportOptions = {
   includeLineNumbers: true,
   includeHeader: true,
   includeStats: true,
@@ -15,11 +15,7 @@ const DEFAULT_HTML_EXPORT_OPTIONS: Required<HtmlExportOptions> = {
   differencesOnly: false,
   viewMode: 'side-by-side',
   title: 'BDiff Comparison Report',
-  filename: undefined as any,
-  originalFile: undefined as any,
-  modifiedFile: undefined as any,
   collapseUnchanged: false,
-  labels: undefined as any,
 };
 
 interface HTMLExportDialogProps {

@@ -10,7 +10,7 @@ export class DiffStyler {
    * @deprecated Use getPrefixSymbol from diffRendering.ts instead
    */
   static getDiffSymbol(type: DiffType): string {
-    return getPrefixSymbol(type as any)
+    return getPrefixSymbol(type)
   }
 
   /**
