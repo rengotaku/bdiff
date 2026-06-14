@@ -1,0 +1,5 @@
+# bdiff の dev サーバー定義（wt serve / 起動ボタン用）
+[[services]]
+name = "web"
+cmd = "npm run dev -- --port ${port} --host"
+domain = true
