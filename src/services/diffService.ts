@@ -45,14 +45,15 @@ export class DiffService {
     modified: string,
     options?: DiffCalculationOptions
   ): DiffResult {
-    // Apply preprocessing if options are provided
-    let processedOriginal = original;
-    let processedModified = modified;
+    // Normalize encoding-level differences (BOM / CRLF / Unicode composition)
+    // up front so accidental clipboard artifacts never surface as diffs.
+    let processedOriginal = TextPreprocessor.normalizeForDiff(original);
+    let processedModified = TextPreprocessor.normalizeForDiff(modified);
 
     if (options && TextPreprocessor.hasActiveOptions(options)) {
       [processedOriginal, processedModified] = TextPreprocessor.preprocessTexts(
-        original,
-        modified,
+        processedOriginal,
+        processedModified,
         options
       );
     }
