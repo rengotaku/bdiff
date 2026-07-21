@@ -5,6 +5,26 @@ import type { ComparisonOptions } from '../types/types';
  */
 export class TextPreprocessor {
   /**
+   * Encoding-level normalization applied unconditionally before any
+   * user-facing comparison option runs. Rendering-identical text pasted from
+   * different sources (Notion / editors / OS clipboards) can otherwise disagree
+   * on BOM, line endings, or Unicode composition and surface as spurious diffs.
+   *
+   * - Strip a leading UTF-8 BOM (U+FEFF)
+   * - Convert CRLF and stray CR to LF
+   * - Apply NFC canonical composition so combining sequences that render the
+   *   same character compare equal
+   */
+  static normalizeForDiff(text: string): string {
+    if (!text) return text;
+    let out = text;
+    if (out.charCodeAt(0) === 0xfeff) out = out.slice(1);
+    out = out.replace(/\r\n?/g, '\n');
+    out = out.normalize('NFC');
+    return out;
+  }
+
+  /**
    * Apply preprocessing to text based on comparison options
    * @param text - The text to preprocess
    * @param options - Comparison options to apply

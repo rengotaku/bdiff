@@ -83,4 +83,39 @@ describe('DiffService', () => {
       expect(total).toBe(result.lines.length);
     });
   });
+
+  describe('calculateDiff - encoding normalization (issue #118)', () => {
+    it('CRLF と LF の混在は差分を生まない', () => {
+      const original = 'line1\r\nline2\r\nline3\r\n';
+      const modified = 'line1\nline2\nline3\n';
+      const result = DiffService.calculateDiff(original, modified, defaultOptions);
+      expect(result.stats.added).toBe(0);
+      expect(result.stats.removed).toBe(0);
+      expect(result.stats.modified).toBe(0);
+    });
+
+    it('先頭 BOM の有無で差分が出ない', () => {
+      const original = '﻿hello\nworld';
+      const modified = 'hello\nworld';
+      const result = DiffService.calculateDiff(original, modified, defaultOptions);
+      expect(result.stats.added).toBe(0);
+      expect(result.stats.removed).toBe(0);
+    });
+
+    it('Unicode NFC / NFD 差では差分を生まない (濁点の合成/分解)', () => {
+      const composed = 'あがい';
+      const decomposed = 'あがい';
+      const result = DiffService.calculateDiff(composed, decomposed, defaultOptions);
+      expect(result.stats.added).toBe(0);
+      expect(result.stats.removed).toBe(0);
+    });
+
+    it('CR のみの改行 (旧 Mac) も LF と等価扱い', () => {
+      const original = 'a\rb\rc';
+      const modified = 'a\nb\nc';
+      const result = DiffService.calculateDiff(original, modified, defaultOptions);
+      expect(result.stats.added).toBe(0);
+      expect(result.stats.removed).toBe(0);
+    });
+  });
 });
