@@ -99,7 +99,8 @@ const EmptyLineCell = memo(() => (
       &nbsp;
     </div>
     <div className="flex-1 min-w-0 h-full flex">
-      <div className="flex-1 bg-gray-100 border-l-4 border-gray-200 px-4 py-1">
+      {/* font-mono text-sm を div に付けて行ボックス高さを通常行（getLineClassName）と一致させる (#125) */}
+      <div className="flex-1 bg-gray-100 border-l-4 border-gray-200 px-4 py-1 font-mono text-sm">
         <span className="font-mono text-sm text-gray-300">&nbsp;</span>
       </div>
     </div>
