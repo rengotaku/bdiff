@@ -65,6 +65,15 @@ export class DiffService {
       ? this.calculateDiffWithJsDiff(processedOriginal, processedModified)
       : this.calculateDiffWithBuiltin(processedOriginal, processedModified);
 
+    // Fix contextless-anchor block fragmentation (#123) unconditionally: this is
+    // a correctness fix for anchor selection, not an optional heuristic, so it
+    // always runs regardless of algorithm choice.
+    const mergedLines = this.mergeContextlessAnchorBlocks(result.lines);
+    if (mergedLines !== result.lines) {
+      const renumbered = this.reassignLineNumbers(mergedLines);
+      result = { lines: renumbered, stats: this.calculateStats(renumbered) };
+    }
+
     if (options?.indentHeuristic) {
       const heuristicLines = this.applyIndentHeuristic(result.lines);
       const heuristicStats = this.calculateStats(heuristicLines);
@@ -318,6 +327,244 @@ export class DiffService {
 
     return stats
   }
+
+  // ── Contextless Anchor Block Merge (#123, v2) ───────────────────────────────
+  //
+  // Problem: when the only common lines between a removed run and an added run
+  // are "contextless" ones (blank lines, or lines that are only structural
+  // characters like `{}();,`), Myers/jsdiff can anchor on an arbitrary interior
+  // occurrence of that contextless content (e.g. a blank line *inside* an
+  // unrelated block) instead of the occurrence that actually borders the real
+  // change. That splits one logical change into two unrelated change blocks,
+  // so line-pairing (which only matches within a single block) can no longer
+  // line up the corresponding edited lines.
+  //
+  // v1 (superseded): relocated contextless anchors to the tail of their
+  // surrounding region while trying to preserve the total anchor count. That
+  // over-triggered on large documents where most sections are separated only
+  // by blank lines, pairing up unrelated sections. Replaced by v2 below.
+  //
+  // Fix v2 (issue #123 revision): only demote a contextless anchor run when
+  // there is *evidence* that it is splitting a single logical change in two -
+  // i.e. a "crossing similar pair": a removed line in one hunk and an added
+  // line in a *different* hunk of the same contextless-anchor-delimited
+  // region, with calculateSimilarity >= 0.5 (contextless lines themselves
+  // never count as candidates). If no such pair exists, the region is left
+  // untouched (e.g. a plain new-section insertion stays split, as before).
+  // When a crossing pair is found, the minimal contiguous hunk range that
+  // covers *all* crossing pairs is merged into a single change block by
+  // demoting (removed+added) every contextless anchor strictly inside that
+  // range; anchors outside the range are untouched. The former "preserve the
+  // anchor/match count" constraint from v1 is intentionally dropped: an
+  // unmatched contextless anchor carries no information, so pairing the real
+  // content is worth more than keeping it 'unchanged'.
+
+  /** Similarity threshold for the "crossing pair" trigger check (issue #123 v2). */
+  private static readonly CROSSING_PAIR_SIMILARITY_THRESHOLD = 0.5;
+
+  /** Performance guard: skip merge attempts for regions larger than this many lines. */
+  private static readonly MAX_MERGE_REGION_LINES = 400;
+
+  /** contextless = blank, or only structural characters (`{}();,`). */
+  private static isContextlessAnchorContent(content: string): boolean {
+    const trimmed = content.trim();
+    if (trimmed.length === 0) return true;
+    return /^[{}()[\];,]+$/.test(trimmed);
+  }
+
+  /**
+   * Similarity between two strings (0-1), Levenshtein-distance based.
+   * Intentional duplicate of LinePairingService.calculateSimilarity: per the
+   * issue #123 brief, linePairingService.ts is left untouched, so diffService
+   * keeps its own copy of this small, self-contained helper.
+   */
+  private static calculateLineSimilarity(a: string, b: string): number {
+    if (a === b) return 1;
+    if (a.length === 0 || b.length === 0) return 0;
+
+    const matrix: number[][] = [];
+    for (let i = 0; i <= a.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
+    for (let i = 1; i <= a.length; i++) {
+      for (let j = 1; j <= b.length; j++) {
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j - 1] + cost
+        );
+      }
+    }
+    const distance = matrix[a.length][b.length];
+    const maxLen = Math.max(a.length, b.length);
+    return 1 - distance / maxLen;
+  }
+
+  private static isFullyContextlessSegment(lines: DiffLine[]): boolean {
+    return lines.length > 0 && lines.every(l => this.isContextlessAnchorContent(l.content));
+  }
+
+  /**
+   * Entry point: scan the flat DiffLine[] for hunk/anchor segments and, within
+   * each maximal chain of hunks separated solely by fully-contextless anchors,
+   * demote the anchors that split a genuine cross-hunk edit (see header
+   * comment above). Returns the same array reference when nothing changes.
+   */
+  private static mergeContextlessAnchorBlocks(lines: DiffLine[]): DiffLine[] {
+    if (lines.length === 0) return lines;
+
+    type Segment = { isAnchor: boolean; lines: DiffLine[] };
+    const segments: Segment[] = [];
+    {
+      let i = 0;
+      while (i < lines.length) {
+        const isAnchor = lines[i].type === 'unchanged';
+        const start = i;
+        while (i < lines.length && (lines[i].type === 'unchanged') === isAnchor) i++;
+        segments.push({ isAnchor, lines: lines.slice(start, i) });
+      }
+    }
+
+    const result: DiffLine[] = [];
+    let changed = false;
+    let s = 0;
+
+    while (s < segments.length) {
+      if (segments[s].isAnchor) {
+        // Leading/standalone anchor run: nothing to merge it into on the left.
+        result.push(...segments[s].lines);
+        s++;
+        continue;
+      }
+
+      // segments[s] is a hunk. Extend as far as alternating
+      // (contextless anchor, hunk) pairs allow.
+      let e = s;
+      while (
+        e + 2 < segments.length &&
+        this.isFullyContextlessSegment(segments[e + 1].lines)
+      ) {
+        e += 2;
+      }
+
+      if (e === s) {
+        result.push(...segments[s].lines);
+        s++;
+        continue;
+      }
+
+      const region = segments.slice(s, e + 1);
+      const rebuilt = this.demoteContextlessAnchorsForCrossingPairs(region);
+      if (rebuilt === null) {
+        // No crossing similar pair found (or region too large) - leave untouched.
+        for (const seg of region) result.push(...seg.lines);
+      } else {
+        result.push(...rebuilt);
+        changed = true;
+      }
+      s = e + 1;
+    }
+
+    return changed ? result : lines;
+  }
+
+  /**
+   * Within a [hunk, contextless-anchor, hunk, contextless-anchor, ..., hunk]
+   * region, look for a "crossing similar pair": a non-contextless removed line
+   * in one hunk and a non-contextless added line in a *different* hunk of the
+   * same region, with calculateSimilarity >= CROSSING_PAIR_SIMILARITY_THRESHOLD.
+   *
+   * Returns null when:
+   *  - the region exceeds MAX_MERGE_REGION_LINES (performance guard), or
+   *  - no crossing similar pair exists (nothing to merge; leave as-is).
+   *
+   * Otherwise, returns the region rebuilt so that the minimal contiguous hunk
+   * range covering every crossing pair becomes a single change block (all
+   * interior contextless anchors demoted to removed+added); anchors outside
+   * that range are left untouched.
+   */
+  private static demoteContextlessAnchorsForCrossingPairs(
+    segments: { isAnchor: boolean; lines: DiffLine[] }[]
+  ): DiffLine[] | null {
+    const totalLines = segments.reduce((sum, seg) => sum + seg.lines.length, 0);
+    if (totalLines > this.MAX_MERGE_REGION_LINES) {
+      return null;
+    }
+
+    // Hunks live at even segment indices (0, 2, 4, ...); anchors at odd ones.
+    const hunkSegmentIndices: number[] = [];
+    for (let idx = 0; idx < segments.length; idx += 2) hunkSegmentIndices.push(idx);
+
+    const removedCandidates: { hunkIdx: number; line: DiffLine }[] = [];
+    const addedCandidates: { hunkIdx: number; line: DiffLine }[] = [];
+
+    hunkSegmentIndices.forEach((segIdx, hunkIdx) => {
+      for (const line of segments[segIdx].lines) {
+        if (this.isContextlessAnchorContent(line.content)) continue;
+        if (line.type === 'removed') removedCandidates.push({ hunkIdx, line });
+        else if (line.type === 'added') addedCandidates.push({ hunkIdx, line });
+      }
+    });
+
+    let minHunkIdx = -1;
+    let maxHunkIdx = -1;
+
+    for (const r of removedCandidates) {
+      for (const a of addedCandidates) {
+        if (r.hunkIdx === a.hunkIdx) continue; // same hunk - not a "crossing" pair
+        if (
+          this.calculateLineSimilarity(r.line.content, a.line.content) >=
+          this.CROSSING_PAIR_SIMILARITY_THRESHOLD
+        ) {
+          const lo = Math.min(r.hunkIdx, a.hunkIdx);
+          const hi = Math.max(r.hunkIdx, a.hunkIdx);
+          if (minHunkIdx === -1 || lo < minHunkIdx) minHunkIdx = lo;
+          if (hi > maxHunkIdx) maxHunkIdx = hi;
+        }
+      }
+    }
+
+    if (minHunkIdx === -1) {
+      // No evidence of a split edit in this region; do nothing.
+      return null;
+    }
+
+    // [minHunkIdx, maxHunkIdx] is the minimal contiguous range covering every
+    // crossing pair found above. Any hunk strictly between minHunkIdx and
+    // maxHunkIdx that is *not* itself part of a crossing pair (i.e. an
+    // unrelated, self-contained hunk that was already pairing correctly on
+    // its own) still gets swept into the merged block, and its bordering
+    // contextless anchors still get demoted along with it. This is
+    // intentional (minimal-*contiguous*-range, not "only the exact hunks
+    // involved"): splitting the merge around such a hunk would reintroduce
+    // the anchor-fragmentation problem this fix targets. See the regression
+    // test '統合範囲内の無関係な中間 hunk も一緒に統合される' below.
+    const startSegIdx = hunkSegmentIndices[minHunkIdx];
+    const endSegIdx = hunkSegmentIndices[maxHunkIdx];
+
+    const rebuilt: DiffLine[] = [];
+    for (let idx = 0; idx < startSegIdx; idx++) rebuilt.push(...segments[idx].lines);
+
+    // Flatten the merge range [startSegIdx, endSegIdx] into original/modified
+    // sequences and emit as one removed block followed by one added block,
+    // demoting every contextless anchor inside the range in the process.
+    const origSeq: DiffLine[] = [];
+    const modSeq: DiffLine[] = [];
+    for (let idx = startSegIdx; idx <= endSegIdx; idx++) {
+      for (const line of segments[idx].lines) {
+        if (line.originalLineNumber !== undefined) origSeq.push(line);
+        if (line.newLineNumber !== undefined) modSeq.push(line);
+      }
+    }
+    for (const line of origSeq) rebuilt.push({ ...line, type: 'removed', newLineNumber: undefined });
+    for (const line of modSeq) rebuilt.push({ ...line, type: 'added', originalLineNumber: undefined });
+
+    for (let idx = endSegIdx + 1; idx < segments.length; idx++) rebuilt.push(...segments[idx].lines);
+
+    return rebuilt;
+  }
+
+  // ── End Contextless Anchor Block Merge ──────────────────────────────────────
 
   /**
    * Adjust stats to count char-diff pairs as `modified` instead of separate removed+added.
