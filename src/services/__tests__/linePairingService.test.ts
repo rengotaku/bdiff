@@ -1,7 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { LinePairingService } from '../linePairingService';
 import type { DiffLine } from '../../types/types';
-import type { MatchingAlgorithm } from '../linePairingService';
 
 /**
  * Helper to create DiffLine objects for testing
@@ -22,55 +21,12 @@ function createLine(
 
 describe('LinePairingService', () => {
   // ========================================
-  // アルゴリズム切り替えテスト
+  // 類似度しきい値設定テスト
   // ========================================
-  describe('アルゴリズム切り替え', () => {
-    let originalAlgorithm: MatchingAlgorithm;
-
-    beforeEach(() => {
-      originalAlgorithm = LinePairingService.getAlgorithm();
-    });
-
-    afterEach(() => {
-      LinePairingService.setAlgorithm(originalAlgorithm);
-    });
-
-    it('デフォルトはgreedyアルゴリズム', () => {
-      LinePairingService.setAlgorithm('greedy'); // reset to default
-      expect(LinePairingService.getAlgorithm()).toBe('greedy');
-    });
-
-    it('recursiveアルゴリズムに切り替え可能', () => {
-      LinePairingService.setAlgorithm('recursive');
-      expect(LinePairingService.getAlgorithm()).toBe('recursive');
-    });
-
-    it('両アルゴリズムで同じ基本ケースが動作する', () => {
-      const lines: DiffLine[] = [
-        createLine('A', 'removed', 1),
-        createLine('B', 'removed', 2),
-        createLine('A', 'added', 3),
-        createLine('B', 'added', 4),
-      ];
-
-      // Greedy
-      LinePairingService.setAlgorithm('greedy');
-      const greedyResult = LinePairingService.pairLinesForSideBySide(lines, false);
-
-      // Recursive
-      LinePairingService.setAlgorithm('recursive');
-      const recursiveResult = LinePairingService.pairLinesForSideBySide(lines, false);
-
-      // Both should produce 2 pairs with A↔A and B↔B
-      expect(greedyResult).toHaveLength(2);
-      expect(recursiveResult).toHaveLength(2);
-
-      expect(greedyResult[0].original?.line.content).toBe('A');
-      expect(greedyResult[0].modified?.line.content).toBe('A');
-      expect(recursiveResult[0].original?.line.content).toBe('A');
-      expect(recursiveResult[0].modified?.line.content).toBe('A');
-    });
-
+  // 注: MatchingAlgorithm / setAlgorithm / getAlgorithm は #120 の修正で
+  // matchByContent ディスパッチャと greedy 実装が削除され、参照箇所が
+  // 無くなったため撤去した（side-by-side の順序保存は選択式にできないため）。
+  describe('類似度しきい値設定', () => {
     it('similarityThresholdを変更可能', () => {
       const original = LinePairingService.getSimilarityThreshold();
 
@@ -79,6 +35,28 @@ describe('LinePairingService', () => {
 
       // Reset
       LinePairingService.setSimilarityThreshold(original);
+    });
+  });
+
+  // ========================================
+  // 基本的なペアリング動作（アルゴリズム切り替えとは無関係の挙動検証）
+  // ========================================
+  describe('基本的なペアリング動作', () => {
+    it('同数の完全一致ブロックはA↔A, B↔Bの順でペアリングされる', () => {
+      const lines: DiffLine[] = [
+        createLine('A', 'removed', 1),
+        createLine('B', 'removed', 2),
+        createLine('A', 'added', 3),
+        createLine('B', 'added', 4),
+      ];
+
+      const result = LinePairingService.pairLinesForSideBySide(lines, false);
+
+      expect(result).toHaveLength(2);
+      expect(result[0].original?.line.content).toBe('A');
+      expect(result[0].modified?.line.content).toBe('A');
+      expect(result[1].original?.line.content).toBe('B');
+      expect(result[1].modified?.line.content).toBe('B');
     });
   });
 
@@ -272,22 +250,27 @@ describe('LinePairingService', () => {
         ]);
       });
 
-      it('unchanged行で区切られたremoved/addedも2パス目でマッチする', () => {
-        // 2パスアプローチにより、離れた位置の類似行もマッチする
+      it('unchanged行を跨いだ2パス目の再マッチは行わない（#120で順序保持のため廃止）', () => {
+        // 旧実装は「2パス目」で unchanged 行を跨いで removed/added を結合していたが、
+        // それは結合先の行を元の位置から動かすことになり、右カラムの行番号が
+        // 単調増加でなくなる（#120）。跨ぎマッチは廃止し、各行は自分の位置に留まる。
         const lines: DiffLine[] = [
           createLine('削除される行', 'removed', 1),
           createLine('変更なしの行', 'unchanged', 2),
-          createLine('削除される行', 'added', 3),  // 同じ内容なのでマッチする
+          createLine('削除される行', 'added', 3),  // 内容は同じだが、もう跨いでマッチしない
         ];
         const result = LinePairingService.pairLinesForSideBySide(lines, false);
 
-        expect(result).toHaveLength(2);
-        // removed と added がマッチしてペアになる
+        expect(result).toHaveLength(3);
+        // removed は単独のまま（unchanged を跨いだ added との結合はしない）
         expect(result[0].original?.line.content).toBe('削除される行');
-        expect(result[0].modified?.line.content).toBe('削除される行');
+        expect(result[0].modified).toBeNull();
         // unchanged
         expect(result[1].original?.line.type).toBe('unchanged');
         expect(result[1].modified?.line.type).toBe('unchanged');
+        // added も単独のまま、自分の位置(unchanged の後)に留まる
+        expect(result[2].original).toBeNull();
+        expect(result[2].modified?.line.content).toBe('削除される行');
       });
 
       it('長いテキストでも正しくマッチング', () => {
@@ -464,7 +447,10 @@ describe('LinePairingService', () => {
         expect(braceRemovedPair?.modified).toBeNull();
       });
 
-      it('有意なテキスト行は引き続き遠隔マッチングされる', () => {
+      it('有意なテキスト行もunchangedを跨いだ遠隔マッチングはされない（#120で順序保持のため廃止）', () => {
+        // #97 時点では「有意なテキストは unchanged を跨いでも遠隔マッチングする」仕様だったが、
+        // #120 の調査でこの遠隔マッチングが右カラムの行順を崩す原因と判明したため廃止された。
+        // 各行は unchanged を跨がず、自分の位置に単独で留まる。
         const lines: DiffLine[] = [
           createLine('マッチすべき有意なテキスト', 'removed', 1),
           createLine('変更なし行', 'unchanged', 2),
@@ -472,12 +458,18 @@ describe('LinePairingService', () => {
         ];
         const result = LinePairingService.pairLinesForSideBySide(lines, false);
 
-        // 有意なテキストは遠隔マッチングされるべき
+        // unchanged を跨いだ結合はもう発生しない
         const matchedPair = result.find(
           p => p.original?.line.content === 'マッチすべき有意なテキスト' &&
                p.modified?.line.content === 'マッチすべき有意なテキスト'
         );
-        expect(matchedPair).toBeDefined();
+        expect(matchedPair).toBeUndefined();
+
+        expect(result).toHaveLength(3);
+        expect(result[0].original?.line.content).toBe('マッチすべき有意なテキスト');
+        expect(result[0].modified).toBeNull();
+        expect(result[2].original).toBeNull();
+        expect(result[2].modified?.line.content).toBe('マッチすべき有意なテキスト');
       });
 
       it('同一ブロック内の空行は位置ベースでペアリングされる', () => {
@@ -522,95 +514,171 @@ describe('LinePairingService', () => {
         expect(result.length).toBeGreaterThan(0);
       });
     });
+
+    // ========================================
+    // H. 行番号単調増加の不変条件（issue #120）
+    // ========================================
+    describe('行番号単調増加の不変条件（issue #120）', () => {
+      /**
+       * 左右いずれのカラムも、行番号が常に単調増加であることを検証する。
+       * git / GitHub の side-by-side と同じ不変条件（issue #120 の受け入れ条件）。
+       */
+      function expectMonotonicLineNumbers(result: ReturnType<typeof LinePairingService.pairLinesForSideBySide>): void {
+        const originalLineNumbers = result
+          .filter(p => p.original !== null)
+          .map(p => p.original!.line.originalLineNumber ?? p.original!.line.lineNumber);
+        for (let i = 1; i < originalLineNumbers.length; i++) {
+          expect(originalLineNumbers[i]).toBeGreaterThan(originalLineNumbers[i - 1]);
+        }
+
+        const modifiedLineNumbers = result
+          .filter(p => p.modified !== null)
+          .map(p => p.modified!.line.newLineNumber ?? p.modified!.line.lineNumber);
+        for (let i = 1; i < modifiedLineNumbers.length; i++) {
+          expect(modifiedLineNumbers[i]).toBeGreaterThan(modifiedLineNumbers[i - 1]);
+        }
+      }
+
+      it('最小再現ケース1: 変更ブロック内のcrossingが解消され、右カラムが1→2の昇順になる', () => {
+        // Issue #120 ケース1
+        // 元: alpha beta gamma one / delta epsilon two
+        // 変更後: delta epsilon two three / alpha beta gamma one four
+        // 修正前は右カラムが 2→1 の順で表示されていた
+        const lines: DiffLine[] = [
+          createLine('alpha beta gamma one', 'removed', 1),
+          createLine('delta epsilon two', 'removed', 2),
+          createLine('delta epsilon two three', 'added', 1),
+          createLine('alpha beta gamma one four', 'added', 2),
+        ];
+        const result = LinePairingService.pairLinesForSideBySide(lines, false);
+
+        expectMonotonicLineNumbers(result);
+
+        const modifiedLineNumbers = result
+          .filter(p => p.modified !== null)
+          .map(p => p.modified!.line.newLineNumber);
+        expect(modifiedLineNumbers).toEqual([1, 2]);
+
+        // 全ての行が失われていないこと
+        expect(result.filter(p => p.original !== null)).toHaveLength(2);
+        expect(result.filter(p => p.modified !== null)).toHaveLength(2);
+      });
+
+      it('最小再現ケース2: unchanged行を跨いだaddedの移動が解消され、右カラムが1→2→3→4の昇順になる', () => {
+        // Issue #120 ケース2
+        // 元: Capistrano deploy notes here / unchanged line
+        // 変更後: unchanged line / brand new section A / brand new section B / Capistrano deploy notes here modified
+        // 修正前は右カラムが 4→1→2→3 の順で表示されていた
+        const lines: DiffLine[] = [
+          { lineNumber: 1, content: 'Capistrano deploy notes here', type: 'removed', originalLineNumber: 1 },
+          { lineNumber: 2, content: 'unchanged line', type: 'unchanged', originalLineNumber: 2, newLineNumber: 1 },
+          { lineNumber: 3, content: 'brand new section A', type: 'added', newLineNumber: 2 },
+          { lineNumber: 4, content: 'brand new section B', type: 'added', newLineNumber: 3 },
+          { lineNumber: 5, content: 'Capistrano deploy notes here modified', type: 'added', newLineNumber: 4 },
+        ];
+        const result = LinePairingService.pairLinesForSideBySide(lines, false);
+
+        expectMonotonicLineNumbers(result);
+
+        const modifiedLineNumbers = result
+          .filter(p => p.modified !== null)
+          .map(p => p.modified!.line.newLineNumber);
+        expect(modifiedLineNumbers).toEqual([1, 2, 3, 4]);
+
+        // 全ての行が失われていないこと（original側はremoved1行+unchanged1行=2）
+        expect(result.filter(p => p.original !== null)).toHaveLength(2);
+        expect(result.filter(p => p.modified !== null)).toHaveLength(4);
+      });
+
+      it('複数の変更ブロックが混在していても左右カラムとも単調増加を維持する', () => {
+        const lines: DiffLine[] = [
+          { lineNumber: 1, content: 'unchanged 1', type: 'unchanged', originalLineNumber: 1, newLineNumber: 1 },
+          { lineNumber: 2, content: 'foo old', type: 'removed', originalLineNumber: 2 },
+          { lineNumber: 3, content: 'bar old', type: 'removed', originalLineNumber: 3 },
+          { lineNumber: 4, content: 'bar new', type: 'added', newLineNumber: 2 },
+          { lineNumber: 5, content: 'foo new', type: 'added', newLineNumber: 3 },
+          { lineNumber: 6, content: 'unchanged 2', type: 'unchanged', originalLineNumber: 4, newLineNumber: 4 },
+          { lineNumber: 7, content: 'baz old', type: 'removed', originalLineNumber: 5 },
+          { lineNumber: 8, content: 'baz new', type: 'added', newLineNumber: 5 },
+          { lineNumber: 9, content: 'qux new only', type: 'added', newLineNumber: 6 },
+          { lineNumber: 10, content: 'unchanged 3', type: 'unchanged', originalLineNumber: 6, newLineNumber: 7 },
+        ];
+        const result = LinePairingService.pairLinesForSideBySide(lines, false);
+
+        expectMonotonicLineNumbers(result);
+      });
+    });
   });
 
   // ========================================
-  // 両アルゴリズムでのクロステスト
+  // matchBlockLinesの基本動作（旧: 両アルゴリズムでのクロステスト）
   // ========================================
-  describe('両アルゴリズムでの動作検証', () => {
-    const algorithms: MatchingAlgorithm[] = ['greedy', 'recursive'];
-
-    let originalAlgorithm: MatchingAlgorithm;
-
-    beforeEach(() => {
-      originalAlgorithm = LinePairingService.getAlgorithm();
+  // 注: 以前はここで 'greedy'/'recursive' を切り替えて同一挙動を確認していたが、
+  // #120 の修正でアルゴリズム切り替えAPI自体が撤去されたため、単一の実装として検証する。
+  describe('matchBlockLinesの基本動作', () => {
+    it('完全一致ペアをマッチング', () => {
+      const lines: DiffLine[] = [
+        createLine('興和株式会社', 'removed', 1),
+        createLine('興和株式会社', 'added', 2),
+      ];
+      const result = LinePairingService.pairLinesForSideBySide(lines, false);
+      expect(result).toHaveLength(1);
+      expect(result[0].original?.line.content).toBe('興和株式会社');
+      expect(result[0].modified?.line.content).toBe('興和株式会社');
     });
 
-    afterEach(() => {
-      LinePairingService.setAlgorithm(originalAlgorithm);
+    it('複数行の順序を保持', () => {
+      const lines: DiffLine[] = [
+        createLine('A', 'removed', 1),
+        createLine('B', 'removed', 2),
+        createLine('C', 'removed', 3),
+        createLine('A', 'added', 4),
+        createLine('B', 'added', 5),
+        createLine('C', 'added', 6),
+      ];
+      const result = LinePairingService.pairLinesForSideBySide(lines, false);
+
+      expect(result).toHaveLength(3);
+      expect(result[0].original?.line.content).toBe('A');
+      expect(result[0].modified?.line.content).toBe('A');
+      expect(result[1].original?.line.content).toBe('B');
+      expect(result[1].modified?.line.content).toBe('B');
+      expect(result[2].original?.line.content).toBe('C');
+      expect(result[2].modified?.line.content).toBe('C');
     });
 
-    algorithms.forEach((algorithm) => {
-      describe(`${algorithm}アルゴリズム`, () => {
-        beforeEach(() => {
-          LinePairingService.setAlgorithm(algorithm);
-        });
+    it('空行を含むブロック', () => {
+      const lines: DiffLine[] = [
+        createLine('興和株式会社', 'removed', 1),
+        createLine('', 'removed', 2),
+        createLine('橋本様', 'removed', 3),
+        createLine('興和株式会社', 'added', 4),
+        createLine('橋本様', 'added', 5),
+      ];
+      const result = LinePairingService.pairLinesForSideBySide(lines, false);
 
-        it('完全一致ペアをマッチング', () => {
-          const lines: DiffLine[] = [
-            createLine('興和株式会社', 'removed', 1),
-            createLine('興和株式会社', 'added', 2),
-          ];
-          const result = LinePairingService.pairLinesForSideBySide(lines, false);
-          expect(result).toHaveLength(1);
-          expect(result[0].original?.line.content).toBe('興和株式会社');
-          expect(result[0].modified?.line.content).toBe('興和株式会社');
-        });
+      const matchedPairs = result.filter(
+        p => p.original && p.modified &&
+             p.original.line.content === p.modified.line.content
+      );
+      expect(matchedPairs.length).toBe(2);
+    });
 
-        it('複数行の順序を保持', () => {
-          const lines: DiffLine[] = [
-            createLine('A', 'removed', 1),
-            createLine('B', 'removed', 2),
-            createLine('C', 'removed', 3),
-            createLine('A', 'added', 4),
-            createLine('B', 'added', 5),
-            createLine('C', 'added', 6),
-          ];
-          const result = LinePairingService.pairLinesForSideBySide(lines, false);
+    it('パフォーマンス（50行）', () => {
+      const lines: DiffLine[] = [];
+      for (let i = 0; i < 50; i++) {
+        lines.push(createLine(`line ${i}`, 'removed', i + 1));
+      }
+      for (let i = 0; i < 50; i++) {
+        lines.push(createLine(`line ${i}`, 'added', i + 51));
+      }
 
-          expect(result).toHaveLength(3);
-          expect(result[0].original?.line.content).toBe('A');
-          expect(result[0].modified?.line.content).toBe('A');
-          expect(result[1].original?.line.content).toBe('B');
-          expect(result[1].modified?.line.content).toBe('B');
-          expect(result[2].original?.line.content).toBe('C');
-          expect(result[2].modified?.line.content).toBe('C');
-        });
+      const startTime = Date.now();
+      const result = LinePairingService.pairLinesForSideBySide(lines, false);
+      const endTime = Date.now();
 
-        it('空行を含むブロック', () => {
-          const lines: DiffLine[] = [
-            createLine('興和株式会社', 'removed', 1),
-            createLine('', 'removed', 2),
-            createLine('橋本様', 'removed', 3),
-            createLine('興和株式会社', 'added', 4),
-            createLine('橋本様', 'added', 5),
-          ];
-          const result = LinePairingService.pairLinesForSideBySide(lines, false);
-
-          const matchedPairs = result.filter(
-            p => p.original && p.modified &&
-                 p.original.line.content === p.modified.line.content
-          );
-          expect(matchedPairs.length).toBe(2);
-        });
-
-        it('パフォーマンス（50行）', () => {
-          const lines: DiffLine[] = [];
-          for (let i = 0; i < 50; i++) {
-            lines.push(createLine(`line ${i}`, 'removed', i + 1));
-          }
-          for (let i = 0; i < 50; i++) {
-            lines.push(createLine(`line ${i}`, 'added', i + 51));
-          }
-
-          const startTime = Date.now();
-          const result = LinePairingService.pairLinesForSideBySide(lines, false);
-          const endTime = Date.now();
-
-          expect(endTime - startTime).toBeLessThan(500);
-          expect(result.length).toBe(50);  // All should match
-        });
-      });
+      expect(endTime - startTime).toBeLessThan(500);
+      expect(result.length).toBe(50);  // All should match
     });
   });
 });
