@@ -1,33 +1,13 @@
 import type { DiffLine, LineWithSegments, LinePair, SideBySideRow, CollapsedBlock, UnifiedRow, UnifiedCollapsedBlock } from '../types/types';
 import { CharDiffService } from './charDiffService';
 
-/** Matching algorithm type */
-export type MatchingAlgorithm = 'greedy' | 'recursive';
-
 /**
  * Service for pairing removed/added lines in diff views
  * Extracts common pairing logic used by both screen display and HTML export
  */
 export class LinePairingService {
-  /** Current matching algorithm (can be changed at runtime) */
-  private static currentAlgorithm: MatchingAlgorithm = 'greedy';
-
   /** Similarity threshold for matching (0-1) */
   private static similarityThreshold = 0.5;
-
-  /**
-   * Set the matching algorithm
-   */
-  static setAlgorithm(algorithm: MatchingAlgorithm): void {
-    this.currentAlgorithm = algorithm;
-  }
-
-  /**
-   * Get the current matching algorithm
-   */
-  static getAlgorithm(): MatchingAlgorithm {
-    return this.currentAlgorithm;
-  }
 
   /**
    * Set the similarity threshold for matching
@@ -82,53 +62,6 @@ export class LinePairingService {
     const distance = matrix[a.length][b.length];
     const maxLen = Math.max(a.length, b.length);
     return 1 - distance / maxLen;
-  }
-
-  /**
-   * Match removed and added lines by content similarity (Greedy algorithm)
-   * Returns optimal pairings where similar content is aligned
-   */
-  private static matchByContentGreedy(
-    removedLines: DiffLine[],
-    addedLines: DiffLine[]
-  ): { removedIdx: number; addedIdx: number }[] {
-    if (removedLines.length === 0 || addedLines.length === 0) {
-      return [];
-    }
-
-    // Calculate similarity matrix (skip context-less lines as match anchors)
-    const scores: { removedIdx: number; addedIdx: number; score: number }[] = [];
-    for (let i = 0; i < removedLines.length; i++) {
-      if (this.isContextlessLine(removedLines[i].content)) continue;
-      for (let j = 0; j < addedLines.length; j++) {
-        if (this.isContextlessLine(addedLines[j].content)) continue;
-        const score = this.calculateSimilarity(
-          removedLines[i].content,
-          addedLines[j].content
-        );
-        if (score >= this.similarityThreshold) {
-          scores.push({ removedIdx: i, addedIdx: j, score });
-        }
-      }
-    }
-
-    // Sort by score descending (best matches first)
-    scores.sort((a, b) => b.score - a.score);
-
-    // Greedily assign best matches
-    const usedRemoved = new Set<number>();
-    const usedAdded = new Set<number>();
-    const matches: { removedIdx: number; addedIdx: number }[] = [];
-
-    for (const { removedIdx, addedIdx } of scores) {
-      if (!usedRemoved.has(removedIdx) && !usedAdded.has(addedIdx)) {
-        matches.push({ removedIdx, addedIdx });
-        usedRemoved.add(removedIdx);
-        usedAdded.add(addedIdx);
-      }
-    }
-
-    return matches;
   }
 
   /**
@@ -212,18 +145,6 @@ export class LinePairingService {
     return [...beforeMatches, currentMatch, ...afterMatches];
   }
 
-  /**
-   * Match removed and added lines using the selected algorithm
-   */
-  private static matchByContent(
-    removedLines: DiffLine[],
-    addedLines: DiffLine[]
-  ): { removedIdx: number; addedIdx: number }[] {
-    if (this.currentAlgorithm === 'recursive') {
-      return this.matchByContentRecursive(removedLines, addedLines);
-    }
-    return this.matchByContentGreedy(removedLines, addedLines);
-  }
   /**
    * Unified view pairing - finds removed/added blocks and pairs by position
    *
@@ -456,92 +377,25 @@ export class LinePairingService {
       i++;
     }
 
-    // Second pass: try to match remaining unmatched lines globally
-    return this.rematchUnpairedLines(pairs, enableCharDiff);
-  }
-
-  /**
-   * Second pass: find unmatched removed/added lines and try to match them globally
-   * This handles cases where similar lines are separated by unchanged lines
-   */
-  private static rematchUnpairedLines(
-    pairs: LinePair[],
-    enableCharDiff: boolean
-  ): LinePair[] {
-    // Find indices of unmatched lines, excluding context-less lines from remote matching
-    const unmatchedRemovedIndices: number[] = [];
-    const unmatchedAddedIndices: number[] = [];
-
-    pairs.forEach((pair, index) => {
-      if (pair.original && !pair.modified && pair.original.line.type === 'removed' &&
-          !this.isContextlessLine(pair.original.line.content)) {
-        unmatchedRemovedIndices.push(index);
-      }
-      if (pair.modified && !pair.original && pair.modified.line.type === 'added' &&
-          !this.isContextlessLine(pair.modified.line.content)) {
-        unmatchedAddedIndices.push(index);
-      }
-    });
-
-    // If no unmatched lines on both sides, nothing to do
-    if (unmatchedRemovedIndices.length === 0 || unmatchedAddedIndices.length === 0) {
-      return pairs;
-    }
-
-    // Try to find matches among unmatched lines
-    const removedLines = unmatchedRemovedIndices.map(i => pairs[i].original!.line);
-    const addedLines = unmatchedAddedIndices.map(i => pairs[i].modified!.line);
-
-    const matches = this.matchByContent(removedLines, addedLines);
-
-    if (matches.length === 0) {
-      return pairs;
-    }
-
-    // Create new pairs array with matched lines combined
-    const result = [...pairs];
-    const indicesToRemove = new Set<number>();
-
-    for (const { removedIdx, addedIdx } of matches) {
-      const removedPairIndex = unmatchedRemovedIndices[removedIdx];
-      const addedPairIndex = unmatchedAddedIndices[addedIdx];
-
-      const removedLine = pairs[removedPairIndex].original!.line;
-      const addedLine = pairs[addedPairIndex].modified!.line;
-
-      // Update the removed pair to include the matched added line
-      if (enableCharDiff && CharDiffService.shouldShowCharDiff(removedLine.content, addedLine.content)) {
-        const { originalSegments, modifiedSegments } = CharDiffService.calculateCharDiff(
-          removedLine.content,
-          addedLine.content
-        );
-        result[removedPairIndex] = {
-          original: { line: removedLine, segments: originalSegments },
-          modified: { line: addedLine, segments: modifiedSegments }
-        };
-      } else {
-        result[removedPairIndex] = {
-          original: { line: removedLine },
-          modified: { line: addedLine }
-        };
-      }
-
-      // Mark the added pair for removal
-      indicesToRemove.add(addedPairIndex);
-    }
-
-    // Remove the now-redundant added pairs (in reverse order to maintain indices)
-    const sortedIndicesToRemove = Array.from(indicesToRemove).sort((a, b) => b - a);
-    for (const index of sortedIndicesToRemove) {
-      result.splice(index, 1);
-    }
-
-    return result;
+    // Note (#120): a second "rematch across unchanged lines" pass used to run here.
+    // It moved added/removed lines past unchanged rows to combine them into a
+    // single row, which broke the monotonic line-number invariant of each column
+    // (see matchBlockLines below for the current, order-preserving approach).
+    // That pass has been removed entirely; unpaired lines stay at their own
+    // position, one-sided, instead of being relocated.
+    return pairs;
   }
 
   /**
    * Match removed and added lines within a change block
-   * Uses content similarity for better alignment, with interleaving for unmatched lines
+   *
+   * Uses matchByContentRecursive (divide-and-conquer, diff2html style) to find
+   * removed<->added matches. That algorithm only ever returns matches whose
+   * removedIdx and addedIdx both increase together (non-crossing), so merging
+   * them positionally - emitting any unmatched lines that fall strictly before
+   * a match, then the match itself - can never reorder a line relative to its
+   * neighbors within the block. This fixes #120 (right column order being
+   * scrambled by the previous greedy, crossing-prone matching).
    */
   private static matchBlockLines(
     removedLines: DiffLine[],
@@ -569,49 +423,77 @@ export class LinePairingService {
       return pairs;
     }
 
-    // Use content-based matching for reordering similar lines
-    const matches = this.matchByContent(removedLines, addedLines);
+    // Order-preserving (non-crossing) matches only
+    const matches = this.matchByContentRecursive(removedLines, addedLines);
 
-    // Create index mappings for matched pairs
-    const removedToAdded = new Map<number, number>();
-    const addedToRemoved = new Map<number, number>();
+    let removedPos = 0;
+    let addedPos = 0;
 
     for (const { removedIdx, addedIdx } of matches) {
-      removedToAdded.set(removedIdx, addedIdx);
-      addedToRemoved.set(addedIdx, removedIdx);
-    }
+      // Emit the unmatched gap that precedes this match, paired positionally
+      // (this keeps equal-length dissimilar blocks side-by-side, like a plain
+      // position-based diff, without crossing the surrounding content matches)
+      this.emitPositionalGap(
+        removedLines.slice(removedPos, removedIdx),
+        addedLines.slice(addedPos, addedIdx),
+        enableCharDiff,
+        pairs
+      );
 
-    // Track which lines have been output
-    const usedAdded = new Set<number>();
-
-    // Positional index for fallback pairing of unmatched lines
-    let nextUnmatchedAddedIdx = 0;
-
-    // Process removed lines in order
-    for (let removedIdx = 0; removedIdx < removedLines.length; removedIdx++) {
       const removed = removedLines[removedIdx];
+      const added = addedLines[addedIdx];
 
-      // Check for content-similarity match first
-      let added: DiffLine | undefined;
-      if (removedToAdded.has(removedIdx)) {
-        const addedIdx = removedToAdded.get(removedIdx)!;
-        added = addedLines[addedIdx];
-        usedAdded.add(addedIdx);
+      if (enableCharDiff && CharDiffService.shouldShowCharDiff(removed.content, added.content)) {
+        const { originalSegments, modifiedSegments } = CharDiffService.calculateCharDiff(
+          removed.content,
+          added.content
+        );
+        pairs.push({
+          original: { line: removed, segments: originalSegments },
+          modified: { line: added, segments: modifiedSegments }
+        });
       } else {
-        // Fallback: pair positionally with next unused added line
-        while (nextUnmatchedAddedIdx < addedLines.length &&
-               (usedAdded.has(nextUnmatchedAddedIdx) || addedToRemoved.has(nextUnmatchedAddedIdx))) {
-          nextUnmatchedAddedIdx++;
-        }
-        if (nextUnmatchedAddedIdx < addedLines.length) {
-          added = addedLines[nextUnmatchedAddedIdx];
-          usedAdded.add(nextUnmatchedAddedIdx);
-          nextUnmatchedAddedIdx++;
-        }
+        pairs.push({
+          original: { line: removed },
+          modified: { line: added }
+        });
       }
 
-      if (added) {
-        // Output matched pair with char diff if applicable
+      removedPos = removedIdx + 1;
+      addedPos = addedIdx + 1;
+    }
+
+    // Emit the trailing gap after the last match (or the whole block, if no
+    // content match was found at all)
+    this.emitPositionalGap(
+      removedLines.slice(removedPos),
+      addedLines.slice(addedPos),
+      enableCharDiff,
+      pairs
+    );
+
+    return pairs;
+  }
+
+  /**
+   * Emit a positional (index-by-index) pairing for a contiguous "gap" of
+   * removed/added lines that has no content-similarity match on either side
+   * (or has none left to match against). Pairing is purely by position, so it
+   * can never reorder lines relative to each other - it only ever pushes onto
+   * the end of `pairs`, in the gap's own left-to-right order.
+   */
+  private static emitPositionalGap(
+    removedGap: DiffLine[],
+    addedGap: DiffLine[],
+    enableCharDiff: boolean,
+    pairs: LinePair[]
+  ): void {
+    const maxLen = Math.max(removedGap.length, addedGap.length);
+    for (let k = 0; k < maxLen; k++) {
+      const removed = removedGap[k];
+      const added = addedGap[k];
+
+      if (removed && added) {
         if (enableCharDiff && CharDiffService.shouldShowCharDiff(removed.content, added.content)) {
           const { originalSegments, modifiedSegments } = CharDiffService.calculateCharDiff(
             removed.content,
@@ -622,25 +504,14 @@ export class LinePairingService {
             modified: { line: added, segments: modifiedSegments }
           });
         } else {
-          pairs.push({
-            original: { line: removed },
-            modified: { line: added }
-          });
+          pairs.push({ original: { line: removed }, modified: { line: added } });
         }
-      } else {
-        // No added line available - output removed line alone
+      } else if (removed) {
         pairs.push({ original: { line: removed }, modified: null });
+      } else if (added) {
+        pairs.push({ original: null, modified: { line: added } });
       }
     }
-
-    // Output remaining added lines that weren't paired
-    for (let addedIdx = 0; addedIdx < addedLines.length; addedIdx++) {
-      if (!usedAdded.has(addedIdx)) {
-        pairs.push({ original: null, modified: { line: addedLines[addedIdx] } });
-      }
-    }
-
-    return pairs;
   }
 
   /**
