@@ -73,7 +73,9 @@
       "copy": "Salin",
       "copying": "Menyalin...",
       "export": "Ekspor",
-      "copyDiff": "Salin Perbedaan"
+      "copyDiff": "Salin Perbedaan",
+      "expand": "Perluas ke lebar penuh",
+      "collapse": "Keluar dari tampilan diperluas (Esc)"
     },
     "sideBySideHeader": {
       "original": "Asli",

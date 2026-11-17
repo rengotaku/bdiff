@@ -73,7 +73,9 @@
       "copy": "Copier",
       "copying": "Copie en cours...",
       "export": "Exporter",
-      "copyDiff": "Copier les différences"
+      "copyDiff": "Copier les différences",
+      "expand": "Agrandir en pleine largeur",
+      "collapse": "Quitter la vue agrandie (Échap)"
     },
     "sideBySideHeader": {
       "original": "Original",
