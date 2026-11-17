@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader } from '../ui/Card';
 import { Badge } from '../ui/Badge';
@@ -8,6 +8,7 @@ import { NoDifferencesDisplay } from './NoDifferencesDisplay';
 import { DiffViewer } from './DiffViewer';
 import { HTMLExportButton } from '../export/HTMLExportButton';
 import { useExpandedView } from '../../hooks/useExpandedView';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { cn } from '../../utils/cn';
 import type { DiffResult, ViewMode, FileInfo } from '../../types/types';
 
@@ -46,12 +47,16 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
 }) => {
   const { t } = useTranslation();
   const { isExpanded, toggle: toggleExpanded } = useExpandedView();
+  const panelRef = useRef<HTMLDivElement>(null);
+  // Keep keyboard focus inside the panel while it covers the page (hidden inputs behind must not be reachable)
+  useFocusTrap(panelRef, isExpanded);
   const expandLabel = isExpanded
     ? t('diffViewer.actions.collapse')
     : t('diffViewer.actions.expand');
 
   return (
     <Card
+      ref={panelRef}
       className={cn(
         isExpanded
           ? 'fixed inset-0 z-[45] flex flex-col rounded-none border-0'
