@@ -13,7 +13,8 @@ export interface DiffFormatOptions {
   /** Whether to include surrounding context lines */
   includeContext?: boolean;
   /** Output format type */
-  format?: 'plain' | 'diff' | 'markdown' | 'html';
+  /** 'github': diff format wrapped in a ```diff code block (renders colored in GitHub comments) */
+  format?: 'plain' | 'diff' | 'markdown' | 'html' | 'github';
   /** Specific diff types to include in the output */
   selectedTypes?: DiffType[];
   /** Number of context lines to include around changes */
@@ -205,6 +206,8 @@ export class DiffExporter {
     switch (format) {
       case 'diff': 
         return this.toDiffFormat(lines, options);
+      case 'github':
+        return this.wrapInDiffCodeBlock(this.toDiffFormat(lines, options));
       case 'markdown': 
         return this.toMarkdown(lines, options);
       case 'html': 
@@ -232,6 +235,12 @@ export class DiffExporter {
 
     if (!includeHeader) {
       return this.format(lines, options);
+    }
+
+    if (format === 'github') {
+      return this.wrapInDiffCodeBlock(
+        this.formatWithHeader(lines, { ...options, format: 'diff' })
+      );
     }
 
     const summary = DiffParser.getDiffSummary(lines);
@@ -279,11 +288,22 @@ export class DiffExporter {
   }
 
   /**
+   * Wrap text in a ```diff fenced code block.
+   * The fence is one backtick longer than the longest backtick run in the text,
+   * so content containing ``` cannot close the block early.
+   */
+  private static wrapInDiffCodeBlock(text: string): string {
+    const longestRun = (text.match(/`+/g) ?? []).reduce((max, run) => Math.max(max, run.length), 0);
+    const fence = '`'.repeat(Math.max(3, longestRun + 1));
+    return `${fence}diff\n${text}\n${fence}`;
+  }
+
+  /**
    * Get available export formats
    * @returns Array of supported format types
    */
   static getSupportedFormats(): DiffFormatOptions['format'][] {
-    return ['plain', 'diff', 'markdown', 'html'];
+    return ['plain', 'diff', 'markdown', 'html', 'github'];
   }
 
   /**
