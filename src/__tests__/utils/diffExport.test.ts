@@ -149,3 +149,43 @@ describe('DiffExporter - 正常系', () => {
     expect(result).toContain('## test.txt');
   });
 });
+
+describe('DiffExporter - インデント保持（#128）', () => {
+  const INDENTED: DiffLine[] = [
+    makeLine('unchanged', '    keep: 1', 1),
+    makeLine('removed', '\t\told: 2', 2),
+    makeLine('added', '  new: 3  ', 3),
+    makeLine('modified', '        mod: 4', 4),
+    makeLine('unchanged', '', 5),
+  ];
+
+  it('toDiffFormat: 各行の内容の先頭・末尾の空白を削らない', () => {
+    expect(DiffExporter.toDiffFormat(INDENTED).split('\n')).toEqual([
+      '      keep: 1',
+      '- \t\told: 2',
+      '+   new: 3  ',
+      '~         mod: 4',
+      '  ',
+    ]);
+  });
+
+  it('toPlainText: 内容をそのまま出力し、インデントを削らない', () => {
+    expect(DiffExporter.toPlainText(INDENTED).split('\n')).toEqual([
+      '    keep: 1',
+      '\t\told: 2',
+      '  new: 3  ',
+      '        mod: 4',
+      '',
+    ]);
+  });
+
+  it('toDiffFormat（行番号あり）: 行番号の後ろでもインデントを保つ', () => {
+    expect(DiffExporter.toDiffFormat(INDENTED.slice(0, 1), { includeLineNumbers: true })).toBe(
+      '  1:     keep: 1'
+    );
+  });
+
+  it('toMarkdown: コードブロック内でインデントを保つ', () => {
+    expect(DiffExporter.toMarkdown(INDENTED.slice(0, 1))).toContain('\n      keep: 1\n');
+  });
+});

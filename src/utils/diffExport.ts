@@ -51,17 +51,18 @@ export class DiffExporter {
    * @returns Formatted line string
    */
   private static formatLine(line: DiffLine, includeSymbol: boolean, includeLineNumbers: boolean): string {
-    const parts: string[] = [];
-    
+    const prefixParts: string[] = [];
+
     if (includeSymbol) {
-      parts.push(DiffStyler.getDiffSymbol(line.type));
+      prefixParts.push(DiffStyler.getDiffSymbol(line.type));
     }
     if (includeLineNumbers) {
-      parts.push(`${line.lineNumber}:`);
+      prefixParts.push(`${line.lineNumber}:`);
     }
-    parts.push(line.content || '');
-    
-    return parts.join(' ').trim();
+
+    // Never trim: leading/trailing whitespace (indentation) is part of the line content
+    const content = line.content || '';
+    return prefixParts.length > 0 ? `${prefixParts.join(' ')} ${content}` : content;
   }
 
   /**
