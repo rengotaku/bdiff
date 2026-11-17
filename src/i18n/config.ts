@@ -39,6 +39,15 @@ export const resources = {
   },
 } as const;
 
+// Keep <html lang> in sync with the displayed language.
+// A wrong lang (index.html ships "en") makes browsers offer page translation,
+// and translation rewrites text nodes React owns (removeChild NotFoundError).
+i18n.on('languageChanged', (lng) => {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = lng;
+  }
+});
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
