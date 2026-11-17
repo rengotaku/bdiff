@@ -172,7 +172,7 @@ export const HomePage: React.FC = () => {
 
     try {
       await copyDiff(diffResult.lines, {
-        format: 'diff',
+        format: 'github',
         filename,
         originalFilename: originalFile?.name,
         modifiedFilename: modifiedFile?.name,

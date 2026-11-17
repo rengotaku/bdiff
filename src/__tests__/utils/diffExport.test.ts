@@ -189,3 +189,51 @@ describe('DiffExporter - インデント保持（#128）', () => {
     expect(DiffExporter.toMarkdown(INDENTED.slice(0, 1))).toContain('\n      keep: 1\n');
   });
 });
+
+describe('DiffExporter - GitHub 貼り付け用の github 形式（#130）', () => {
+  const LINES: DiffLine[] = [
+    makeLine('unchanged', '  root:', 1),
+    makeLine('removed', '    old: 2', 2),
+    makeLine('added', '    new: 3', 2),
+  ];
+  const HEADER_OPTS = {
+    format: 'github' as const,
+    originalFilename: 'a.yml',
+    modifiedFilename: 'b.yml',
+  };
+
+  it('formatWithHeader: diff 形式（ヘッダー付き）を ```diff ブロックで囲む', () => {
+    const summary = DiffParser.getDiffSummary(LINES);
+    expect(DiffExporter.formatWithHeader(LINES, HEADER_OPTS)).toBe(
+      [
+        '```diff',
+        '--- a.yml',
+        '+++ b.yml',
+        `@@ Changes: ${summary} @@`,
+        '    root:',
+        '-     old: 2',
+        '+     new: 3',
+        '```',
+      ].join('\n')
+    );
+  });
+
+  it('format（ヘッダーなし）: 行だけを ```diff ブロックで囲む', () => {
+    expect(DiffExporter.format(LINES, { format: 'github' })).toBe(
+      ['```diff', '    root:', '-     old: 2', '+     new: 3', '```'].join('\n')
+    );
+  });
+
+  it('差分に ``` を含む行があると、囲みをそれより長いバッククォートにする', () => {
+    const withFence: DiffLine[] = [makeLine('added', '````ts', 1), makeLine('added', '```', 2)];
+    const result = DiffExporter.format(withFence, { format: 'github' });
+    const resultLines = result.split('\n');
+    expect(resultLines[0]).toBe('`````diff');
+    expect(resultLines[resultLines.length - 1]).toBe('`````');
+  });
+
+  it('getSupportedFormats / validateOptions が github 形式を受け付ける', () => {
+    expect(DiffExporter.getSupportedFormats()).toContain('github');
+    expect(DiffExporter.validateOptions({ format: 'github' })).toBe(true);
+  });
+});
