@@ -73,7 +73,9 @@
       "copy": "コピー",
       "copying": "コピー中...",
       "export": "エクスポート",
-      "copyDiff": "差分をコピー"
+      "copyDiff": "差分をコピー",
+      "expand": "拡大表示",
+      "collapse": "拡大表示を終了 (Esc)"
     },
     "sideBySideHeader": {
       "original": "オリジナル",

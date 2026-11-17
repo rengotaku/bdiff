@@ -73,7 +73,9 @@
       "copy": "Copy",
       "copying": "Copying...",
       "export": "Export",
-      "copyDiff": "Copy Diff"
+      "copyDiff": "Copy Diff",
+      "expand": "Expand to full width",
+      "collapse": "Exit expanded view (Esc)"
     },
     "sideBySideHeader": {
       "original": "Original",

@@ -73,7 +73,9 @@
       "copy": "복사",
       "copying": "복사 중...",
       "export": "내보내기",
-      "copyDiff": "차이점 복사"
+      "copyDiff": "차이점 복사",
+      "expand": "전체 너비로 확대",
+      "collapse": "확대 보기 종료 (Esc)"
     },
     "sideBySideHeader": {
       "original": "원본",

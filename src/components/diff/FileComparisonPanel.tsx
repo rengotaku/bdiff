@@ -7,6 +7,8 @@ import { CopyButton } from '../ui/CopyButton';
 import { NoDifferencesDisplay } from './NoDifferencesDisplay';
 import { DiffViewer } from './DiffViewer';
 import { HTMLExportButton } from '../export/HTMLExportButton';
+import { useExpandedView } from '../../hooks/useExpandedView';
+import { cn } from '../../utils/cn';
 import type { DiffResult, ViewMode, FileInfo } from '../../types/types';
 
 export interface FileComparisonPanelProps {
@@ -43,9 +45,20 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
   collapseUnchanged = true
 }) => {
   const { t } = useTranslation();
+  const { isExpanded, toggle: toggleExpanded } = useExpandedView();
+  const expandLabel = isExpanded
+    ? t('diffViewer.actions.collapse')
+    : t('diffViewer.actions.expand');
 
   return (
-    <Card className="flex-1">
+    <Card
+      className={cn(
+        isExpanded
+          ? 'fixed inset-0 z-[45] flex flex-col rounded-none border-0'
+          : 'flex-1'
+      )}
+      data-expanded={isExpanded}
+    >
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -123,16 +136,35 @@ export const FileComparisonPanel: React.FC<FileComparisonPanelProps> = ({
                 </svg>
               </button>
             </div>
+            <button
+              onClick={toggleExpanded}
+              className={`p-2 rounded-md transition-colors ${
+                isExpanded
+                  ? 'bg-gray-100 text-primary'
+                  : 'text-gray-light hover:text-gray hover:bg-gray-100'
+              }`}
+              title={expandLabel}
+              aria-label={expandLabel}
+              aria-pressed={isExpanded}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                {isExpanded ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+                )}
+              </svg>
+            </button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className={cn('pt-0', isExpanded && 'flex-1 min-h-0')}>
         {hasNoDifferences ? (
-          <div className="h-[60vh] flex items-center justify-center">
+          <div className={cn('flex items-center justify-center', isExpanded ? 'h-full' : 'h-[60vh]')}>
             <NoDifferencesDisplay />
           </div>
         ) : (
-          <div className="max-h-[80vh] overflow-auto border rounded-md">
+          <div className={cn('overflow-auto border rounded-md', isExpanded ? 'h-full' : 'max-h-[80vh]')}>
             <DiffViewer
               lines={diffResult.lines}
               viewMode={viewMode}

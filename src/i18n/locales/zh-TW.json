@@ -73,7 +73,9 @@
       "copy": "複製",
       "copying": "複製中...",
       "export": "匯出",
-      "copyDiff": "複製差異"
+      "copyDiff": "複製差異",
+      "expand": "展開至全寬",
+      "collapse": "退出展開檢視 (Esc)"
     },
     "sideBySideHeader": {
       "original": "原始",
